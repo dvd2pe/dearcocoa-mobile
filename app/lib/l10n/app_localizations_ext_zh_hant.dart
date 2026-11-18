@@ -207,7 +207,7 @@ class AppLocalizationsExtZhHant extends AppLocalizationsZhHant
   String get shareNow => '立即分享';
 
   @override
-  String get sharedFromDearCocoa => '分享自 DearCocoa';
+  String get sharedFromMemex => '分享自 DearCocoa';
 
   @override
   String get appTagline => '記錄微光，構築靈魂';

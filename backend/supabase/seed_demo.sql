@@ -32,7 +32,7 @@ begin
     now(), '{"provider":"email","providers":["email"]}', '{"username":"sofia_r"}',
     now() - interval '30 days', now() - interval '30 days', '', '', '', '',
     now() - interval '1 day')
-  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+  on conflict (email) where is_sso_user = false do update set encrypted_password = excluded.encrypted_password,
       email_confirmed_at = now()
   returning id into u_sofia;
   if u_sofia is null then
@@ -49,7 +49,7 @@ begin
     now(), '{"provider":"email","providers":["email"]}', '{"username":"luca_b"}',
     now() - interval '28 days', now() - interval '28 days', '', '', '', '',
     now() - interval '2 days')
-  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+  on conflict (email) where is_sso_user = false do update set encrypted_password = excluded.encrypted_password,
       email_confirmed_at = now()
   returning id into u_luca;
   if u_luca is null then
@@ -66,7 +66,7 @@ begin
     now(), '{"provider":"email","providers":["email"]}', '{"username":"giulia_f"}',
     now() - interval '25 days', now() - interval '25 days', '', '', '', '',
     now() - interval '3 days')
-  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+  on conflict (email) where is_sso_user = false do update set encrypted_password = excluded.encrypted_password,
       email_confirmed_at = now()
   returning id into u_giulia;
   if u_giulia is null then
@@ -83,7 +83,7 @@ begin
     now(), '{"provider":"email","providers":["email"]}', '{"username":"marco_c"}',
     now() - interval '20 days', now() - interval '20 days', '', '', '', '',
     now() - interval '4 days')
-  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+  on conflict (email) where is_sso_user = false do update set encrypted_password = excluded.encrypted_password,
       email_confirmed_at = now()
   returning id into u_marco;
   if u_marco is null then
@@ -100,7 +100,7 @@ begin
     now(), '{"provider":"email","providers":["email"]}', '{"username":"elena_m"}',
     now() - interval '18 days', now() - interval '18 days', '', '', '', '',
     now() - interval '5 days')
-  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+  on conflict (email) where is_sso_user = false do update set encrypted_password = excluded.encrypted_password,
       email_confirmed_at = now()
   returning id into u_elena;
   if u_elena is null then

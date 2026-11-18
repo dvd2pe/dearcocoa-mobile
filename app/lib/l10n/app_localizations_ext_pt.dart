@@ -216,7 +216,7 @@ class AppLocalizationsExtPt extends AppLocalizationsPt
   String get shareNow => 'Compartilhar';
 
   @override
-  String get sharedFromDearCocoa => 'Compartilhado pelo DearCocoa';
+  String get sharedFromMemex => 'Compartilhado pelo DearCocoa';
 
   @override
   String get appTagline => 'Registre a faísca, molde a alma';

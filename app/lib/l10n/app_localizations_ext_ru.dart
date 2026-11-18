@@ -215,7 +215,7 @@ class AppLocalizationsExtRu extends AppLocalizationsRu
   String get shareNow => 'Поделиться';
 
   @override
-  String get sharedFromDearCocoa => 'Поделено из DearCocoa';
+  String get sharedFromMemex => 'Поделено из DearCocoa';
 
   @override
   String get appTagline => 'Записывай искру, выстраивай душу';

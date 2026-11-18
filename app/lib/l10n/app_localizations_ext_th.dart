@@ -216,7 +216,7 @@ class AppLocalizationsExtTh extends AppLocalizationsTh
   String get shareNow => 'แชร์';
 
   @override
-  String get sharedFromDearCocoa => 'แชร์จาก DearCocoa';
+  String get sharedFromMemex => 'แชร์จาก DearCocoa';
 
   @override
   String get appTagline => 'บันทึกประกายไฟ สร้างจิตวิญญาณ';

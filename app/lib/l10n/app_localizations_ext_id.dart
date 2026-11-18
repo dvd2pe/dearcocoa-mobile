@@ -216,7 +216,7 @@ class AppLocalizationsExtId extends AppLocalizationsId
   String get shareNow => 'Bagikan';
 
   @override
-  String get sharedFromDearCocoa => 'Dibagikan dari DearCocoa';
+  String get sharedFromMemex => 'Dibagikan dari DearCocoa';
 
   @override
   String get appTagline => 'Rekam Percikan, Rancang Jiwa';

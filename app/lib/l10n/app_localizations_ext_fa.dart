@@ -217,7 +217,7 @@ class AppLocalizationsExtFa extends AppLocalizationsFa
   String get shareNow => 'اشتراک';
 
   @override
-  String get sharedFromDearCocoa => 'اشتراک‌گذاری‌شده از DearCocoa';
+  String get sharedFromMemex => 'اشتراک‌گذاری‌شده از DearCocoa';
 
   @override
   String get appTagline => 'جرقه را ثبت کن، روح را بساز';

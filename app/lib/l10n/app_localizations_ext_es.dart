@@ -216,7 +216,7 @@ class AppLocalizationsExtEs extends AppLocalizationsEs
   String get shareNow => 'Compartir';
 
   @override
-  String get sharedFromDearCocoa => 'Compartido desde DearCocoa';
+  String get sharedFromMemex => 'Compartido desde DearCocoa';
 
   @override
   String get appTagline => 'Registra la chispa, diseña el alma';

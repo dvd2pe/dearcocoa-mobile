@@ -216,7 +216,7 @@ class AppLocalizationsExtEn extends AppLocalizationsEn
   String get shareNow => 'Share';
 
   @override
-  String get sharedFromDearCocoa => 'Shared from DearCocoa';
+  String get sharedFromMemex => 'Shared from DearCocoa';
 
   @override
   String get appTagline => 'Record the Spark, Architect the Soul';

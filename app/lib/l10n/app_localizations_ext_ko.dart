@@ -208,7 +208,7 @@ class AppLocalizationsExtKo extends AppLocalizationsKo
   String get shareNow => '공유';
 
   @override
-  String get sharedFromDearCocoa => 'DearCocoa에서 공유';
+  String get sharedFromMemex => 'DearCocoa에서 공유';
 
   @override
   String get appTagline => '반짝임을 기록하고, 영혼을 설계하다';

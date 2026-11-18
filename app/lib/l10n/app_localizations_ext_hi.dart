@@ -214,7 +214,7 @@ class AppLocalizationsExtHi extends AppLocalizationsHi
   String get shareNow => 'Share करें';
 
   @override
-  String get sharedFromDearCocoa => 'DearCocoa से share किया गया';
+  String get sharedFromMemex => 'DearCocoa से share किया गया';
 
   @override
   String get appTagline => 'चिंगारी record करें, आत्मा गढ़ें';

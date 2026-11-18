@@ -214,7 +214,7 @@ class AppLocalizationsExtFr extends AppLocalizationsFr
   String get shareNow => 'Partager';
 
   @override
-  String get sharedFromDearCocoa => 'Partagé depuis DearCocoa';
+  String get sharedFromMemex => 'Partagé depuis DearCocoa';
 
   @override
   String get appTagline => "Enregistrer l'étincelle, façonner l'âme";

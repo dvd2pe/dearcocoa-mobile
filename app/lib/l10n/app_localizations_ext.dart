@@ -60,7 +60,7 @@ mixin AppLocalizationsExt on AppLocalizations {
   /// Share poster localization.
   String get sharePreviewTitle;
   String get shareNow;
-  String get sharedFromDearCocoa;
+  String get sharedFromMemex;
   String get appTagline;
   String get shareDetailStyle;
   String get shareCardStyle;

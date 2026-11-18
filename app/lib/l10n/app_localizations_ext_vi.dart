@@ -216,7 +216,7 @@ class AppLocalizationsExtVi extends AppLocalizationsVi
   String get shareNow => 'Chia sẻ';
 
   @override
-  String get sharedFromDearCocoa => 'Chia sẻ từ DearCocoa';
+  String get sharedFromMemex => 'Chia sẻ từ DearCocoa';
 
   @override
   String get appTagline => 'Ghi lại Tia sáng, Kiến tạo Linh hồn';

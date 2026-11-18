@@ -216,7 +216,7 @@ class AppLocalizationsExtTr extends AppLocalizationsTr
   String get shareNow => 'Paylaş';
 
   @override
-  String get sharedFromDearCocoa => 'DearCocoa\'ten paylaşıldı';
+  String get sharedFromMemex => 'DearCocoa\'ten paylaşıldı';
 
   @override
   String get appTagline => 'Kıvılcımı Kaydet, Ruhu İnşa Et';

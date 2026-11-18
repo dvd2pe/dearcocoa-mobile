@@ -216,7 +216,7 @@ class AppLocalizationsExtIt extends AppLocalizationsIt
   String get shareNow => 'Condividi';
 
   @override
-  String get sharedFromDearCocoa => 'Condiviso da DearCocoa';
+  String get sharedFromMemex => 'Condiviso da DearCocoa';
 
   @override
   String get appTagline => 'Registra la scintilla, modella l\'anima';

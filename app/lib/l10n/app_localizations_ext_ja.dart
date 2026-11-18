@@ -210,7 +210,7 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
   String get shareNow => '共有';
 
   @override
-  String get sharedFromDearCocoa => 'DearCocoa から共有';
+  String get sharedFromMemex => 'DearCocoa から共有';
 
   @override
   String get appTagline => 'きらめきを記録し、魂を設計する';

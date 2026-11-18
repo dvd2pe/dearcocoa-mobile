@@ -211,7 +211,7 @@ class AppLocalizationsExtAr extends AppLocalizationsAr
   String get shareNow => 'مشاركة';
 
   @override
-  String get sharedFromDearCocoa => 'تمت المشاركة من DearCocoa';
+  String get sharedFromMemex => 'تمت المشاركة من DearCocoa';
 
   @override
   String get appTagline => 'سجل الشرارة، وشكل الروح';
