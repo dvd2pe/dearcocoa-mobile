@@ -45,23 +45,23 @@ void main() {
   test('new locales expose the simplified AI setup copy', () {
     const expectedCopy = <String, List<String>>{
       'fa': [
-        'استفاده از سرویس رسمی Memex',
-        'برای استفاده از سرویس رسمی هوش مصنوعی وارد Memex شوید.',
+        'استفاده از سرویس رسمی DearCocoa',
+        'برای استفاده از سرویس رسمی هوش مصنوعی وارد DearCocoa شوید.',
         'ارائه‌دهنده و کلید API خود را اضافه کنید.',
       ],
       'vi': [
-        'Đang dùng dịch vụ chính thức Memex',
-        'Đăng nhập Memex để sử dụng dịch vụ AI chính thức.',
+        'Đang dùng dịch vụ chính thức DearCocoa',
+        'Đăng nhập DearCocoa để sử dụng dịch vụ AI chính thức.',
         'Thêm nhà cung cấp và API Key của bạn.',
       ],
       'th': [
-        'ใช้บริการอย่างเป็นทางการของ Memex',
-        'ลงชื่อเข้าใช้ Memex เพื่อใช้บริการ AI อย่างเป็นทางการ',
+        'ใช้บริการอย่างเป็นทางการของ DearCocoa',
+        'ลงชื่อเข้าใช้ DearCocoa เพื่อใช้บริการ AI อย่างเป็นทางการ',
         'เพิ่มผู้ให้บริการและ API Key ของคุณ',
       ],
       'tr': [
-        'Memex resmi hizmeti kullanılıyor',
-        "Resmi AI hizmetini kullanmak için Memex'te oturum açın.",
+        'DearCocoa resmi hizmeti kullanılıyor',
+        "Resmi AI hizmetini kullanmak için DearCocoa'te oturum açın.",
         'Kendi sağlayıcınızı ve API anahtarınızı ekleyin.',
       ],
     };

@@ -8,7 +8,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 void main() {
   group('AppDatabase migrations', () {
-    test('upgrades schema 14 to 19 with a reply cursor baseline', () async {
+    test('upgrades schema 14 to 20 with a reply cursor baseline', () async {
       final tempDir = await Directory.systemTemp.createTemp(
         'memex_app_database_migration_',
       );
@@ -18,7 +18,7 @@ void main() {
       final db = AppDatabase.forTesting(NativeDatabase(dbFile));
       try {
         final schemaVersion = await _userVersion(db);
-        expect(schemaVersion, 19);
+        expect(schemaVersion, 20);
 
         final taskColumns = await _columnNames(db, 'tasks');
         expect(taskColumns, contains('run_id'));
@@ -64,7 +64,7 @@ void main() {
 
       final db = AppDatabase.forTesting(NativeDatabase(dbFile));
       try {
-        expect(await _userVersion(db), 19);
+        expect(await _userVersion(db), 20);
         final cursor = await db.select(db.personaChatReplyCursors).getSingle();
         expect(cursor.consumedThroughMessageId, 2);
 

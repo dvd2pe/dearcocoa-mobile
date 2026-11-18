@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const nativeChannel = MethodChannel('com.memexlab.memex/system_actions');
+  const nativeChannel = MethodChannel('app.dearcocoa.mobile/system_actions');
   late AppDatabase db;
 
   setUp(() async {

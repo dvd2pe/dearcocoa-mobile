@@ -5,7 +5,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "app/**"
+      - "app/lib/**"
+      - "app/pubspec.yaml"
+      - "app/pubspec.lock"
+      - "app/android/**"
       - ".github/workflows/build-apk.yml"
 
 jobs:

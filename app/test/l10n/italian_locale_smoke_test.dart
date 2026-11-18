@@ -29,10 +29,10 @@ void main() {
     const locale = Locale('it');
     final l10n = lookupAppLocalizations(locale);
 
-    expect(l10n.aiSetupStatusMemexTitle, 'Utilizzando il servizio ufficiale Memex');
+    expect(l10n.aiSetupStatusMemexTitle, 'Utilizzando il servizio ufficiale DearCocoa');
     expect(
       l10n.aiSetupOfficialRouteDescription,
-      'Accedi a Memex per utilizzare il servizio AI ufficiale.',
+      'Accedi a DearCocoa per utilizzare il servizio AI ufficiale.',
     );
     expect(
       l10n.aiSetupCustomRouteDescription,

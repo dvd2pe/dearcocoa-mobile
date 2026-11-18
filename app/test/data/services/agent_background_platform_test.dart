@@ -7,7 +7,7 @@ import 'package:dearcocoa/data/services/agent_background_status.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channelName = 'com.memexlab.memex/agent_background';
+  const channelName = 'app.dearcocoa.mobile/agent_background';
   const channel = MethodChannel(channelName);
 
   tearDown(() {

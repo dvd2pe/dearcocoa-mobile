@@ -5,7 +5,7 @@ import 'package:dearcocoa/data/services/native_action_service.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('com.memexlab.memex/system_actions');
+  const channel = MethodChannel('app.dearcocoa.mobile/system_actions');
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

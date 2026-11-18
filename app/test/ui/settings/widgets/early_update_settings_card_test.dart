@@ -109,7 +109,7 @@ void main() {
 
     final downloadButton = tester.widget<FilledButton>(
       find.widgetWithText(
-        FilledButton,
+        find.byWidgetPredicate((w) => w is FilledButton),
         UserStorage.l10n.earlyUpdateDownloadInProgress,
       ),
     );

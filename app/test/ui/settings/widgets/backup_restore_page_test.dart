@@ -360,7 +360,7 @@ void main() {
     await _pumpBackupPage(tester, isAndroid: true);
 
     final locationButton = find.widgetWithText(
-      OutlinedButton,
+      find.byWidgetPredicate((w) => w is ElevatedButton),
       UserStorage.l10n.backupLocationMenu,
     );
     expect(locationButton, findsOneWidget);

@@ -881,7 +881,7 @@ void _mockBackupStorageChannel(
 ) {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-    const MethodChannel('com.memexlab.memex/backup_storage'),
+    const MethodChannel('app.dearcocoa.mobile/backup_storage'),
     handler,
   );
 }
@@ -889,7 +889,7 @@ void _mockBackupStorageChannel(
 void _clearBackupStorageChannelMock() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
-    const MethodChannel('com.memexlab.memex/backup_storage'),
+    const MethodChannel('app.dearcocoa.mobile/backup_storage'),
     null,
   );
 }

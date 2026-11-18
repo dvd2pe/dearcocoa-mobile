@@ -41,7 +41,7 @@ void main() {
         .setMockMethodCallHandler(SystemChannels.platform, null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('com.memexlab.memex/clipboard_preview'),
+      const MethodChannel('app.dearcocoa.mobile/clipboard_preview'),
       null,
     );
   });
@@ -98,7 +98,7 @@ void main() {
       clipboardText = null;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('com.memexlab.memex/clipboard_preview'),
+        const MethodChannel('app.dearcocoa.mobile/clipboard_preview'),
         (_) async => {
           'type': 'text',
           'text': 'Native clipboard text',
@@ -162,7 +162,7 @@ void main() {
     test('skips fallback when native clipboard summary is empty', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('com.memexlab.memex/clipboard_preview'),
+        const MethodChannel('app.dearcocoa.mobile/clipboard_preview'),
         (_) async => null,
       );
 
