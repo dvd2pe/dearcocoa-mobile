@@ -207,9 +207,9 @@ class AgentBackgroundStatus {
 
 class AgentBackgroundStatusLabels {
   const AgentBackgroundStatusLabels({
-    this.title = 'Memex Agent',
-    this.pausedTitle = 'Memex Agent paused',
-    this.needsAttentionTitle = 'Memex Agent needs attention',
+    this.title = 'DearCocoa Agent',
+    this.pausedTitle = 'DearCocoa Agent paused',
+    this.needsAttentionTitle = 'DearCocoa Agent needs attention',
     this.stageIdle = 'Idle',
     this.stageProcessing = 'Processing',
     this.stageQueued = 'Queued',
@@ -432,7 +432,9 @@ String? _localizeKnownStatusText(
     'Processing stopped with an error.' => labels.failedDetail,
     'Processing is paused and will continue later.' => labels.pausedDetail,
     'Background time expired. Memex will continue later.' ||
-    'iOS paused background processing. Memex will continue later.' =>
+    'iOS paused background processing. Memex will continue later.' ||
+    'Background time expired. DearCocoa will continue later.' ||
+    'iOS paused background processing. DearCocoa will continue later.' =>
       labels.pausedDetail,
     'Waiting for the next processing step.' ||
     'Waiting for background processing to start.' ||

@@ -198,14 +198,14 @@ class AppLocalizationsExtHi extends AppLocalizationsHi
   String get oauthHintMessage => 'Authorization page browser में खुलेगा।\n\n'
       'अगर confirmation screen पर Allow tap करने के बाद page response नहीं देता, '
       'तो page खुला छोड़ें, home screen या app switcher पर जाएँ, '
-      'फिर Memex पर वापस tap करके app foreground में लाएँ।';
+      'फिर DearCocoa पर वापस tap करके app foreground में लाएँ।';
 
   @override
   String get oauthSuccessTitle => 'Authorization successful';
 
   @override
   String get oauthSuccessMessage =>
-      'अब आप इस browser को बंद करके Memex पर वापस जा सकते हैं।';
+      'अब आप इस browser को बंद करके DearCocoa पर वापस जा सकते हैं।';
 
   @override
   String get sharePreviewTitle => 'Share preview';
@@ -214,7 +214,7 @@ class AppLocalizationsExtHi extends AppLocalizationsHi
   String get shareNow => 'Share करें';
 
   @override
-  String get sharedFromMemex => 'Memex से share किया गया';
+  String get sharedFromDearCocoa => 'DearCocoa से share किया गया';
 
   @override
   String get appTagline => 'चिंगारी record करें, आत्मा गढ़ें';
@@ -234,23 +234,23 @@ class AppLocalizationsExtHi extends AppLocalizationsHi
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Memex में आपका स्वागत है - आपका AI आधारित निजी memory assistant.',
-        introTitle: 'Memex - आपका AI life journal',
+            'DearCocoa में आपका स्वागत है - आपका AI आधारित निजी memory assistant.',
+        introTitle: 'DearCocoa - आपका AI life journal',
         introInsight:
-            'Memex आपका AI memory assistant है। Text, photos और voice record करें; AI उन्हें structured cards, knowledge और cross-record insights में व्यवस्थित करता है।',
-        introInsightSummary: 'Memex features का overview',
+            'DearCocoa आपका AI memory assistant है। Text, photos और voice record करें; AI उन्हें structured cards, knowledge और cross-record insights में व्यवस्थित करता है।',
+        introInsightSummary: 'DearCocoa features का overview',
         introComment:
             'स्वागत है। अपना पहला record post करें और देखें AI इसे कैसे organize करता है।',
-        kbFileName: 'Memex गाइड.md',
+        kbFileName: 'DearCocoa गाइड.md',
         firstRecordTitle: 'मेरा पहला record',
         firstRecordInsight:
-            'आपका पहला record आ गया है। अब Memex आपकी notes को organize, categorize और connect कर सकता है।',
+            'आपका पहला record आ गया है। अब DearCocoa आपकी notes को organize, categorize और connect कर सकता है।',
         firstRecordSummary: 'पहला record',
         firstRecordComment: 'पहला record save हो गया। आगे बढ़ें।',
         firstRecordKbTitle: 'User का पहला record',
         introHeroCaption: 'आपका AI life journal',
         introSnippetText:
-            'कोई thought लिखें, photo लें या voice में बोलें। Memex इसे automatically structured card में बदल देता है। AI knowledge भी निकालता है, notes organize करता है और ऐसे patterns दिखाता है जिन्हें आप शायद miss कर गए हों।\n\nसब कुछ आपके device पर रहता है।',
+            'कोई thought लिखें, photo लें या voice में बोलें। DearCocoa इसे automatically structured card में बदल देता है। AI knowledge भी निकालता है, notes organize करता है और ऐसे patterns दिखाता है जिन्हें आप शायद miss कर गए हों।\n\nसब कुछ आपके device पर रहता है।',
         smartCardTypesTitle: '22 smart card types',
         productivityTitle: 'Productivity',
         productivityLabel: 'task · routine · event · duration · progress',
@@ -272,9 +272,9 @@ class AppLocalizationsExtHi extends AppLocalizationsHi
         viewGeneratedTask: 'AI generated cards और knowledge files देखें',
         sloganContent:
             'आज का हर record आपके future self के लिए उपयोगी clue बनता है।',
-        kbContent: '''# Memex गाइड
+        kbContent: '''# DearCocoa गाइड
 
-Memex एक local-first, AI-native personal life recording app है।
+DearCocoa एक local-first, AI-native personal life recording app है।
 
 ## आप क्या कर सकते हैं
 

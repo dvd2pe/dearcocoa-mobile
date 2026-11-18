@@ -95,8 +95,20 @@ void main() {
     await pumpCard(tester, service);
 
     await tester.tap(find.text(UserStorage.l10n.earlyUpdateCheckNow));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 50));
+    // CI runners may need more frames than the implicit async chain assumes:
+    // pump until the downloading button renders (bounded, deterministic).
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 25));
+      if (find
+          .ancestor(
+            of: find.text(UserStorage.l10n.earlyUpdateDownloadInProgress),
+            matching: find.byWidgetPredicate((w) => w is FilledButton),
+          )
+          .evaluate()
+          .isNotEmpty) {
+        break;
+      }
+    }
 
     expect(
       find.text(UserStorage.l10n.earlyUpdateDownloadingPercent(50)),
@@ -108,14 +120,17 @@ void main() {
     );
 
     final downloadButton = tester.widget<FilledButton>(
-      find.ancestor(of: find.text(UserStorage.l10n.earlyUpdateDownloadInProgress), matching: find.byWidgetPredicate((w) => w is FilledButton)),
+      find.ancestor(
+        of: find.text(UserStorage.l10n.earlyUpdateDownloadInProgress),
+        matching: find.byWidgetPredicate((w) => w is FilledButton),
+      ),
     );
     expect(downloadButton.onPressed, isNull);
 
     final clearButton = tester.widget<OutlinedButton>(
-      find.widgetWithText(
-        OutlinedButton,
-        UserStorage.l10n.earlyUpdateClearDownloadedPackage,
+      find.ancestor(
+        of: find.text(UserStorage.l10n.earlyUpdateClearDownloadedPackage),
+        matching: find.byWidgetPredicate((w) => w is OutlinedButton),
       ),
     );
     expect(clearButton.onPressed, isNull);

@@ -201,14 +201,14 @@ class AppLocalizationsExtFa extends AppLocalizationsFa
       'صفحه مجوزدهی در مرورگر باز می‌شود.\n\n'
       'اگر پس از زدن Allow در صفحه تأیید، صفحه پاسخ نداد، '
       'این را امتحان کنید: صفحه را باز نگه دارید، به صفحه اصلی یا سوئیچر برنامه بروید، '
-      'سپس دوباره Memex را بزنید تا به پیش‌زمینه برگردد.';
+      'سپس دوباره DearCocoa را بزنید تا به پیش‌زمینه برگردد.';
 
   @override
   String get oauthSuccessTitle => 'مجوزدهی موفق';
 
   @override
   String get oauthSuccessMessage =>
-      'اکنون می‌توانید این مرورگر را ببندید و به Memex برگردید.';
+      'اکنون می‌توانید این مرورگر را ببندید و به DearCocoa برگردید.';
 
   @override
   String get sharePreviewTitle => 'پیش‌نمایش اشتراک';
@@ -217,7 +217,7 @@ class AppLocalizationsExtFa extends AppLocalizationsFa
   String get shareNow => 'اشتراک';
 
   @override
-  String get sharedFromMemex => 'اشتراک‌گذاری‌شده از Memex';
+  String get sharedFromDearCocoa => 'اشتراک‌گذاری‌شده از DearCocoa';
 
   @override
   String get appTagline => 'جرقه را ثبت کن، روح را بساز';
@@ -237,23 +237,23 @@ class AppLocalizationsExtFa extends AppLocalizationsFa
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'به Memex خوش آمدید — دستیار حافظه شخصی مبتنی بر هوش مصنوعی شما.',
-        introTitle: 'Memex — دفترچه زندگی هوشمند شما',
+            'به DearCocoa خوش آمدید — دستیار حافظه شخصی مبتنی بر هوش مصنوعی شما.',
+        introTitle: 'DearCocoa — دفترچه زندگی هوشمند شما',
         introInsight:
-            'Memex دستیار حافظه هوش مصنوعی شماست. متن، عکس و صدا ثبت کنید؛ هوش مصنوعی آن‌ها را به کارت‌های ساختاریافته، دانش و بینش‌های میان‌رکوردی تبدیل می‌کند.',
-        introInsightSummary: 'مرور کلی ویژگی‌های Memex',
+            'DearCocoa دستیار حافظه هوش مصنوعی شماست. متن، عکس و صدا ثبت کنید؛ هوش مصنوعی آن‌ها را به کارت‌های ساختاریافته، دانش و بینش‌های میان‌رکوردی تبدیل می‌کند.',
+        introInsightSummary: 'مرور کلی ویژگی‌های DearCocoa',
         introComment:
             'خوش آمدید! اولین رکوردتان را منتشر کنید و ببینید هوش مصنوعی چگونه آن را سازمان‌دهی می‌کند.',
-        kbFileName: 'راهنمای Memex.md',
+        kbFileName: 'راهنمای DearCocoa.md',
         firstRecordTitle: 'اولین رکورد من',
         firstRecordInsight:
-            'اولین رکورد شما اینجاست. از این پس Memex می‌تواند یادداشت‌هایتان را سازمان‌دهی، دسته‌بندی و به هم وصل کند.',
+            'اولین رکورد شما اینجاست. از این پس DearCocoa می‌تواند یادداشت‌هایتان را سازمان‌دهی، دسته‌بندی و به هم وصل کند.',
         firstRecordSummary: 'اولین رکورد',
         firstRecordComment: 'اولین رکورد ذخیره شد. ادامه بدهید.',
         firstRecordKbTitle: 'اولین رکورد کاربر',
         introHeroCaption: 'دفترچه زندگی هوشمند شما',
         introSnippetText:
-            'یک فکر بنویسید، عکس بگیرید یا با صدای بلند بگویید. Memex آن را خودکار به یک کارت ساختاریافته تبدیل می‌کند. هوش مصنوعی همچنین می‌تواند دانش استخراج کند، یادداشت‌ها را سازمان‌دهی کند و الگوهایی را که شاید از دست داده‌اید نشان دهد.\n\nهمه‌چیز روی دستگاه شما می‌ماند.',
+            'یک فکر بنویسید، عکس بگیرید یا با صدای بلند بگویید. DearCocoa آن را خودکار به یک کارت ساختاریافته تبدیل می‌کند. هوش مصنوعی همچنین می‌تواند دانش استخراج کند، یادداشت‌ها را سازمان‌دهی کند و الگوهایی را که شاید از دست داده‌اید نشان دهد.\n\nهمه‌چیز روی دستگاه شما می‌ماند.',
         smartCardTypesTitle: '۲۲ نوع کارت هوشمند',
         productivityTitle: 'بهره‌وری',
         productivityLabel: 'وظیفه · روال · رویداد · مدت · پیشرفت',
@@ -276,9 +276,9 @@ class AppLocalizationsExtFa extends AppLocalizationsFa
             'کارت‌ها و فایل‌های دانش تولیدشده توسط هوش مصنوعی را ببینید',
         sloganContent:
             'هر رکوردی که امروز می‌سازید، رشته مفیدی برای نسخه آینده خودتان می‌شود.',
-        kbContent: '''# راهنمای Memex
+        kbContent: '''# راهنمای DearCocoa
 
-Memex یک اپلیکیشن بومی و محلی برای ثبت زندگی شخصی است.
+DearCocoa یک اپلیکیشن بومی و محلی برای ثبت زندگی شخصی است.
 
 ## چه کارهایی می‌توانید انجام دهید
 

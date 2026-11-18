@@ -199,14 +199,14 @@ class AppLocalizationsExtRu extends AppLocalizationsRu
       'Страница авторизации откроется в браузере.\n\n'
       'Если страница не отвечает после нажатия Allow на экране подтверждения, '
       'попробуйте так: оставьте страницу открытой, перейдите на главный экран или в переключатель приложений, '
-      'затем снова нажмите Memex, чтобы вернуть его на передний план.';
+      'затем снова нажмите DearCocoa, чтобы вернуть его на передний план.';
 
   @override
   String get oauthSuccessTitle => 'Авторизация успешна';
 
   @override
   String get oauthSuccessMessage =>
-      'Теперь можно закрыть этот браузер и вернуться в Memex.';
+      'Теперь можно закрыть этот браузер и вернуться в DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Предпросмотр публикации';
@@ -215,7 +215,7 @@ class AppLocalizationsExtRu extends AppLocalizationsRu
   String get shareNow => 'Поделиться';
 
   @override
-  String get sharedFromMemex => 'Поделено из Memex';
+  String get sharedFromDearCocoa => 'Поделено из DearCocoa';
 
   @override
   String get appTagline => 'Записывай искру, выстраивай душу';
@@ -235,23 +235,23 @@ class AppLocalizationsExtRu extends AppLocalizationsRu
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Добро пожаловать в Memex - ваш персональный AI-помощник памяти.',
-        introTitle: 'Memex - ваш AI-дневник жизни',
+            'Добро пожаловать в DearCocoa - ваш персональный AI-помощник памяти.',
+        introTitle: 'DearCocoa - ваш AI-дневник жизни',
         introInsight:
-            'Memex помогает запоминать жизнь с помощью AI. Записывайте текст, фото и голос; AI организует их в структурированные карточки, знания и межзаписные инсайты.',
-        introInsightSummary: 'Обзор возможностей Memex',
+            'DearCocoa помогает запоминать жизнь с помощью AI. Записывайте текст, фото и голос; AI организует их в структурированные карточки, знания и межзаписные инсайты.',
+        introInsightSummary: 'Обзор возможностей DearCocoa',
         introComment:
             'Добро пожаловать. Создайте первую запись и посмотрите, как AI ее организует.',
-        kbFileName: 'Руководство Memex.md',
+        kbFileName: 'Руководство DearCocoa.md',
         firstRecordTitle: 'Моя первая запись',
         firstRecordInsight:
-            'Ваша первая запись готова. Теперь Memex может упорядочивать, классифицировать и связывать ваши заметки.',
+            'Ваша первая запись готова. Теперь DearCocoa может упорядочивать, классифицировать и связывать ваши заметки.',
         firstRecordSummary: 'Первая запись',
         firstRecordComment: 'Первая запись сохранена. Продолжайте.',
         firstRecordKbTitle: 'Первая запись пользователя',
         introHeroCaption: 'Ваш AI-дневник жизни',
         introSnippetText:
-            'Запишите мысль, сделайте фото или произнесите что-то вслух. Memex автоматически превратит это в структурированную карточку. AI также извлекает знания, организует заметки и находит закономерности, которые вы могли не заметить.\n\nВсе остается на вашем устройстве.',
+            'Запишите мысль, сделайте фото или произнесите что-то вслух. DearCocoa автоматически превратит это в структурированную карточку. AI также извлекает знания, организует заметки и находит закономерности, которые вы могли не заметить.\n\nВсе остается на вашем устройстве.',
         smartCardTypesTitle: '22 типа умных карточек',
         productivityTitle: 'Продуктивность',
         productivityLabel:
@@ -274,9 +274,9 @@ class AppLocalizationsExtRu extends AppLocalizationsRu
         viewGeneratedTask: 'Посмотреть карточки и файлы знаний, созданные AI',
         sloganContent:
             'Каждая запись, сделанная сегодня, станет полезной нитью для вашего будущего я.',
-        kbContent: '''# Руководство Memex
+        kbContent: '''# Руководство DearCocoa
 
-Memex - локальное AI-native приложение для личных жизненных записей.
+DearCocoa - локальное AI-native приложение для личных жизненных записей.
 
 ## Что можно делать
 

@@ -200,14 +200,14 @@ class AppLocalizationsExtEs extends AppLocalizationsEs
       'La página de autorización se abrirá en el navegador.\n\n'
       'Si la página no responde después de tocar Permitir en la pantalla de confirmación, '
       'mantén la página abierta, ve a la pantalla de inicio o al selector de apps, '
-      'y luego toca Memex de nuevo para traerlo al primer plano.';
+      'y luego toca DearCocoa de nuevo para traerlo al primer plano.';
 
   @override
   String get oauthSuccessTitle => 'Autorización correcta';
 
   @override
   String get oauthSuccessMessage =>
-      'Ya puedes cerrar este navegador y volver a Memex.';
+      'Ya puedes cerrar este navegador y volver a DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Vista previa de compartir';
@@ -216,7 +216,7 @@ class AppLocalizationsExtEs extends AppLocalizationsEs
   String get shareNow => 'Compartir';
 
   @override
-  String get sharedFromMemex => 'Compartido desde Memex';
+  String get sharedFromDearCocoa => 'Compartido desde DearCocoa';
 
   @override
   String get appTagline => 'Registra la chispa, diseña el alma';
@@ -236,23 +236,23 @@ class AppLocalizationsExtEs extends AppLocalizationsEs
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Bienvenido a Memex: tu asistente personal de memoria con IA.',
-        introTitle: 'Memex - Tu diario de vida con IA',
+            'Bienvenido a DearCocoa: tu asistente personal de memoria con IA.',
+        introTitle: 'DearCocoa - Tu diario de vida con IA',
         introInsight:
-            'Memex es tu asistente de memoria con IA. Registra texto, fotos y voz; la IA los organiza en tarjetas estructuradas, conocimiento e insights entre registros.',
-        introInsightSummary: 'Resumen de funciones de Memex',
+            'DearCocoa es tu asistente de memoria con IA. Registra texto, fotos y voz; la IA los organiza en tarjetas estructuradas, conocimiento e insights entre registros.',
+        introInsightSummary: 'Resumen de funciones de DearCocoa',
         introComment:
             'Bienvenido. Publica tu primer registro y mira cómo lo organiza la IA.',
-        kbFileName: 'Guía de Memex.md',
+        kbFileName: 'Guía de DearCocoa.md',
         firstRecordTitle: 'Mi primer registro',
         firstRecordInsight:
-            'Tu primer registro ya está aquí. Desde ahora, Memex puede organizar, clasificar y conectar tus notas.',
+            'Tu primer registro ya está aquí. Desde ahora, DearCocoa puede organizar, clasificar y conectar tus notas.',
         firstRecordSummary: 'Primer registro',
         firstRecordComment: 'Primer registro guardado. Sigue adelante.',
         firstRecordKbTitle: 'Primer registro del usuario',
         introHeroCaption: 'Tu diario de vida con IA',
         introSnippetText:
-            'Escribe una idea, toma una foto o graba tu voz. Memex lo convierte automáticamente en una tarjeta estructurada. La IA también extrae conocimiento, organiza notas y encuentra patrones que quizá pasaste por alto.\n\nTodo permanece en tu dispositivo.',
+            'Escribe una idea, toma una foto o graba tu voz. DearCocoa lo convierte automáticamente en una tarjeta estructurada. La IA también extrae conocimiento, organiza notas y encuentra patrones que quizá pasaste por alto.\n\nTodo permanece en tu dispositivo.',
         smartCardTypesTitle: '22 tipos de tarjetas inteligentes',
         productivityTitle: 'Productividad',
         productivityLabel: 'tarea · rutina · evento · duración · progreso',
@@ -275,9 +275,9 @@ class AppLocalizationsExtEs extends AppLocalizationsEs
             'Ver tarjetas y archivos de conocimiento generados por IA',
         sloganContent:
             'Cada registro que guardas hoy se convierte en una pista útil para tu yo futuro.',
-        kbContent: '''# Guía de Memex
+        kbContent: '''# Guía de DearCocoa
 
-Memex es una aplicación local-first y nativa de IA para registrar tu vida personal.
+DearCocoa es una aplicación local-first y nativa de IA para registrar tu vida personal.
 
 ## Qué puedes hacer
 

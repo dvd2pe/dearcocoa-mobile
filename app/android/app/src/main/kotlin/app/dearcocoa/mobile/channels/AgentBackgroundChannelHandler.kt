@@ -67,7 +67,7 @@ object AgentBackgroundChannelHandler {
         val intent = Intent(context, AgentBackgroundService::class.java).apply {
             action = AgentBackgroundService.ACTION_UPDATE
             putExtra("state", args["state"] as? String ?: "active")
-            putExtra("title", args["title"] as? String ?: "Memex Agent")
+            putExtra("title", args["title"] as? String ?: "DearCocoa Agent")
             putExtra("stage", args["stage"] as? String ?: "Processing")
             putExtra("detail", args["detail"] as? String ?: "")
             putExtra("summary", args["summary"] as? String ?: "")

@@ -200,14 +200,14 @@ class AppLocalizationsExtDe extends AppLocalizationsDe
       'Die Autorisierungsseite wird im Browser geöffnet.\n\n'
       'Wenn die Seite nicht reagiert, nachdem du auf dem Bestätigungsbildschirm auf Zulassen getippt hast, '
       'versuche Folgendes: Lass die Seite offen, gehe zum Startbildschirm oder App-Switcher, '
-      'und tippe dann erneut auf Memex, um es in den Vordergrund zu holen.';
+      'und tippe dann erneut auf DearCocoa, um es in den Vordergrund zu holen.';
 
   @override
   String get oauthSuccessTitle => 'Autorisierung erfolgreich';
 
   @override
   String get oauthSuccessMessage =>
-      'Du kannst diesen Browser nun schließen und zu Memex zurückkehren.';
+      'Du kannst diesen Browser nun schließen und zu DearCocoa zurückkehren.';
 
   @override
   String get sharePreviewTitle => 'Vorschau Teilen';
@@ -216,7 +216,7 @@ class AppLocalizationsExtDe extends AppLocalizationsDe
   String get shareNow => 'Teilen';
 
   @override
-  String get sharedFromMemex => 'Geteilt aus Memex';
+  String get sharedFromDearCocoa => 'Geteilt aus DearCocoa';
 
   @override
   String get appTagline => 'Den Funken festhalten, die Seele formen';
@@ -236,23 +236,23 @@ class AppLocalizationsExtDe extends AppLocalizationsDe
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Willkommen bei Memex - deinem KI-gestützten persönlichen Gedächtnisassistenten.',
-        introTitle: 'Memex - Dein KI-Lebensjournal',
+            'Willkommen bei DearCocoa - deinem KI-gestützten persönlichen Gedächtnisassistenten.',
+        introTitle: 'DearCocoa - Dein KI-Lebensjournal',
         introInsight:
-            'Memex ist dein KI-Gedächtnisassistent. Erfasse Text, Fotos und Sprache; KI organisiert sie als strukturierte Karten, Wissen und eintragsübergreifende Insights.',
-        introInsightSummary: 'Funktionsüberblick zu Memex',
+            'DearCocoa ist dein KI-Gedächtnisassistent. Erfasse Text, Fotos und Sprache; KI organisiert sie als strukturierte Karten, Wissen und eintragsübergreifende Insights.',
+        introInsightSummary: 'Funktionsüberblick zu DearCocoa',
         introComment:
             'Willkommen. Erstelle deinen ersten Eintrag und sieh, wie KI ihn organisiert.',
-        kbFileName: 'Memex Anleitung.md',
+        kbFileName: 'DearCocoa Anleitung.md',
         firstRecordTitle: 'Mein erster Eintrag',
         firstRecordInsight:
-            'Dein erster Eintrag ist da. Ab jetzt kann Memex deine Notizen ordnen, kategorisieren und miteinander verbinden.',
+            'Dein erster Eintrag ist da. Ab jetzt kann DearCocoa deine Notizen ordnen, kategorisieren und miteinander verbinden.',
         firstRecordSummary: 'Erster Eintrag',
         firstRecordComment: 'Erster Eintrag gespeichert. Mach weiter.',
         firstRecordKbTitle: 'Erster Eintrag des Nutzers',
         introHeroCaption: 'Dein KI-Lebensjournal',
         introSnippetText:
-            'Notiere einen Gedanken, mache ein Foto oder sprich etwas ein. Memex verwandelt es automatisch in eine strukturierte Karte. KI extrahiert außerdem Wissen, ordnet Notizen und findet Muster, die du vielleicht übersehen hast.\n\nAlles bleibt auf deinem Gerät.',
+            'Notiere einen Gedanken, mache ein Foto oder sprich etwas ein. DearCocoa verwandelt es automatisch in eine strukturierte Karte. KI extrahiert außerdem Wissen, ordnet Notizen und findet Muster, die du vielleicht übersehen hast.\n\nAlles bleibt auf deinem Gerät.',
         smartCardTypesTitle: '22 Smart-Card-Typen',
         productivityTitle: 'Produktivität',
         productivityLabel: 'Aufgabe · Routine · Ereignis · Dauer · Fortschritt',
@@ -274,9 +274,9 @@ class AppLocalizationsExtDe extends AppLocalizationsDe
         viewGeneratedTask: 'KI-generierte Karten und Wissensdateien ansehen',
         sloganContent:
             'Jeder Eintrag von heute wird zu einem nützlichen Faden für dein zukünftiges Ich.',
-        kbContent: '''# Memex Anleitung
+        kbContent: '''# DearCocoa Anleitung
 
-Memex ist eine lokale, KI-native App zum persönlichen Lebensprotokoll.
+DearCocoa ist eine lokale, KI-native App zum persönlichen Lebensprotokoll.
 
 ## Was du tun kannst
 

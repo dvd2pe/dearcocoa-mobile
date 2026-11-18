@@ -195,14 +195,14 @@ class AppLocalizationsExtAr extends AppLocalizationsAr
   String get oauthHintMessage => 'سيتم فتح صفحة التفويض في المتصفح.\n\n'
       'إذا لم تستجب الصفحة بعد الضغط على Allow في شاشة التأكيد، '
       'فاترك الصفحة مفتوحة، وانتقل إلى الشاشة الرئيسية أو مبدل التطبيقات، '
-      'ثم اضغط Memex مرة أخرى لإعادته إلى foreground.';
+      'ثم اضغط DearCocoa مرة أخرى لإعادته إلى foreground.';
 
   @override
   String get oauthSuccessTitle => 'تم التفويض بنجاح';
 
   @override
   String get oauthSuccessMessage =>
-      'يمكنك الآن إغلاق هذا المتصفح والعودة إلى Memex.';
+      'يمكنك الآن إغلاق هذا المتصفح والعودة إلى DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'معاينة المشاركة';
@@ -211,7 +211,7 @@ class AppLocalizationsExtAr extends AppLocalizationsAr
   String get shareNow => 'مشاركة';
 
   @override
-  String get sharedFromMemex => 'تمت المشاركة من Memex';
+  String get sharedFromDearCocoa => 'تمت المشاركة من DearCocoa';
 
   @override
   String get appTagline => 'سجل الشرارة، وشكل الروح';
@@ -231,23 +231,23 @@ class AppLocalizationsExtAr extends AppLocalizationsAr
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'مرحباً بك في Memex - مساعد الذاكرة الشخصي المدعوم بالذكاء الاصطناعي.',
-        introTitle: 'Memex - يوميات حياتك بالذكاء الاصطناعي',
+            'مرحباً بك في DearCocoa - مساعد الذاكرة الشخصي المدعوم بالذكاء الاصطناعي.',
+        introTitle: 'DearCocoa - يوميات حياتك بالذكاء الاصطناعي',
         introInsight:
-            'Memex هو مساعد الذاكرة بالذكاء الاصطناعي. سجّل النصوص والصور والصوت؛ ينظمها الذكاء الاصطناعي في بطاقات منظمة ومعرفة ورؤى عابرة للسجلات.',
-        introInsightSummary: 'نظرة عامة على ميزات Memex',
+            'DearCocoa هو مساعد الذاكرة بالذكاء الاصطناعي. سجّل النصوص والصور والصوت؛ ينظمها الذكاء الاصطناعي في بطاقات منظمة ومعرفة ورؤى عابرة للسجلات.',
+        introInsightSummary: 'نظرة عامة على ميزات DearCocoa',
         introComment:
             'مرحباً. انشر سجلك الأول وشاهد كيف ينظمه الذكاء الاصطناعي.',
-        kbFileName: 'دليل Memex.md',
+        kbFileName: 'دليل DearCocoa.md',
         firstRecordTitle: 'سجلي الأول',
         firstRecordInsight:
-            'وصل سجلك الأول. من الآن يمكن لـ Memex تنظيم ملاحظاتك وتصنيفها وربطها.',
+            'وصل سجلك الأول. من الآن يمكن لـ DearCocoa تنظيم ملاحظاتك وتصنيفها وربطها.',
         firstRecordSummary: 'السجل الأول',
         firstRecordComment: 'تم حفظ السجل الأول. تابع.',
         firstRecordKbTitle: 'السجل الأول للمستخدم',
         introHeroCaption: 'يوميات حياتك بالذكاء الاصطناعي',
         introSnippetText:
-            'اكتب فكرة، التقط صورة، أو قل شيئاً بصوتك. يحول Memex ذلك تلقائياً إلى بطاقة منظمة. يستخرج الذكاء الاصطناعي المعرفة أيضاً، وينظم الملاحظات، ويكشف أنماطاً ربما لم تلاحظها.\n\nكل شيء يبقى على جهازك.',
+            'اكتب فكرة، التقط صورة، أو قل شيئاً بصوتك. يحول DearCocoa ذلك تلقائياً إلى بطاقة منظمة. يستخرج الذكاء الاصطناعي المعرفة أيضاً، وينظم الملاحظات، ويكشف أنماطاً ربما لم تلاحظها.\n\nكل شيء يبقى على جهازك.',
         smartCardTypesTitle: '22 نوعاً من البطاقات الذكية',
         productivityTitle: 'الإنتاجية',
         productivityLabel: 'مهمة · عادة · حدث · مدة · تقدم',
@@ -270,9 +270,9 @@ class AppLocalizationsExtAr extends AppLocalizationsAr
             'اعرض البطاقات وملفات المعرفة التي أنشأها الذكاء الاصطناعي',
         sloganContent:
             'كل سجل تنشئه اليوم يصبح خيطاً مفيداً لنسختك المستقبلية.',
-        kbContent: '''# دليل Memex
+        kbContent: '''# دليل DearCocoa
 
-Memex تطبيق محلي أولاً وأصلي للذكاء الاصطناعي لتسجيل الحياة الشخصية.
+DearCocoa تطبيق محلي أولاً وأصلي للذكاء الاصطناعي لتسجيل الحياة الشخصية.
 
 ## ما يمكنك فعله
 

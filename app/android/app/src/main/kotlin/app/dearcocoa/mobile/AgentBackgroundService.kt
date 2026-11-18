@@ -26,7 +26,7 @@ class AgentBackgroundService : Service() {
         const val EXTRA_WATCH_BACKGROUND_WORK = "watchBackgroundWork"
 
         private const val CHANNEL_ID = "agent_background"
-        private const val CHANNEL_NAME = "Memex Agent"
+        private const val CHANNEL_NAME = "DearCocoa Agent"
         private const val BACKGROUND_WORK_UNIQUE_NAME = "agent_queue_drain"
         private const val WORK_MONITOR_DELAY_MS = 2_000L
         private const val WORK_MONITOR_GRACE_MS = 10_000L
@@ -110,7 +110,7 @@ class AgentBackgroundService : Service() {
     }
 
     private fun buildNotification(intent: Intent?, state: String): Notification {
-        val title = intent?.getStringExtra("title") ?: "Memex Agent"
+        val title = intent?.getStringExtra("title") ?: "DearCocoa Agent"
         val stage = intent?.getStringExtra("stage") ?: "Processing"
         val detail = intent?.getStringExtra("detail") ?: ""
         val summary = intent?.getStringExtra("summary") ?: ""
@@ -207,7 +207,7 @@ class AgentBackgroundService : Service() {
             CHANNEL_NAME,
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = "Shows Memex agent background processing status"
+            description = "Shows DearCocoa agent background processing status"
             setShowBadge(false)
         }
         manager.createNotificationChannel(channel)
@@ -296,7 +296,7 @@ class AgentBackgroundService : Service() {
         val pausedIntent = Intent(lastIntent).apply {
             putExtra("state", "paused")
             putExtra("stage", "Paused")
-            putExtra("detail", "Background execution paused. Memex will continue later.")
+            putExtra("detail", "Background execution paused. DearCocoa will continue later.")
         }
         lastStatusIntent = pausedIntent
         startForegroundCompat(buildNotification(pausedIntent, "paused"))

@@ -359,7 +359,7 @@ void main() {
   testWidgets('shows Android backup location picker menu', (tester) async {
     await _pumpBackupPage(tester, isAndroid: true);
 
-    final locationButton = find.ancestor(of: find.text(UserStorage.l10n.backupLocationMenu), matching: find.byWidgetPredicate((w) => w is ElevatedButton));
+    final locationButton = find.ancestor(of: find.text(UserStorage.l10n.backupLocationMenu), matching: find.byWidgetPredicate((w) => w is OutlinedButton));
     expect(locationButton, findsOneWidget);
 
     await tester.tap(locationButton);

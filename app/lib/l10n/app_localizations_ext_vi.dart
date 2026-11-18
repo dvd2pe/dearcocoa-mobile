@@ -200,14 +200,14 @@ class AppLocalizationsExtVi extends AppLocalizationsVi
       'Trang ủy quyền sẽ mở trong trình duyệt.\n\n'
       'Nếu trang không phản hồi sau khi bạn chạm Cho phép trên màn hình xác nhận, '
       'hãy thử: giữ trang mở, về màn hình chính hoặc trình chuyển ứng dụng, '
-      'rồi chạm Memex lại để đưa ứng dụng lên trước.';
+      'rồi chạm DearCocoa lại để đưa ứng dụng lên trước.';
 
   @override
   String get oauthSuccessTitle => 'Ủy quyền thành công';
 
   @override
   String get oauthSuccessMessage =>
-      'Bạn có thể đóng trình duyệt này và quay lại Memex.';
+      'Bạn có thể đóng trình duyệt này và quay lại DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Xem trước chia sẻ';
@@ -216,7 +216,7 @@ class AppLocalizationsExtVi extends AppLocalizationsVi
   String get shareNow => 'Chia sẻ';
 
   @override
-  String get sharedFromMemex => 'Chia sẻ từ Memex';
+  String get sharedFromDearCocoa => 'Chia sẻ từ DearCocoa';
 
   @override
   String get appTagline => 'Ghi lại Tia sáng, Kiến tạo Linh hồn';
@@ -236,23 +236,23 @@ class AppLocalizationsExtVi extends AppLocalizationsVi
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Chào mừng đến với Memex - trợ lý bộ nhớ cá nhân được hỗ trợ bởi AI.',
-        introTitle: 'Memex - Nhật ký cuộc sống AI của bạn',
+            'Chào mừng đến với DearCocoa - trợ lý bộ nhớ cá nhân được hỗ trợ bởi AI.',
+        introTitle: 'DearCocoa - Nhật ký cuộc sống AI của bạn',
         introInsight:
-            'Memex là trợ lý bộ nhớ AI của bạn. Ghi lại văn bản, ảnh và giọng nói; AI sắp xếp chúng thành thẻ có cấu trúc, tri thức, và insight xuyên suốt các ghi chép.',
-        introInsightSummary: 'Tổng quan tính năng Memex',
+            'DearCocoa là trợ lý bộ nhớ AI của bạn. Ghi lại văn bản, ảnh và giọng nói; AI sắp xếp chúng thành thẻ có cấu trúc, tri thức, và insight xuyên suốt các ghi chép.',
+        introInsightSummary: 'Tổng quan tính năng DearCocoa',
         introComment:
             'Chào mừng! Hãy đăng ghi chép đầu tiên và xem AI sắp xếp như thế nào.',
-        kbFileName: 'Hướng dẫn Memex.md',
+        kbFileName: 'Hướng dẫn DearCocoa.md',
         firstRecordTitle: 'Ghi chép đầu tiên của tôi',
         firstRecordInsight:
-            'Ghi chép đầu tiên của bạn đã có. Từ giờ, Memex có thể sắp xếp, phân loại, và kết nối các ghi chép của bạn.',
+            'Ghi chép đầu tiên của bạn đã có. Từ giờ, DearCocoa có thể sắp xếp, phân loại, và kết nối các ghi chép của bạn.',
         firstRecordSummary: 'Ghi chép đầu tiên',
         firstRecordComment: 'Ghi chép đầu tiên đã lưu. Tiếp tục nhé.',
         firstRecordKbTitle: 'Ghi chép đầu tiên của người dùng',
         introHeroCaption: 'Nhật ký cuộc sống AI của bạn',
         introSnippetText:
-            'Viết một suy nghĩ, chụp ảnh, hoặc nói to. Memex tự động biến nó thành thẻ có cấu trúc. AI cũng trích xuất tri thức, sắp xếp ghi chú, và tìm ra các mẫu bạn có thể đã bỏ lỡ.\n\nMọi thứ đều ở trên thiết bị của bạn.',
+            'Viết một suy nghĩ, chụp ảnh, hoặc nói to. DearCocoa tự động biến nó thành thẻ có cấu trúc. AI cũng trích xuất tri thức, sắp xếp ghi chú, và tìm ra các mẫu bạn có thể đã bỏ lỡ.\n\nMọi thứ đều ở trên thiết bị của bạn.',
         smartCardTypesTitle: '22 loại thẻ thông minh',
         productivityTitle: 'Năng suất',
         productivityLabel: 'nhiệm vụ · thói quen · sự kiện · thời lượng · tiến độ',
@@ -274,9 +274,9 @@ class AppLocalizationsExtVi extends AppLocalizationsVi
         viewGeneratedTask: 'Xem thẻ và tệp tri thức do AI tạo',
         sloganContent:
             'Mỗi ghi chép hôm nay trở thành sợi chỉ hữu ích cho bản thân tương lai của bạn.',
-        kbContent: '''# Hướng dẫn Memex
+        kbContent: '''# Hướng dẫn DearCocoa
 
-Memex là ứng dụng ghi chép cuộc sống cá nhân local-first, native AI.
+DearCocoa là ứng dụng ghi chép cuộc sống cá nhân local-first, native AI.
 
 ## Bạn có thể làm gì
 

@@ -200,14 +200,14 @@ class AppLocalizationsExtTr extends AppLocalizationsTr
       'Yetkilendirme sayfası tarayıcıda açılacaktır.\n\n'
       'Onay ekranında İzin Ver\'e dokunduktan sonra sayfa yanıt vermezse '
       'şunu deneyin: sayfayı açık tutun, ana ekrana veya uygulama değiştiriciye gidin, '
-      'sonra Memex\'i tekrar dokunarak ön plana getirin.';
+      'sonra DearCocoa\'i tekrar dokunarak ön plana getirin.';
 
   @override
   String get oauthSuccessTitle => 'Yetkilendirme başarılı';
 
   @override
   String get oauthSuccessMessage =>
-      'Artık bu tarayıcıyı kapatabilir ve Memex\'e dönebilirsiniz.';
+      'Artık bu tarayıcıyı kapatabilir ve DearCocoa\'e dönebilirsiniz.';
 
   @override
   String get sharePreviewTitle => 'Paylaşım Önizlemesi';
@@ -216,7 +216,7 @@ class AppLocalizationsExtTr extends AppLocalizationsTr
   String get shareNow => 'Paylaş';
 
   @override
-  String get sharedFromMemex => 'Memex\'ten paylaşıldı';
+  String get sharedFromDearCocoa => 'DearCocoa\'ten paylaşıldı';
 
   @override
   String get appTagline => 'Kıvılcımı Kaydet, Ruhu İnşa Et';
@@ -236,23 +236,23 @@ class AppLocalizationsExtTr extends AppLocalizationsTr
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Memex\'e hoş geldiniz — yapay zeka destekli kişisel hafıza asistanınız.',
-        introTitle: 'Memex — Yapay Zeka Yaşam Günlüğünüz',
+            'DearCocoa\'e hoş geldiniz — yapay zeka destekli kişisel hafıza asistanınız.',
+        introTitle: 'DearCocoa — Yapay Zeka Yaşam Günlüğünüz',
         introInsight:
-            'Memex, yapay zeka hafıza asistanınızdır. Metin, fotoğraf ve ses kaydedin; yapay zeka bunları yapılandırılmış kartlara, bilgiye ve kayıtlar arası içgörülere dönüştürür.',
-        introInsightSummary: 'Memex özellik özeti',
+            'DearCocoa, yapay zeka hafıza asistanınızdır. Metin, fotoğraf ve ses kaydedin; yapay zeka bunları yapılandırılmış kartlara, bilgiye ve kayıtlar arası içgörülere dönüştürür.',
+        introInsightSummary: 'DearCocoa özellik özeti',
         introComment:
             'Hoş geldiniz! İlk kaydınızı paylaşın ve yapay zekanın nasıl düzenlediğini görün.',
-        kbFileName: 'Memex Rehberi.md',
+        kbFileName: 'DearCocoa Rehberi.md',
         firstRecordTitle: 'İlk Kaydım',
         firstRecordInsight:
-            'İlk kaydınız burada. Artık Memex notlarınızı düzenleyebilir, kategorize edebilir ve birbirine bağlayabilir.',
+            'İlk kaydınız burada. Artık DearCocoa notlarınızı düzenleyebilir, kategorize edebilir ve birbirine bağlayabilir.',
         firstRecordSummary: 'İlk kayıt',
         firstRecordComment: 'İlk kayıt kaydedildi. Devam edin.',
         firstRecordKbTitle: 'Kullanıcı İlk Kaydı',
         introHeroCaption: 'Yapay zeka yaşam günlüğünüz',
         introSnippetText:
-            'Bir düşünce yazın, fotoğraf çekin veya sesli konuşun. Memex bunu otomatik olarak yapılandırılmış bir karta dönüştürür. Yapay zeka ayrıca bilgi çıkarabilir, notları düzenleyebilir ve kaçırmış olabileceğiniz kalıpları ortaya çıkarabilir.\n\nHer şey cihazınızda kalır.',
+            'Bir düşünce yazın, fotoğraf çekin veya sesli konuşun. DearCocoa bunu otomatik olarak yapılandırılmış bir karta dönüştürür. Yapay zeka ayrıca bilgi çıkarabilir, notları düzenleyebilir ve kaçırmış olabileceğiniz kalıpları ortaya çıkarabilir.\n\nHer şey cihazınızda kalır.',
         smartCardTypesTitle: '22 Akıllı Kart Türü',
         productivityTitle: 'Verimlilik',
         productivityLabel: 'görev · rutin · etkinlik · süre · ilerleme',
@@ -274,9 +274,9 @@ class AppLocalizationsExtTr extends AppLocalizationsTr
         viewGeneratedTask: 'Yapay zeka tarafından oluşturulan kartları ve bilgi dosyalarını görüntüleyin',
         sloganContent:
             'Bugün yaptığınız her kayıt, gelecekteki benliğiniz için faydalı bir iplik olur.',
-        kbContent: '''# Memex Rehberi
+        kbContent: '''# DearCocoa Rehberi
 
-Memex, yerel öncelikli, yapay zeka odaklı kişisel yaşam kayıt uygulamasıdır.
+DearCocoa, yerel öncelikli, yapay zeka odaklı kişisel yaşam kayıt uygulamasıdır.
 
 ## Neler yapabilirsiniz
 

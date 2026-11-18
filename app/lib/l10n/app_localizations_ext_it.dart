@@ -200,14 +200,14 @@ class AppLocalizationsExtIt extends AppLocalizationsIt
       'La pagina di autorizzazione si aprirà nel browser.\n\n'
       'Se la pagina non risponde dopo aver toccato Consenti nella schermata di conferma, '
       'tieni la pagina aperta, vai alla schermata home o al selettore app, '
-      'poi tocca di nuovo Memex per riportarlo in primo piano.';
+      'poi tocca di nuovo DearCocoa per riportarlo in primo piano.';
 
   @override
   String get oauthSuccessTitle => 'Autorizzazione riuscita';
 
   @override
   String get oauthSuccessMessage =>
-      'Ora puoi chiudere questo browser e tornare a Memex.';
+      'Ora puoi chiudere questo browser e tornare a DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Anteprima condivisione';
@@ -216,7 +216,7 @@ class AppLocalizationsExtIt extends AppLocalizationsIt
   String get shareNow => 'Condividi';
 
   @override
-  String get sharedFromMemex => 'Condiviso da Memex';
+  String get sharedFromDearCocoa => 'Condiviso da DearCocoa';
 
   @override
   String get appTagline => 'Registra la scintilla, modella l\'anima';
@@ -236,23 +236,23 @@ class AppLocalizationsExtIt extends AppLocalizationsIt
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Benvenuto in Memex — il tuo assistente personale di memoria con IA.',
-        introTitle: 'Memex — Il tuo diario di vita con IA',
+            'Benvenuto in DearCocoa — il tuo assistente personale di memoria con IA.',
+        introTitle: 'DearCocoa — Il tuo diario di vita con IA',
         introInsight:
-            'Memex è il tuo assistente di memoria con IA. Registra testo, foto e voce; l\'IA li organizza in schede strutturate, conoscenza e insight tra i registri.',
-        introInsightSummary: 'Riepilogo funzioni Memex',
+            'DearCocoa è il tuo assistente di memoria con IA. Registra testo, foto e voce; l\'IA li organizza in schede strutturate, conoscenza e insight tra i registri.',
+        introInsightSummary: 'Riepilogo funzioni DearCocoa',
         introComment:
             'Benvenuto. Pubblica il tuo primo registro e guarda come l\'IA lo organizza.',
-        kbFileName: 'Guida Memex.md',
+        kbFileName: 'Guida DearCocoa.md',
         firstRecordTitle: 'Il mio primo registro',
         firstRecordInsight:
-            'Il tuo primo registro è qui. Da ora Memex può organizzare, classificare e collegare le tue note.',
+            'Il tuo primo registro è qui. Da ora DearCocoa può organizzare, classificare e collegare le tue note.',
         firstRecordSummary: 'Primo registro',
         firstRecordComment: 'Primo registro salvato. Continua così.',
         firstRecordKbTitle: 'Primo registro utente',
         introHeroCaption: 'Il tuo diario di vita con IA',
         introSnippetText:
-            'Scrivi un pensiero, scatta una foto o registra la tua voce. Memex lo converte automaticamente in una scheda strutturata. L\'IA estrae anche conoscenza, organizza note e trova schemi che potresti aver perso.\n\nTutto resta sul tuo dispositivo.',
+            'Scrivi un pensiero, scatta una foto o registra la tua voce. DearCocoa lo converte automaticamente in una scheda strutturata. L\'IA estrae anche conoscenza, organizza note e trova schemi che potresti aver perso.\n\nTutto resta sul tuo dispositivo.',
         smartCardTypesTitle: '22 tipi di schede intelligenti',
         productivityTitle: 'Produttività',
         productivityLabel: 'attività · routine · evento · durata · progresso',
@@ -275,9 +275,9 @@ class AppLocalizationsExtIt extends AppLocalizationsIt
             'Visualizza schede e file di conoscenza generati dall\'IA',
         sloganContent:
             'Ogni registro che salvi oggi diventa un filo utile per il tuo io futuro.',
-        kbContent: '''# Guida Memex
+        kbContent: '''# Guida DearCocoa
 
-Memex è un'applicazione local-first e nativa con IA per registrare la tua vita personale.
+DearCocoa è un'applicazione local-first e nativa con IA per registrare la tua vita personale.
 
 ## Cosa puoi fare
 

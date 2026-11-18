@@ -192,13 +192,13 @@ class AppLocalizationsExtZh extends AppLocalizationsZh
   String get oauthHintMessage => '接下来会在浏览器中打开授权页面。\n\n'
       '如果在授权确认页面点击同意后长时间没有反应，可以按下面步骤操作：'
       '先保留当前页面不关，然后回到手机主屏或打开应用切换界面，'
-      '再点一下 Memex 将它重新切到前台。';
+      '再点一下 DearCocoa 将它重新切到前台。';
 
   @override
   String get oauthSuccessTitle => '授权成功';
 
   @override
-  String get oauthSuccessMessage => '现在可以关闭浏览器并返回 Memex 了。';
+  String get oauthSuccessMessage => '现在可以关闭浏览器并返回 DearCocoa 了。';
 
   @override
   String get sharePreviewTitle => '分享预览';
@@ -207,7 +207,7 @@ class AppLocalizationsExtZh extends AppLocalizationsZh
   String get shareNow => '立即分享';
 
   @override
-  String get sharedFromMemex => '分享自 Memex';
+  String get sharedFromDearCocoa => '分享自 DearCocoa';
 
   @override
   String get appTagline => '记录微光，构筑灵魂';
@@ -226,13 +226,13 @@ class AppLocalizationsExtZh extends AppLocalizationsZh
 
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
-        introText: '欢迎来到 Memex —— 你的 AI 个人记忆助手。',
-        introTitle: 'Memex — 你的 AI 生活记录本',
+        introText: '欢迎来到 DearCocoa —— 你的 AI 个人记忆助手。',
+        introTitle: 'DearCocoa — 你的 AI 生活记录本',
         introInsight:
-            'Memex 是你的 AI 记忆助手。记录文字、照片、语音，AI 会自动整理成结构化卡片、提取知识，并生成跨记录洞察。',
-        introInsightSummary: 'Memex 功能概览',
+            'DearCocoa 是你的 AI 记忆助手。记录文字、照片、语音，AI 会自动整理成结构化卡片、提取知识，并生成跨记录洞察。',
+        introInsightSummary: 'DearCocoa 功能概览',
         introComment: '欢迎！试试发表你的第一条记录，看看 AI 如何帮你整理。',
-        kbFileName: 'Memex 指南.md',
+        kbFileName: 'DearCocoa 指南.md',
         firstRecordTitle: '我的第一条记录',
         firstRecordInsight: '收到了你的第一条记录。以后你记下的每一笔，我都会帮你整理、归类，并把相关内容串联起来。',
         firstRecordSummary: '第一条记录',
@@ -240,7 +240,7 @@ class AppLocalizationsExtZh extends AppLocalizationsZh
         firstRecordKbTitle: '用户的第一条记录',
         introHeroCaption: '你的 AI 生活记录本',
         introSnippetText:
-            '随手记下一段文字、拍张照片、或者说一句话，Memex 会自动把它变成一张结构化卡片。AI 还会帮你提取知识、整理到笔记里，并发现你自己可能没注意到的规律。\n\n所有数据都保存在你的设备上。',
+            '随手记下一段文字、拍张照片、或者说一句话，DearCocoa 会自动把它变成一张结构化卡片。AI 还会帮你提取知识、整理到笔记里，并发现你自己可能没注意到的规律。\n\n所有数据都保存在你的设备上。',
         smartCardTypesTitle: '22 种智能卡片',
         productivityTitle: '生活效率',
         productivityLabel: '任务 · 习惯 · 日程 · 计时 · 进度',
@@ -259,9 +259,9 @@ class AppLocalizationsExtZh extends AppLocalizationsZh
         postFirstRecordTask: '发表第一条记录',
         viewGeneratedTask: '查看 AI 生成的卡片和知识文件',
         sloganContent: '每一条今天写下的记录，都会成为未来的你回望生活时有用的线索。',
-        kbContent: '''# Memex 指南
+        kbContent: '''# DearCocoa 指南
 
-Memex 是一个本地优先、AI 原生的个人生活记录应用。
+DearCocoa 是一个本地优先、AI 原生的个人生活记录应用。
 
 ## 你可以做什么
 

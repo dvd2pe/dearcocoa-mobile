@@ -1563,7 +1563,7 @@ class _AgentChatDialogState extends State<AgentChatDialog>
       await Permission.notification.request();
     } catch (e, st) {
       _logger.warning(
-        'Failed to request Memex Agent notification permission: $e',
+        'Failed to request DearCocoa Agent notification permission: $e',
         e,
         st,
       );

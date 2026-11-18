@@ -200,14 +200,14 @@ class AppLocalizationsExtId extends AppLocalizationsId
       'Halaman otorisasi akan terbuka di browser.\n\n'
       'Jika halaman tidak merespons setelah Anda mengetuk Allow di layar konfirmasi, '
       'coba ini: biarkan halaman tetap terbuka, buka layar utama atau app switcher, '
-      'lalu ketuk Memex lagi untuk membawanya ke depan.';
+      'lalu ketuk DearCocoa lagi untuk membawanya ke depan.';
 
   @override
   String get oauthSuccessTitle => 'Otorisasi berhasil';
 
   @override
   String get oauthSuccessMessage =>
-      'Anda sekarang dapat menutup browser ini dan kembali ke Memex.';
+      'Anda sekarang dapat menutup browser ini dan kembali ke DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Pratinjau berbagi';
@@ -216,7 +216,7 @@ class AppLocalizationsExtId extends AppLocalizationsId
   String get shareNow => 'Bagikan';
 
   @override
-  String get sharedFromMemex => 'Dibagikan dari Memex';
+  String get sharedFromDearCocoa => 'Dibagikan dari DearCocoa';
 
   @override
   String get appTagline => 'Rekam Percikan, Rancang Jiwa';
@@ -236,23 +236,23 @@ class AppLocalizationsExtId extends AppLocalizationsId
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Selamat datang di Memex - asisten memori pribadi berbasis AI.',
-        introTitle: 'Memex - Jurnal hidup AI Anda',
+            'Selamat datang di DearCocoa - asisten memori pribadi berbasis AI.',
+        introTitle: 'DearCocoa - Jurnal hidup AI Anda',
         introInsight:
-            'Memex adalah asisten memori AI Anda. Catat teks, foto, dan suara; AI mengaturnya menjadi kartu terstruktur, pengetahuan, dan insight lintas catatan.',
-        introInsightSummary: 'Ringkasan fitur Memex',
+            'DearCocoa adalah asisten memori AI Anda. Catat teks, foto, dan suara; AI mengaturnya menjadi kartu terstruktur, pengetahuan, dan insight lintas catatan.',
+        introInsightSummary: 'Ringkasan fitur DearCocoa',
         introComment:
             'Selamat datang. Buat catatan pertama dan lihat bagaimana AI mengaturnya.',
-        kbFileName: 'Panduan Memex.md',
+        kbFileName: 'Panduan DearCocoa.md',
         firstRecordTitle: 'Catatan pertama saya',
         firstRecordInsight:
-            'Catatan pertama Anda sudah ada. Mulai sekarang, Memex dapat mengatur, mengelompokkan, dan menghubungkan catatan Anda.',
+            'Catatan pertama Anda sudah ada. Mulai sekarang, DearCocoa dapat mengatur, mengelompokkan, dan menghubungkan catatan Anda.',
         firstRecordSummary: 'Catatan pertama',
         firstRecordComment: 'Catatan pertama tersimpan. Lanjutkan.',
         firstRecordKbTitle: 'Catatan pertama pengguna',
         introHeroCaption: 'Jurnal hidup AI Anda',
         introSnippetText:
-            'Tulis sebuah pikiran, ambil foto, atau ucapkan sesuatu. Memex otomatis mengubahnya menjadi kartu terstruktur. AI juga mengekstrak pengetahuan, mengatur catatan, dan menemukan pola yang mungkin terlewat.\n\nSemuanya tetap berada di perangkat Anda.',
+            'Tulis sebuah pikiran, ambil foto, atau ucapkan sesuatu. DearCocoa otomatis mengubahnya menjadi kartu terstruktur. AI juga mengekstrak pengetahuan, mengatur catatan, dan menemukan pola yang mungkin terlewat.\n\nSemuanya tetap berada di perangkat Anda.',
         smartCardTypesTitle: '22 jenis kartu pintar',
         productivityTitle: 'Produktivitas',
         productivityLabel: 'tugas · rutinitas · acara · durasi · progres',
@@ -274,9 +274,9 @@ class AppLocalizationsExtId extends AppLocalizationsId
         viewGeneratedTask: 'Lihat kartu dan file pengetahuan yang dibuat AI',
         sloganContent:
             'Setiap catatan hari ini menjadi petunjuk berguna bagi diri Anda di masa depan.',
-        kbContent: '''# Panduan Memex
+        kbContent: '''# Panduan DearCocoa
 
-Memex adalah aplikasi pencatat kehidupan pribadi yang local-first dan native AI.
+DearCocoa adalah aplikasi pencatat kehidupan pribadi yang local-first dan native AI.
 
 ## Yang bisa Anda lakukan
 

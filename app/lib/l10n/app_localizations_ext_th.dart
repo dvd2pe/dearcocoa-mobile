@@ -200,14 +200,14 @@ class AppLocalizationsExtTh extends AppLocalizationsTh
       'หน้าอนุญาตจะเปิดในเบราว์เซอร์\n\n'
       'หากหน้าไม่ตอบสนองหลังจากแตะ Allow บนหน้าจอยืนยัน '
       'ลองทำดังนี้: เปิดหน้าไว้ ไปที่หน้าจอหลักหรือตัวสลับแอป '
-      'แล้วแตะ Memex อีกครั้งเพื่อนำแอปมาด้านหน้า';
+      'แล้วแตะ DearCocoa อีกครั้งเพื่อนำแอปมาด้านหน้า';
 
   @override
   String get oauthSuccessTitle => 'อนุญาตสำเร็จ';
 
   @override
   String get oauthSuccessMessage =>
-      'ตอนนี้คุณสามารถปิดเบราว์เซอร์นี้และกลับไปที่ Memex ได้';
+      'ตอนนี้คุณสามารถปิดเบราว์เซอร์นี้และกลับไปที่ DearCocoa ได้';
 
   @override
   String get sharePreviewTitle => 'ตัวอย่างการแชร์';
@@ -216,7 +216,7 @@ class AppLocalizationsExtTh extends AppLocalizationsTh
   String get shareNow => 'แชร์';
 
   @override
-  String get sharedFromMemex => 'แชร์จาก Memex';
+  String get sharedFromDearCocoa => 'แชร์จาก DearCocoa';
 
   @override
   String get appTagline => 'บันทึกประกายไฟ สร้างจิตวิญญาณ';
@@ -236,23 +236,23 @@ class AppLocalizationsExtTh extends AppLocalizationsTh
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'ยินดีต้อนรับสู่ Memex — ผู้ช่วยความทรงจำส่วนตัวที่ขับเคลื่อนด้วย AI',
-        introTitle: 'Memex — ไดอารี่ชีวิต AI ของคุณ',
+            'ยินดีต้อนรับสู่ DearCocoa — ผู้ช่วยความทรงจำส่วนตัวที่ขับเคลื่อนด้วย AI',
+        introTitle: 'DearCocoa — ไดอารี่ชีวิต AI ของคุณ',
         introInsight:
-            'Memex คือผู้ช่วยความทรงจำ AI ของคุณ บันทึกข้อความ รูปภาพ และเสียง AI จัดระเบียบเป็นการ์ดที่มีโครงสร้าง ความรู้ และ insight ข้ามบันทึก',
-        introInsightSummary: 'ภาพรวมฟีเจอร์ Memex',
+            'DearCocoa คือผู้ช่วยความทรงจำ AI ของคุณ บันทึกข้อความ รูปภาพ และเสียง AI จัดระเบียบเป็นการ์ดที่มีโครงสร้าง ความรู้ และ insight ข้ามบันทึก',
+        introInsightSummary: 'ภาพรวมฟีเจอร์ DearCocoa',
         introComment:
             'ยินดีต้อนรับ! ลองโพสต์บันทึกแรกและดูว่า AI จัดระเบียบอย่างไร',
-        kbFileName: 'คู่มือ Memex.md',
+        kbFileName: 'คู่มือ DearCocoa.md',
         firstRecordTitle: 'บันทึกแรกของฉัน',
         firstRecordInsight:
-            'บันทึกแรกของคุณอยู่ที่นี่แล้ว ต่อจากนี้ Memex สามารถจัดระเบียบ จัดหมวดหมู่ และเชื่อมโยงบันทึกของคุณได้',
+            'บันทึกแรกของคุณอยู่ที่นี่แล้ว ต่อจากนี้ DearCocoa สามารถจัดระเบียบ จัดหมวดหมู่ และเชื่อมโยงบันทึกของคุณได้',
         firstRecordSummary: 'บันทึกแรก',
         firstRecordComment: 'บันทึกแรกถูกบันทึกแล้ว ทำต่อไป',
         firstRecordKbTitle: 'บันทึกแรกของผู้ใช้',
         introHeroCaption: 'ไดอารี่ชีวิต AI ของคุณ',
         introSnippetText:
-            'จดความคิด ถ่ายรูป หรือพูดออกเสียง Memex แปลงเป็นการ์ดที่มีโครงสร้างโดยอัตโนมัติ AI ยังสามารถสกัดความรู้ จัดระเบียบบันทึก และค้นหารูปแบบที่คุณอาจพลาดไป\n\nทุกอย่างอยู่บนอุปกรณ์ของคุณ',
+            'จดความคิด ถ่ายรูป หรือพูดออกเสียง DearCocoa แปลงเป็นการ์ดที่มีโครงสร้างโดยอัตโนมัติ AI ยังสามารถสกัดความรู้ จัดระเบียบบันทึก และค้นหารูปแบบที่คุณอาจพลาดไป\n\nทุกอย่างอยู่บนอุปกรณ์ของคุณ',
         smartCardTypesTitle: '22 ประเภทการ์ดอัจฉริยะ',
         productivityTitle: 'ประสิทธิภาพ',
         productivityLabel: 'งาน · กิจวัตร · เหตุการณ์ · ระยะเวลา · ความคืบหน้า',
@@ -274,9 +274,9 @@ class AppLocalizationsExtTh extends AppLocalizationsTh
         viewGeneratedTask: 'ดูการ์ดและไฟล์ความรู้ที่ AI สร้าง',
         sloganContent:
             'ทุกบันทึกที่คุณทำวันนี้กลายเป็นเส้นด้ายที่มีประโยชน์สำหรับตัวคุณในอนาคต',
-        kbContent: '''# คู่มือ Memex
+        kbContent: '''# คู่มือ DearCocoa
 
-Memex เป็นแอปบันทึกชีวิตส่วนตัวแบบ local-first ที่สร้างมาสำหรับ AI
+DearCocoa เป็นแอปบันทึกชีวิตส่วนตัวแบบ local-first ที่สร้างมาสำหรับ AI
 
 ## สิ่งที่คุณทำได้
 

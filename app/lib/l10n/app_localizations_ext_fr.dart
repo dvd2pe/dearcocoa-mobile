@@ -198,14 +198,14 @@ class AppLocalizationsExtFr extends AppLocalizationsFr
       "La page d'autorisation s'ouvrira dans le navigateur.\n\n"
       "Si la page ne répond pas après avoir touché Allow sur l'écran de confirmation, "
       "laissez la page ouverte, allez à l'écran d'accueil ou au sélecteur d'apps, "
-      'puis touchez à nouveau Memex pour le ramener au premier plan.';
+      'puis touchez à nouveau DearCocoa pour le ramener au premier plan.';
 
   @override
   String get oauthSuccessTitle => 'Autorisation réussie';
 
   @override
   String get oauthSuccessMessage =>
-      'Vous pouvez maintenant fermer ce navigateur et revenir à Memex.';
+      'Vous pouvez maintenant fermer ce navigateur et revenir à DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Aperçu du partage';
@@ -214,7 +214,7 @@ class AppLocalizationsExtFr extends AppLocalizationsFr
   String get shareNow => 'Partager';
 
   @override
-  String get sharedFromMemex => 'Partagé depuis Memex';
+  String get sharedFromDearCocoa => 'Partagé depuis DearCocoa';
 
   @override
   String get appTagline => "Enregistrer l'étincelle, façonner l'âme";
@@ -234,24 +234,24 @@ class AppLocalizationsExtFr extends AppLocalizationsFr
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Bienvenue dans Memex - votre assistant personnel de mémoire avec IA.',
-        introTitle: 'Memex - Votre journal de vie avec IA',
+            'Bienvenue dans DearCocoa - votre assistant personnel de mémoire avec IA.',
+        introTitle: 'DearCocoa - Votre journal de vie avec IA',
         introInsight:
-            'Memex est votre assistant de mémoire avec IA. Enregistrez texte, photos et voix; IA les organise en cartes structurées, connaissances et insights entre enregistrements.',
-        introInsightSummary: 'Aperçu des fonctions de Memex',
+            'DearCocoa est votre assistant de mémoire avec IA. Enregistrez texte, photos et voix; IA les organise en cartes structurées, connaissances et insights entre enregistrements.',
+        introInsightSummary: 'Aperçu des fonctions de DearCocoa',
         introComment:
             'Bienvenue. Publiez votre premier enregistrement et voyez comment IA le classe.',
-        kbFileName: 'Guide Memex.md',
+        kbFileName: 'Guide DearCocoa.md',
         firstRecordTitle: 'Mon premier enregistrement',
         firstRecordInsight:
-            'Votre premier enregistrement est là. Memex peut maintenant organiser, classer et relier vos notes.',
+            'Votre premier enregistrement est là. DearCocoa peut maintenant organiser, classer et relier vos notes.',
         firstRecordSummary: 'Premier enregistrement',
         firstRecordComment:
             'Premier enregistrement enregistré. Continuez comme ça.',
         firstRecordKbTitle: 'Premier enregistrement utilisateur',
         introHeroCaption: 'Votre journal de vie avec IA',
         introSnippetText:
-            'Notez une idée, prenez une photo ou parlez à voix haute. Memex transforme cela automatiquement en carte structurée. IA extrait aussi les connaissances, organise les notes et révèle des motifs que vous auriez pu manquer.\n\nTout reste sur votre appareil.',
+            'Notez une idée, prenez une photo ou parlez à voix haute. DearCocoa transforme cela automatiquement en carte structurée. IA extrait aussi les connaissances, organise les notes et révèle des motifs que vous auriez pu manquer.\n\nTout reste sur votre appareil.',
         smartCardTypesTitle: '22 types de cartes intelligentes',
         productivityTitle: 'Productivité',
         productivityLabel: 'tâche · routine · événement · durée · progression',
@@ -274,9 +274,9 @@ class AppLocalizationsExtFr extends AppLocalizationsFr
             'Voir les cartes et fichiers de connaissance générés par IA',
         sloganContent:
             'Chaque enregistrement créé aujourd’hui devient un repère utile pour votre futur vous.',
-        kbContent: '''# Guide Memex
+        kbContent: '''# Guide DearCocoa
 
-Memex est une application locale et native IA pour enregistrer votre vie personnelle.
+DearCocoa est une application locale et native IA pour enregistrer votre vie personnelle.
 
 ## Ce que vous pouvez faire
 

@@ -200,14 +200,14 @@ class AppLocalizationsExtPt extends AppLocalizationsPt
       'A página de autorização será aberta no navegador.\n\n'
       'Se a página não responder depois de tocar em Allow na tela de confirmação, '
       'mantenha a página aberta, vá para a tela inicial ou o seletor de apps, '
-      'e então toque em Memex novamente para trazê-lo ao primeiro plano.';
+      'e então toque em DearCocoa novamente para trazê-lo ao primeiro plano.';
 
   @override
   String get oauthSuccessTitle => 'Autorização concluída';
 
   @override
   String get oauthSuccessMessage =>
-      'Você já pode fechar este navegador e voltar ao Memex.';
+      'Você já pode fechar este navegador e voltar ao DearCocoa.';
 
   @override
   String get sharePreviewTitle => 'Prévia de compartilhamento';
@@ -216,7 +216,7 @@ class AppLocalizationsExtPt extends AppLocalizationsPt
   String get shareNow => 'Compartilhar';
 
   @override
-  String get sharedFromMemex => 'Compartilhado pelo Memex';
+  String get sharedFromDearCocoa => 'Compartilhado pelo DearCocoa';
 
   @override
   String get appTagline => 'Registre a faísca, molde a alma';
@@ -236,23 +236,23 @@ class AppLocalizationsExtPt extends AppLocalizationsPt
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
         introText:
-            'Bem-vindo ao Memex - seu assistente pessoal de memória com IA.',
-        introTitle: 'Memex - Seu diário de vida com IA',
+            'Bem-vindo ao DearCocoa - seu assistente pessoal de memória com IA.',
+        introTitle: 'DearCocoa - Seu diário de vida com IA',
         introInsight:
-            'Memex é seu assistente de memória com IA. Registre texto, fotos e voz; a IA organiza tudo em cartões estruturados, conhecimento e insights entre registros.',
-        introInsightSummary: 'Visão geral dos recursos do Memex',
+            'DearCocoa é seu assistente de memória com IA. Registre texto, fotos e voz; a IA organiza tudo em cartões estruturados, conhecimento e insights entre registros.',
+        introInsightSummary: 'Visão geral dos recursos do DearCocoa',
         introComment:
             'Bem-vindo. Publique seu primeiro registro e veja como a IA organiza.',
-        kbFileName: 'Guia do Memex.md',
+        kbFileName: 'Guia do DearCocoa.md',
         firstRecordTitle: 'Meu primeiro registro',
         firstRecordInsight:
-            'Seu primeiro registro chegou. A partir de agora, o Memex pode organizar, classificar e conectar suas notas.',
+            'Seu primeiro registro chegou. A partir de agora, o DearCocoa pode organizar, classificar e conectar suas notas.',
         firstRecordSummary: 'Primeiro registro',
         firstRecordComment: 'Primeiro registro salvo. Continue.',
         firstRecordKbTitle: 'Primeiro registro do usuário',
         introHeroCaption: 'Seu diário de vida com IA',
         introSnippetText:
-            'Anote uma ideia, tire uma foto ou fale em voz alta. O Memex transforma isso automaticamente em um cartão estruturado. A IA também extrai conhecimento, organiza notas e revela padrões que você talvez não tenha percebido.\n\nTudo fica no seu dispositivo.',
+            'Anote uma ideia, tire uma foto ou fale em voz alta. O DearCocoa transforma isso automaticamente em um cartão estruturado. A IA também extrai conhecimento, organiza notas e revela padrões que você talvez não tenha percebido.\n\nTudo fica no seu dispositivo.',
         smartCardTypesTitle: '22 tipos de cartões inteligentes',
         productivityTitle: 'Produtividade',
         productivityLabel: 'tarefa · rotina · evento · duração · progresso',
@@ -275,9 +275,9 @@ class AppLocalizationsExtPt extends AppLocalizationsPt
             'Ver cartões e arquivos de conhecimento gerados por IA',
         sloganContent:
             'Cada registro feito hoje vira uma pista útil para o seu eu do futuro.',
-        kbContent: '''# Guia do Memex
+        kbContent: '''# Guia do DearCocoa
 
-Memex é um aplicativo local-first e nativo de IA para registrar sua vida pessoal.
+DearCocoa é um aplicativo local-first e nativo de IA para registrar sua vida pessoal.
 
 ## O que você pode fazer
 

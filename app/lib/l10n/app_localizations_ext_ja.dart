@@ -195,13 +195,13 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
   String get oauthHintMessage => '認可ページがブラウザーで開きます。\n\n'
       '確認画面で許可をタップしたあとページが反応しない場合は、'
       'ページを開いたままホーム画面またはアプリ切り替え画面に移動し、'
-      'もう一度 Memex をタップして前面に戻してください。';
+      'もう一度 DearCocoa をタップして前面に戻してください。';
 
   @override
   String get oauthSuccessTitle => '認可が完了しました';
 
   @override
-  String get oauthSuccessMessage => 'このブラウザーを閉じて Memex に戻れます。';
+  String get oauthSuccessMessage => 'このブラウザーを閉じて DearCocoa に戻れます。';
 
   @override
   String get sharePreviewTitle => '共有プレビュー';
@@ -210,7 +210,7 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
   String get shareNow => '共有';
 
   @override
-  String get sharedFromMemex => 'Memex から共有';
+  String get sharedFromDearCocoa => 'DearCocoa から共有';
 
   @override
   String get appTagline => 'きらめきを記録し、魂を設計する';
@@ -229,13 +229,13 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
 
   @override
   MemexDemoCopy get demoCopy => const MemexDemoCopy(
-        introText: 'Memex へようこそ。AI 搭載の個人記憶アシスタントです。',
-        introTitle: 'Memex - AI ライフジャーナル',
+        introText: 'DearCocoa へようこそ。AI 搭載の個人記憶アシスタントです。',
+        introTitle: 'DearCocoa - AI ライフジャーナル',
         introInsight:
-            'Memex はあなたの AI 記憶アシスタントです。テキスト、写真、音声を記録すると、AI が構造化カード、知識、横断インサイトに整理します。',
-        introInsightSummary: 'Memex 機能概要',
+            'DearCocoa はあなたの AI 記憶アシスタントです。テキスト、写真、音声を記録すると、AI が構造化カード、知識、横断インサイトに整理します。',
+        introInsightSummary: 'DearCocoa 機能概要',
         introComment: 'ようこそ。最初の記録を投稿して、AI の整理を試してみてください。',
-        kbFileName: 'Memex ガイド.md',
+        kbFileName: 'DearCocoa ガイド.md',
         firstRecordTitle: '最初の記録',
         firstRecordInsight: '最初の記録を受け取りました。これからのメモを整理し、分類し、関連する内容をつなげます。',
         firstRecordSummary: '最初の記録',
@@ -243,7 +243,7 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
         firstRecordKbTitle: 'ユーザーの最初の記録',
         introHeroCaption: 'AI ライフジャーナル',
         introSnippetText:
-            '思いつきを書く、写真を撮る、声で残す。Memex はそれを自動で構造化カードに変えます。AI は知識を抽出し、ノートに整理し、見落としていたパターンも見つけます。\n\nデータはすべてあなたのデバイス上に保存されます。',
+            '思いつきを書く、写真を撮る、声で残す。DearCocoa はそれを自動で構造化カードに変えます。AI は知識を抽出し、ノートに整理し、見落としていたパターンも見つけます。\n\nデータはすべてあなたのデバイス上に保存されます。',
         smartCardTypesTitle: '22 種類のスマートカード',
         productivityTitle: '生産性',
         productivityLabel: 'タスク · 習慣 · 予定 · 時間 · 進捗',
@@ -262,9 +262,9 @@ class AppLocalizationsExtJa extends AppLocalizationsJa
         postFirstRecordTask: '最初の記録を投稿',
         viewGeneratedTask: 'AI が生成したカードと知識ファイルを確認',
         sloganContent: '今日残した記録は、未来の自分に役立つ手がかりになります。',
-        kbContent: '''# Memex ガイド
+        kbContent: '''# DearCocoa ガイド
 
-Memex はローカルファーストで AI ネイティブな個人ライフログアプリです。
+DearCocoa はローカルファーストで AI ネイティブな個人ライフログアプリです。
 
 ## できること
 
