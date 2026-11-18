@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dearcocoa/data/services/whisper_service.dart';
 import 'package:dearcocoa/ui/core/themes/app_colors.dart';
 import 'package:dearcocoa/utils/user_storage.dart';
 import 'package:dearcocoa/ui/settings/widgets/model_stats_page.dart';
@@ -11,7 +10,6 @@ import 'package:dearcocoa/ui/settings/widgets/async_task_list_page.dart';
 import 'package:dearcocoa/ui/settings/widgets/agent_config_list_page.dart';
 import 'package:dearcocoa/ui/settings/widgets/custom_agent_config_page.dart';
 import 'package:dearcocoa/ui/settings/widgets/skills_management_page.dart';
-import 'package:dearcocoa/utils/toast_helper.dart';
 
 class DebugSettingsPage extends StatelessWidget {
   final Future<void> Function() onClearToken;
@@ -44,52 +42,6 @@ class DebugSettingsPage extends StatelessWidget {
     required this.isReprocessingComments,
     required this.isRebuildingSearchIndex,
   });
-
-  Future<void> _deleteSpeechModel(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(UserStorage.l10n.deleteSpeechModel),
-        content: Text(UserStorage.l10n.confirmDeleteSpeechModelMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(UserStorage.l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(UserStorage.l10n.delete),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      final deleted = await WhisperService.instance.deleteDownloadedModel();
-      if (!context.mounted) return;
-
-      if (deleted) {
-        ToastHelper.showSuccess(
-          context,
-          UserStorage.l10n.speechModelDeletedSuccess,
-        );
-      } else {
-        ToastHelper.showInfo(
-          context,
-          UserStorage.l10n.speechModelNotDownloaded,
-        );
-      }
-    } catch (e) {
-      if (!context.mounted) return;
-      ToastHelper.showError(
-        context,
-        UserStorage.l10n.speechModelDeleteFailed(e),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,13 +168,6 @@ class DebugSettingsPage extends StatelessWidget {
             title: UserStorage.l10n.cloneToTestUser,
             onTap: onCloneToTestUser,
             isLoading: isCloningTestUser,
-          ),
-          const SizedBox(height: 12),
-          _buildFunctionTab(
-            context: context,
-            icon: Icons.delete_sweep_outlined,
-            title: UserStorage.l10n.deleteSpeechModel,
-            onTap: () => _deleteSpeechModel(context),
           ),
           const SizedBox(height: 12),
           _buildFunctionTab(

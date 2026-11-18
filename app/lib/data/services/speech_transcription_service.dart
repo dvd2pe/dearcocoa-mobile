@@ -1,12 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dart_agent_core/dart_agent_core.dart';
+import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:dearcocoa/data/services/asset_safety_service.dart';
-import 'package:dearcocoa/data/services/whisper_service.dart';
 import 'package:dearcocoa/domain/models/agent_definitions.dart';
 import 'package:dearcocoa/domain/models/llm_config.dart';
 import 'package:dearcocoa/utils/logger.dart';
@@ -24,6 +25,15 @@ class SpeechTranscriptionResult {
   });
 }
 
+/// Speech-to-text service (v0.3.0).
+///
+/// The bundled offline whisper model (sherpa_onnx) was removed: it made the
+/// release APK unreasonably large. Transcription now runs in the cloud only:
+/// - Groq Whisper (whisper-large-v3-turbo) when a Groq API key is set in
+///   Settings (preferred: fast, cheap, purpose-built for transcription).
+/// - Otherwise the configured multimodal LLM (same as before, via AudioPart).
+/// Voice notes are always recorded and stored as audio regardless of whether
+/// any transcription provider is configured.
 class SpeechTranscriptionService {
   SpeechTranscriptionService._();
 
@@ -32,23 +42,15 @@ class SpeechTranscriptionService {
 
   final Logger _logger = getLogger('SpeechTranscriptionService');
 
-  Future<bool> isUsingLocalModel() {
-    return UserStorage.getUseLocalSpeechToText();
-  }
+  /// Local (offline) speech-to-text was removed in v0.3.0.
+  Future<bool> isUsingLocalModel() async => false;
 
-  /// Whether the local speech model needs to be downloaded before recording.
-  /// Returns false when using cloud model (no local download needed).
-  Future<bool> requiresLocalModelDownload() async {
-    if (!await isUsingLocalModel()) return false;
-    return !await WhisperService.instance.isModelDownloaded();
-  }
+  /// No local model needs downloading anymore (kept for compatibility).
+  Future<bool> requiresLocalModelDownload() async => false;
 
-  /// Whether real-time streaming transcription is available.
-  /// Only supported with the local model.
-  Future<bool> supportsStreamingTranscription() async {
-    if (!await isUsingLocalModel()) return false;
-    return await WhisperService.instance.isModelDownloaded();
-  }
+  /// Real-time streaming transcription was only possible with the removed
+  /// local model.
+  Future<bool> supportsStreamingTranscription() async => false;
 
   Future<String?> transcribeFile(
     String audioPath, {
@@ -65,15 +67,6 @@ class SpeechTranscriptionService {
     String audioPath, {
     bool skipLengthCheck = false,
   }) async {
-    final useLocal = await UserStorage.getUseLocalSpeechToText();
-
-    if (useLocal) {
-      return _transcribeFileLocally(
-        audioPath,
-        skipLengthCheck: skipLengthCheck,
-      );
-    }
-
     return _transcribeFileWithCloud(audioPath);
   }
 
@@ -85,50 +78,7 @@ class SpeechTranscriptionService {
   Future<SpeechTranscriptionResult> transcribeSamplesWithMetadata(
     Float32List samples,
   ) async {
-    final useLocal = await UserStorage.getUseLocalSpeechToText();
-
-    if (useLocal) {
-      return _transcribeSamplesLocally(samples);
-    }
-
     return _transcribeSamplesWithCloud(samples);
-  }
-
-  Future<SpeechTranscriptionResult> _transcribeFileLocally(
-    String audioPath, {
-    bool skipLengthCheck = false,
-  }) async {
-    final safety = await _inspectAudioForTranscription(audioPath);
-    if (!safety.safeForAnalysis) {
-      _logger.warning(
-        'Skipping unsafe local audio transcription for $audioPath: ${safety.reason}',
-      );
-      return const SpeechTranscriptionResult(
-        text: null,
-        usage: null,
-        model: 'asset-safety',
-      );
-    }
-    final text = await WhisperService.instance.transcribe(
-      audioPath,
-      skipLengthCheck: skipLengthCheck,
-    );
-    return SpeechTranscriptionResult(
-      text: text,
-      usage: null,
-      model: 'sensevoice-local',
-    );
-  }
-
-  Future<SpeechTranscriptionResult> _transcribeSamplesLocally(
-    Float32List samples,
-  ) async {
-    final text = await WhisperService.instance.transcribeSamples(samples);
-    return SpeechTranscriptionResult(
-      text: text,
-      usage: null,
-      model: 'sensevoice-local',
-    );
   }
 
   Future<SpeechTranscriptionResult> _transcribeFileWithCloud(
@@ -168,10 +118,67 @@ class SpeechTranscriptionService {
     return _transcribeAudioBytesWithCloud(bytes, mimeType: 'audio/wav');
   }
 
+  /// Preferred path when the user configured a Groq API key: the OpenAI-
+  /// compatible /audio/transcriptions endpoint (whisper-large-v3-turbo).
+  /// Returns null when no key is set or the request fails (caller falls
+  /// back to the multimodal LLM path).
+  Future<SpeechTranscriptionResult?> _transcribeWithGroq(
+    List<int> bytes, {
+    required String mimeType,
+  }) async {
+    final apiKey = await UserStorage.getGroqSpeechApiKey();
+    if (apiKey.isEmpty) return null;
+
+    try {
+      final uri = Uri.parse('https://api.groq.com/openai/v1/audio/transcriptions');
+      final request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $apiKey'
+        ..fields['model'] = 'whisper-large-v3-turbo'
+        ..fields['response_format'] = 'json'
+        ..fields['temperature'] = '0'
+        ..files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            bytes,
+            filename: _filenameForMime(mimeType),
+          ),
+        );
+
+      final streamed = await request
+          .send()
+          .timeout(const Duration(seconds: 120));
+      final response = await http.Response.fromStream(streamed);
+
+      if (response.statusCode != 200) {
+        _logger.warning(
+          'Groq transcription failed (HTTP ${response.statusCode}): '
+          '${response.body.length > 300 ? response.body.substring(0, 300) : response.body}',
+        );
+        return null;
+      }
+
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+      final text = (decoded['text'] as String?)?.trim();
+      if (text == null || text.isEmpty) return null;
+
+      return SpeechTranscriptionResult(
+        text: text,
+        usage: null,
+        model: 'groq-whisper-large-v3-turbo',
+      );
+    } catch (e) {
+      _logger.warning('Groq transcription error: $e');
+      return null;
+    }
+  }
+
   Future<SpeechTranscriptionResult> _transcribeAudioBytesWithCloud(
     List<int> bytes, {
     required String mimeType,
   }) async {
+    final groqResult = await _transcribeWithGroq(bytes, mimeType: mimeType);
+    if (groqResult != null) return groqResult;
+
     final resources = await UserStorage.getAgentLLMResources(
       AgentDefinitions.chatAgent,
       defaultClientKey: LLMConfig.defaultClientKey,
@@ -280,6 +287,23 @@ Rules:
     return normalized;
   }
 
+  String _filenameForMime(String mimeType) {
+    switch (mimeType) {
+      case 'audio/wav':
+        return 'audio.wav';
+      case 'audio/aiff':
+        return 'audio.aiff';
+      case 'audio/aac':
+        return 'audio.aac';
+      case 'audio/ogg':
+        return 'audio.ogg';
+      case 'audio/flac':
+        return 'audio.flac';
+      default:
+        return 'audio.mp3';
+    }
+  }
+
   /// Save raw PCM 16-bit data (16kHz, mono) as a WAV file.
   Future<void> savePcmAsWav(String filePath, Uint8List pcmData) async {
     final file = File(filePath);
@@ -308,7 +332,7 @@ Rules:
     header.setUint32(24, 16000, Endian.little); // sample rate
     header.setUint32(28, 32000, Endian.little); // byte rate
     header.setUint16(32, 2, Endian.little); // block align
-    header.setUint16(34, 16, Endian.little); // bits per sample
+    header.setUint32(34, 16, Endian.little); // bits per sample
     // data chunk
     header.setUint8(36, 0x64); // d
     header.setUint8(37, 0x61); // a
@@ -369,12 +393,12 @@ Rules:
     header.setUint8(14, 0x74);
     header.setUint8(15, 0x20);
     header.setUint32(16, 16, Endian.little);
-    header.setUint16(20, 1, Endian.little);
-    header.setUint16(22, 1, Endian.little);
-    header.setUint32(24, 16000, Endian.little);
-    header.setUint32(28, 32000, Endian.little);
-    header.setUint16(32, 2, Endian.little);
-    header.setUint16(34, 16, Endian.little);
+    header.setUint16(20, 1, Endian.little); // PCM
+    header.setUint16(22, 1, Endian.little); // mono
+    header.setUint32(24, 16000, Endian.little); // sample rate
+    header.setUint32(28, 32000, Endian.little); // byte rate
+    header.setUint16(32, 2, Endian.little); // block align
+    header.setUint16(34, 16, Endian.little); // bits per sample
     header.setUint8(36, 0x64);
     header.setUint8(37, 0x61);
     header.setUint8(38, 0x74);

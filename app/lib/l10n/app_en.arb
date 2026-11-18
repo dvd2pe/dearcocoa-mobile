@@ -1551,5 +1551,10 @@
   },
   "taskCompletedLabel": "Completed: {date}",
   "oauthCouldNotLaunchBrowser": "Could not launch browser for OAuth",
-  "authorizationTimedOut": "Authorization timed out"
+  "authorizationTimedOut": "Authorization timed out",
+  "groqSpeechTitle": "Voice transcription (Groq Whisper)",
+  "groqSpeechDesc": "Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.",
+  "groqSpeechHint": "gsk_... (Groq API key)",
+  "groqSpeechSave": "Save key",
+  "groqSpeechSaved": "Groq API key saved"
 }

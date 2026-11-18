@@ -503,6 +503,7 @@ class UserStorage {
 
   static const String _keyAgentConfigs = 'agent_configs';
   static const String _keyUseLocalSpeechToText = 'use_local_speech_to_text';
+  static const String _keyGroqSpeechApiKey = 'groq_speech_api_key';
   static const String _keySuperAgentRunMode = 'super_agent_run_mode';
 
   /// Persisted run mode for the SuperAgent home entry ('auto' | 'confirm' |
@@ -568,13 +569,11 @@ class UserStorage {
     }
   }
 
+  /// Local (offline) speech-to-text was removed in v0.3.0 (APK size).
+  /// Transcription is cloud-only now: this always returns false. Kept for
+  /// compatibility with existing callers and stored preferences.
   static Future<bool> getUseLocalSpeechToText() async {
-    try {
-      final prefs = await sharedPrefs();
-      return prefs.getBool(_keyUseLocalSpeechToText) ?? true;
-    } catch (e) {
-      return false;
-    }
+    return false;
   }
 
   static Future<void> setUseLocalSpeechToText(bool value) async {
@@ -592,6 +591,26 @@ class UserStorage {
       await prefs.remove(_keyUseLocalSpeechToText);
     } catch (e) {
       throw Exception('Failed to reset speech preference: $e');
+    }
+  }
+
+  /// Groq API key for cloud voice-to-text transcription (whisper-large-v3-turbo).
+  /// Empty string when not configured: voice notes are stored as audio only.
+  static Future<String> getGroqSpeechApiKey() async {
+    try {
+      final prefs = await sharedPrefs();
+      return prefs.getString(_keyGroqSpeechApiKey) ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  static Future<void> setGroqSpeechApiKey(String value) async {
+    try {
+      final prefs = await sharedPrefs();
+      await prefs.setString(_keyGroqSpeechApiKey, value.trim());
+    } catch (e) {
+      throw Exception('Failed to save Groq API key: $e');
     }
   }
 

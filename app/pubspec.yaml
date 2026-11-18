@@ -1,7 +1,7 @@
 name: dearcocoa
 description: DearCocoa - social wellness platform (private journaling, AI reflections, mood, community, groups, events)
 publish_to: "none"
-version: 1.0.39+124
+version: 0.3.0+125
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
@@ -83,13 +83,10 @@ dependencies:
   flutter_image_compress: ^2.4.0
   photo_view: ^0.15.0
   camera: ^0.11.3+1
-  google_mlkit_text_recognition: ^0.15.1
-  google_mlkit_image_labeling: ^0.14.2
   url_launcher: ^6.3.2
   share_plus: ^10.1.4
   file_picker: ^8.1.7
   screenshot: ^3.0.0
-  sherpa_onnx: 1.13.2
   geolocator: ^14.0.2
   supabase_flutter: ^2.16.0
 
@@ -120,7 +117,6 @@ flutter:
     - assets/icon.png
     - assets/icons/
     - assets/fluent_emoji/
-    - assets/silero_vad.onnx
     - assets/jieba_dict.txt
     # Offline Google Fonts used by AppTheme / brand title / quote cards.
     - google_fonts/

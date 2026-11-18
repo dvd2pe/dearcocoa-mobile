@@ -5,8 +5,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'dart:math';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 import 'package:camera/camera.dart';
 import 'package:dearcocoa/data/services/asset_safety_service.dart';
 import 'publish_timestamp_service.dart';
@@ -623,62 +621,19 @@ class PhotoSuggestionService {
         List<String> labels,
         DateTime modifiedTime
       })> _processImageOCR(XFile xFile) async {
-    _logger.info('--- Starting OCR + Labeling for ${xFile.name} ---');
-    TextRecognizer? textRecognizer;
-    ImageLabeler? imageLabeler;
-    try {
-      final file = File(xFile.path);
-      final stat = await file.stat();
-      _logger.fine('Processing ${xFile.name}, modified: ${stat.modified}');
-
-      final safety = await AssetSafetyService.instance.inspectFile(xFile.path);
-      if (!safety.safeForAnalysis) {
-        _logger.warning(
-          'Skipping unsafe photo suggestion analysis for ${xFile.path}: ${safety.reason}',
-        );
-        return (
-          ocrBlocks: <String>[],
-          labels: <String>[],
-          modifiedTime: stat.modified
-        );
-      }
-
-      final inputImage = InputImage.fromFilePath(xFile.path);
-      imageLabeler = ImageLabeler(options: ImageLabelerOptions());
-      final labelsFuture = imageLabeler.processImage(inputImage);
-
-      Future<RecognizedText>? recognizedTextFuture;
-      if (safety.safeForOcr) {
-        textRecognizer = TextRecognizer(script: TextRecognitionScript.chinese);
-        recognizedTextFuture = textRecognizer.processImage(inputImage);
-      } else {
-        _logger.warning(
-          'Skipping OCR for ${xFile.path}: ${safety.reason}',
-        );
-      }
-
-      final labels = await labelsFuture;
-      final recognizedText = await recognizedTextFuture;
-      final List<String> labelNames = labels.map((l) => l.label).toList();
-      final List<String> blockTexts =
-          recognizedText?.blocks.map((b) => b.text).toList() ?? <String>[];
-
-      return (
-        ocrBlocks: blockTexts,
-        labels: labelNames,
-        modifiedTime: stat.modified
-      );
-    } catch (e) {
-      _logger.warning('OCR/Labeling failed for image ${xFile.name}: $e');
-      return (
-        ocrBlocks: <String>[],
-        labels: <String>[],
-        modifiedTime: DateTime.now()
-      );
-    } finally {
-      textRecognizer?.close();
-      imageLabeler?.close();
-    }
+    // MLKit (offline OCR + image labeling) was removed in v0.3.0 to slim the
+    // release APK. Photo suggestions keep working with metadata only
+    // (timestamps, screenshots, ngram), without photo text/labels.
+    _logger.info(
+      '--- OCR/Labeling disabled (MLKit removed in v0.3.0) for ${xFile.name} ---',
+    );
+    final file = File(xFile.path);
+    final stat = await file.stat();
+    return (
+      ocrBlocks: <String>[],
+      labels: <String>[],
+      modifiedTime: stat.modified
+    );
   }
 }
 

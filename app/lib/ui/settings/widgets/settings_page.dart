@@ -29,7 +29,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _currentLocaleTag = 'en';
-  bool _useLocalSpeechToText = true;
+  final TextEditingController _groqKeyController = TextEditingController();
   CommentSettings _commentSettings = const CommentSettings();
 
   @override
@@ -40,17 +40,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     final locale = await UserStorage.getLocale();
-    final useLocalSpeechToText = await UserStorage.getUseLocalSpeechToText();
+    final groqKey = await UserStorage.getGroqSpeechApiKey();
     final commentSettings = await MemexRouter().getCommentSettings();
     if (mounted) {
       setState(() {
         _currentLocaleTag = UserStorage.localeTag(
           UserStorage.resolveToSupportedLocale(locale),
         );
-        _useLocalSpeechToText = useLocalSpeechToText;
+        _groqKeyController.text = groqKey;
         _commentSettings = commentSettings;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _groqKeyController.dispose();
+    super.dispose();
   }
 
   Future<void> _changeLanguage(String localeTag) async {
@@ -77,10 +83,15 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<void> _updateUseLocalSpeechToText(bool value) async {
-    await UserStorage.setUseLocalSpeechToText(value);
+  Future<void> _saveGroqKey() async {
+    await UserStorage.setGroqSpeechApiKey(_groqKeyController.text);
     if (mounted) {
-      setState(() => _useLocalSpeechToText = value);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(UserStorage.l10n.groqSpeechSaved),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -188,34 +199,61 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            child: SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              secondary: const Icon(
-                Icons.graphic_eq,
-                color: AppColors.primary,
-                size: 22,
-              ),
-              title: Text(
-                UserStorage.l10n.useLocalSpeechToTextTitle,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.graphic_eq,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        UserStorage.l10n.groqSpeechTitle,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  UserStorage.l10n.useLocalSpeechToTextDesc,
+                const SizedBox(height: 6),
+                Text(
+                  UserStorage.l10n.groqSpeechDesc,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[600],
                     height: 1.4,
                   ),
                 ),
-              ),
-              value: _useLocalSpeechToText,
-              onChanged: _updateUseLocalSpeechToText,
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _groqKeyController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: UserStorage.l10n.groqSpeechHint,
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onSubmitted: (_) => _saveGroqKey(),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: _saveGroqKey,
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(UserStorage.l10n.groqSpeechSave),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),

@@ -40,18 +40,9 @@ jobs:
           channel: stable
           cache: true
 
-      # Il plugin sherpa_onnx compila codice nativo (:app:configureCMakeRelease):
-      # serve CMake 3.22.1. Il runner non raggiunge dl.google.com e ha cmake
-      # 3.31.5/4.1.2 ma non il 3.22.1: tarball Kitware + cmake.dir.
-      - name: Installa CMake 3.22.1 (tarball Kitware)
-        run: |
-          if [ ! -x "$HOME/cmake-3.22.1-linux-x86_64/bin/cmake" ]; then
-            curl -sL -o /tmp/cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.tar.gz
-            tar -xzf /tmp/cmake.tar.gz -C "$HOME"
-          fi
-          echo "$HOME/cmake-3.22.1-linux-x86_64/bin" >> "$GITHUB_PATH"
-          echo "cmake.dir=$HOME/cmake-3.22.1-linux-x86_64" >> android/gradle.properties
-          "$HOME/cmake-3.22.1-linux-x86_64/bin/cmake" --version
+      # M12: sherpa_onnx RIMOSSO (niente più build nativa CMake/NDK) — il task
+      # CMake 3.22.1 non serve più. Trascrizione voce via Groq API (chiave in
+      # Settings) o LLM multimodale; memo vocali sempre salvati come audio.
 
       # build.gradle.kts: key-global.properties si legge da rootProject (= app/android/)
       # e storeFile viene risolto rispetto alla dir del modulo :app -> percorso assoluto.
@@ -99,10 +90,17 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             mkdir -p apks
-            for f in build/app/outputs/flutter-apk/*-release.apk; do
-              cp "$f" apks/
-              echo "split: $(basename $f) $(du -h "$f" | cut -f1)"
-            done
+            # NB: gradle rinomina gli output con suffisso ABI
+            # (dearcocoa_<flavor>_<versione>_<build>_<abi>.apk): il glob su
+            # flutter-apk/ non combaccia, si cercano gli APK negli outputs.
+            find build/app/outputs -name "*.apk" -not -path "*intermediates*" \
+              | grep -E "arm64-v8a|armeabi-v7a|x86_64" \
+              | while read -r f; do
+                  cp "$f" apks/
+                  echo "split: $(basename "$f") $(du -h "$f" | cut -f1)"
+                done
+            N=$(ls apks/*.apk 2>/dev/null | wc -l)
+            [ "$N" -eq 3 ] || { echo "attesi 3 APK per-ABI, trovati $N" >&2; ls -R build/app/outputs >&2; exit 1; }
           else
             APK=$(ls build/app/outputs/flutter-apk/*release*.apk 2>/dev/null | grep -v -E '\-arm|\-x86' | head -1)
             [ -z "$APK" ] && APK=$(find build/app/outputs -name "*.apk" -not -path "*intermediates*" | head -1)
