@@ -57,7 +57,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>memex</string>
+		<string>DearCocoa</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -172,7 +172,7 @@
 					<string>app.dearcocoa.mobile.app-actions</string>
 					<key>CFBundleURLSchemes</key>
 					<array>
-						<string>memex</string>
+						<string>DearCocoa</string>
 					</array>
 				</dict>
 			</array>
@@ -194,7 +194,7 @@
 					<dict>
 						<key>public.filename-extension</key>
 						<array>
-							<string>memex</string>
+							<string>DearCocoa</string>
 						</array>
 						<key>public.mime-type</key>
 						<string>application/x-memex-backup</string>

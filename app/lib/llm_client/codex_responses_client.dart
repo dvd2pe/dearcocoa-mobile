@@ -55,7 +55,7 @@ class CodexResponsesClient extends LLMClient {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $accessToken',
       'originator': 'memex',
-      'User-Agent': 'memex/0.0.1 (darwin 24.3.0; arm64)',
+      'User-Agent': 'dearcocoa/0.3.2 (flutter)',
     };
     if (accountId != null) {
       headers['ChatGPT-Account-Id'] = accountId!;
