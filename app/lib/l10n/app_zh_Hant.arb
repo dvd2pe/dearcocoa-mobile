@@ -1551,5 +1551,10 @@
     "placeholders": {
       "week": {}
     }
-  }
+  },
+  "groqSpeechTitle": "語音轉錄（Groq Whisper）",
+  "groqSpeechDesc": "Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.",
+  "groqSpeechHint": "gsk_...（Groq API 金鑰）",
+  "groqSpeechSave": "儲存金鑰",
+  "groqSpeechSaved": "Groq API 金鑰已儲存"
 }

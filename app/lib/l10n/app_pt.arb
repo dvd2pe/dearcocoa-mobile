@@ -1551,5 +1551,10 @@
     "placeholders": {
       "week": {}
     }
-  }
+  },
+  "groqSpeechTitle": "Transcrição de voz (Groq Whisper)",
+  "groqSpeechDesc": "Opcional. Cole sua chave de API Groq para converter notas de voz em texto (whisper-large-v3-turbo rápido). Notas de voz sempre salvas como áudio; sem chave ficam apenas em áudio. Chave gratuita em console.groq.com.",
+  "groqSpeechHint": "gsk_... (chave de API Groq)",
+  "groqSpeechSave": "Salvar chave",
+  "groqSpeechSaved": "Chave de API Groq salva"
 }

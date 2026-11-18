@@ -1551,5 +1551,10 @@
   },
   "taskCompletedLabel": "Completato: {date}",
   "oauthCouldNotLaunchBrowser": "Impossibile aprire il browser per OAuth",
-  "authorizationTimedOut": "Autorizzazione scaduta"
+  "authorizationTimedOut": "Autorizzazione scaduta",
+  "groqSpeechTitle": "Trascrizione vocale (Groq Whisper)",
+  "groqSpeechDesc": "Opzionale. Incolla la tua chiave API Groq per convertire i memo vocali in testo (whisper-large-v3-turbo veloce). I memo vocali sono sempre salvati come audio; senza chiave restano solo audio. Chiave gratuita su console.groq.com.",
+  "groqSpeechHint": "gsk_... (chiave API Groq)",
+  "groqSpeechSave": "Salva chiave",
+  "groqSpeechSaved": "Chiave API Groq salvata"
 }

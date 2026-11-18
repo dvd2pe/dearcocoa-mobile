@@ -1551,5 +1551,10 @@
     "placeholders": {
       "week": {}
     }
-  }
+  },
+  "groqSpeechTitle": "음성 전사 (Groq Whisper)",
+  "groqSpeechDesc": "Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.",
+  "groqSpeechHint": "gsk_... (Groq API 키)",
+  "groqSpeechSave": "키 저장",
+  "groqSpeechSaved": "Groq API 키가 저장되었습니다"
 }
