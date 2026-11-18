@@ -167,7 +167,7 @@ endobj
     );
     expect(
       extracted,
-      contains('Memex could not parse readable text content'),
+      contains('DearCocoa could not parse readable text content'),
     );
     expect(extracted, isNot(contains('Hello from PDF')));
   });
@@ -194,7 +194,7 @@ endobj
       File(docPath),
     );
 
-    expect(extracted, contains('Memex could not parse readable text content'));
+    expect(extracted, contains('DearCocoa could not parse readable text content'));
     expect(extracted, contains('legacy.doc'));
   });
 
@@ -207,7 +207,7 @@ endobj
       File(xlsPath),
     );
 
-    expect(extracted, contains('Memex could not parse readable text content'));
+    expect(extracted, contains('DearCocoa could not parse readable text content'));
     expect(extracted, contains('legacy.xls'));
   });
 }

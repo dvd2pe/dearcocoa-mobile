@@ -161,7 +161,7 @@ void main() {
     expect(await helperFile.exists(), isTrue);
     expect(
       await helperFile.readAsString(),
-      contains('Memex could not parse readable text content'),
+      contains('DearCocoa could not parse readable text content'),
     );
   });
 
@@ -346,7 +346,7 @@ void main() {
     expect(message, contains('.extracted-text-for-agent.md'));
     expect(
       message,
-      isNot(contains('Memex could not parse readable text content')),
+      isNot(contains('DearCocoa could not parse readable text content')),
     );
     expect(message, isNot(contains('Plain-text formats')));
     expect(message, contains('.asset-reference-for-agent.md'));
