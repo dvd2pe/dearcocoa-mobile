@@ -92,15 +92,14 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             mkdir -p apks
-            # NB: gradle rinomina gli output con suffisso ABI
-            # (dearcocoa_<flavor>_<versione>_<build>_<abi>.apk): il glob su
-            # flutter-apk/ non combaccia, si cercano gli APK negli outputs.
-            find build/app/outputs -name "*.apk" -not -path "*intermediates*" \
-              | grep -E "arm64-v8a|armeabi-v7a|x86_64" \
-              | while read -r f; do
-                  cp "$f" apks/
-                  echo "split: $(basename "$f") $(du -h "$f" | cut -f1)"
-                done
+            # NB: gradle rinomina gli output con suffisso ABI e il flutter tool
+            # copia anche gli APK in flutter-apk/: si prende UN file per ABI.
+            for ABI in arm64-v8a armeabi-v7a x86_64; do
+              f=$(find build/app/outputs -name "*$ABI*.apk" -not -path "*intermediates*" | head -1)
+              [ -n "$f" ] || { echo "APK $ABI non trovato" >&2; exit 1; }
+              cp "$f" "apks/dearcocoa-0.3.0-$ABI.apk"
+              echo "split: dearcocoa-0.3.0-$ABI.apk $(du -h "$f" | cut -f1)"
+            done
             N=$(ls apks/*.apk 2>/dev/null | wc -l)
             [ "$N" -eq 3 ] || { echo "attesi 3 APK per-ABI, trovati $N" >&2; ls -R build/app/outputs >&2; exit 1; }
           else
