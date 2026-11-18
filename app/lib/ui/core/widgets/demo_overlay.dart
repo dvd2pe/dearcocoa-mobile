@@ -361,45 +361,59 @@ class _SpotlightOverlayState extends State<_SpotlightOverlay>
     // Determine tooltip position: above or below the cutout
     final bool showAbove = _targetRect!.center.dy > size.height / 2;
 
-    return Stack(
-      children: [
-        // Scrim with cutout — blocks taps outside cutout, passes through inside
-        Positioned.fill(
-          child: _ScrimWithHole(
-            holeRect: _targetRect!.inflate(8),
-            child: CustomPaint(
-              painter: _SpotlightPainter(cutout: cutout),
-            ),
-          ),
-        ),
-
-        // Tooltip bubble
-        _buildTooltip(size, cutout, showAbove),
-
-        // Skip button — top right
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 12,
-          right: 16,
-          child: GestureDetector(
-            onTap: widget.onSkip,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                widget.skipText,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF64748B),
+    // Material + DefaultTextStyle: this overlay lives above the Navigator,
+    // without a Material ancestor — Flutter then paints its Text widgets with
+    // the yellow "no Material" underline. Keep the tutorial texts clean.
+    return Material(
+      type: MaterialType.transparency,
+      child: DefaultTextStyle(
+        style: const TextStyle(decoration: TextDecoration.none),
+        child: Stack(
+          children: [
+            // Scrim with cutout — VISUAL spotlight only: taps are never
+            // blocked, so the app always responds. The tutorial guides the
+            // user, it does not gate them.
+            Positioned.fill(
+              child: IgnorePointer(
+                child: _ScrimWithHole(
+                  holeRect: _targetRect!.inflate(8),
+                  child: CustomPaint(
+                    painter: _SpotlightPainter(cutout: cutout),
+                  ),
                 ),
               ),
             ),
-          ),
+
+            // Tooltip bubble
+            _buildTooltip(size, cutout, showAbove),
+
+            // Skip button — top right
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 12,
+              right: 16,
+              child: GestureDetector(
+                onTap: widget.onSkip,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    widget.skipText,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

@@ -9,7 +9,9 @@ import '../core/themes/app_colors.dart';
 import '../core/themes/app_shadows.dart';
 import '../core/themes/app_text_styles.dart';
 import '../../data/repositories/social.dart';
+import '../../data/services/supabase_service.dart';
 import '../../domain/models/social_models.dart';
+import '../user_setup/widgets/demo_login_screen.dart';
 
 import 'community_sheets.dart';
 import 'groups_chat_screen.dart';
@@ -73,6 +75,17 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // DearCocoa: the social layer requires a Supabase session (RLS protects
+    // every table). Without one, show the one-tap demo account picker instead
+    // of a misleading "could not reach" network error.
+    if (!SupabaseService.instance.isSignedIn) {
+      return DemoLoginScreen(
+        onSignedIn: () {
+          setState(() {});
+          _load();
+        },
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(

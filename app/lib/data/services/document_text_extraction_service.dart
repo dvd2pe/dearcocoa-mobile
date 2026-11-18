@@ -349,11 +349,11 @@ class DocumentTextExtractionService {
   }
 
   String _unsupportedExtractionMessage() {
-    return 'Memex could not parse readable text content from this document.';
+    return 'DearCocoa could not parse readable text content from this document.';
   }
 
   String _failedExtractionMessage() {
-    return 'Memex tried to parse readable text content from this document, '
+    return 'DearCocoa tried to parse readable text content from this document, '
         'but parsing failed.';
   }
 

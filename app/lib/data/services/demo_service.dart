@@ -572,7 +572,7 @@ class DemoService extends ChangeNotifier {
       // 6. Quote — slogan
       UiConfig(templateId: 'quote', data: {
         'content': copy.sloganContent,
-        'author': 'Memex',
+        'author': 'DearCocoa',
       }),
     ];
   }

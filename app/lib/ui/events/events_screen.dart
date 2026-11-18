@@ -8,7 +8,9 @@ import '../core/themes/app_colors.dart';
 import '../core/themes/app_shadows.dart';
 import '../core/themes/app_text_styles.dart';
 import '../../data/repositories/social.dart';
+import '../../data/services/supabase_service.dart';
 import '../../domain/models/social_models.dart';
+import '../user_setup/widgets/demo_login_screen.dart';
 
 /// DearCocoa Events: upcoming virtual events with RSVP, rendered with the
 /// event-card language (radius 24 card, date block, program list).
@@ -62,6 +64,16 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // DearCocoa: RSVP and attendance are per-user (RLS). Without a session,
+    // show the one-tap demo picker instead of a network error.
+    if (!SupabaseService.instance.isSignedIn) {
+      return DemoLoginScreen(
+        onSignedIn: () {
+          setState(() {});
+          _load();
+        },
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(

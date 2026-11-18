@@ -42,8 +42,16 @@ String chatErrorUserNotLoggedIn() => UserStorage.l10n.userIdNotFound;
 String chatErrorEmptyMessage() => UserStorage.l10n.unknownError;
 
 @visibleForTesting
-String chatErrorOperationFailed(Object error) =>
-    UserStorage.l10n.operationFailed('$error');
+String chatErrorOperationFailed(Object error) {
+  // DearCocoa: AI setup is optional — a missing LLM configuration is not an
+  // "operation failed" error, just a hint that the feature is dormant.
+  final text = error.toString().toLowerCase();
+  if (text.contains('configuration is invalid') ||
+      text.contains('not configured')) {
+    return UserStorage.l10n.aiSetupStatusNotConfiguredTitle;
+  }
+  return UserStorage.l10n.operationFailed('$error');
+}
 
 // --- Chat Service ---
 

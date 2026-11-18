@@ -178,8 +178,16 @@ class RootShellState extends State<RootShell> {
     var autoProvisioned = false;
     if (SupabaseService.instance.isSignedIn && (!hasUser || !onboardingDone)) {
       final profile = await SupabaseService.instance.fetchOwnProfile();
-      final username = (profile?['username'] as String?)?.trim();
-      if (username != null && username.isNotEmpty) {
+      final profileName = (profile?['username'] as String?)?.trim();
+      // Fallback: if the profile row has no username (e.g. seed not run yet),
+      // derive a local name from the account email so the user never gets
+      // stuck behind the setup wall.
+      final email =
+          SupabaseService.instance.client.auth.currentUser?.email ?? '';
+      final username = (profileName != null && profileName.isNotEmpty)
+          ? profileName
+          : email.split('@').first.trim();
+      if (username.isNotEmpty) {
         if (!hasUser) {
           await UserStorage.saveUser(username);
           final localeTag = UserStorage.localeTag(
@@ -196,15 +204,12 @@ class RootShellState extends State<RootShell> {
       }
     }
 
-    // Migration: existing users who set up before the onboarding flag was added
-    // should be treated as onboarding-complete.
+    // Migration: any existing local user is onboarding-complete. AI/LLM setup
+    // is OPTIONAL in DearCocoa — requiring a valid model config here kept
+    // users stuck behind the welcome wall forever.
     if (!autoProvisioned && hasUser && !onboardingDone) {
-      final configs = await UserStorage.getLLMConfigs();
-      final hasValidConfig = configs.any((c) => c.isValid);
-      if (hasValidConfig) {
-        await OnboardingService.markOnboardingComplete();
-        onboardingDone = true;
-      }
+      await OnboardingService.markOnboardingComplete();
+      onboardingDone = true;
     }
 
     if (mounted) {
@@ -284,9 +289,11 @@ class RootShellState extends State<RootShell> {
         ),
       );
     }
-    if (!_hasUser || !_onboardingComplete) {
+    if (!_hasUser) {
       // DearCocoa: with Supabase ready the entry is the one-tap demo account
       // picker (no wall); UserSetupScreen stays as the offline/local fallback.
+      // A user with a local workspace NEVER sees the wall again — AI setup is
+      // optional and must not gate the app.
       if (SupabaseService.instance.isSignedIn) {
         // Signed in but provisioning failed (e.g. no profile): retry setup.
         return UserSetupScreen(onUserCreated: _onUserCreated);
@@ -552,7 +559,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       GlobalKey<RadialMenuState>();
   final GlobalKey _aiButtonKey = GlobalKey();
   final GlobalKey _mainStackKey = GlobalKey();
-  bool _isInvalidConfigDialogShowing = false;
   bool _isErrorNotificationDialogShowing = false;
   bool _earlyUpdateCheckStarted = false;
   late final ShareIntentHandler _shareIntentHandler;
@@ -787,65 +793,30 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     if (!mounted) return;
     if (message is! InvalidModelConfigMessage) return;
 
-    // Check if dialog is already showing to prevent stacking
-    if (_isInvalidConfigDialogShowing) return;
-
-    final context = rootNavigatorKey.currentContext;
-    if (context == null) return;
-
-    setState(() => _isInvalidConfigDialogShowing = true);
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(UserStorage.l10n.warning),
-        content: Text(
-          UserStorage.l10n.invalidModelConfigDetailed(
-            message.agentId,
-            message.configKey,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (mounted) {
-                setState(() => _isInvalidConfigDialogShowing = false);
-              }
-            },
-            child: Text(UserStorage.l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (mounted) {
-                setState(() => _isInvalidConfigDialogShowing = false);
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AppConfig.enableMemexModelService
-                      ? const AiServiceSetupPage()
-                      : const ModelConfigListPage(),
-                ),
-              );
-            },
-            child: Text(UserStorage.l10n.modelConfig),
-          ),
-        ],
-      ),
-    ).then((_) {
-      if (mounted) {
-        setState(() => _isInvalidConfigDialogShowing = false);
-      }
-    });
+    // DearCocoa: AI setup is OPTIONAL. A missing/invalid LLM configuration is
+    // not something the user must act on — features that need a model stay
+    // dormant until a key is added in Settings. Never interrupt with a dialog.
+    _logger.info(
+      'Invalid model config (AI optional, ignored): '
+      '${message.agentId}/${message.configKey}',
+    );
   }
 
   void _handleErrorNotification(EventBusMessage message) {
     if (!mounted) return;
     if (message is! ErrorNotificationMessage) return;
     if (_isErrorNotificationDialogShowing) return;
+
+    // DearCocoa: a missing LLM configuration is never shown as a blocking
+    // error — AI features are optional and stay dormant until a key is set.
+    final errorText = message.errorMessage.toLowerCase();
+    if (errorText.contains('configuration is invalid') ||
+        errorText.contains('not configured')) {
+      _logger.info(
+        'LLM not configured (AI optional, ignored): ${message.errorMessage}',
+      );
+      return;
+    }
 
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;

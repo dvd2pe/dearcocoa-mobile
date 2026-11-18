@@ -61,7 +61,7 @@ class LLMConfig {
       case typeOllama:
         return 'Ollama';
       case typeMemex:
-        return 'Memex AI';
+        return 'DearCocoa AI';
       default:
         return type;
     }
@@ -123,7 +123,7 @@ class LLMConfig {
       case typeOllama:
         return 'Ollama';
       case typeMemex:
-        return 'Memex AI';
+        return 'DearCocoa AI';
       case typeMimo:
         return 'Xiaomi MIMO';
       default:

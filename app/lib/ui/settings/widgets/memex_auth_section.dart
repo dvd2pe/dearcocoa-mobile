@@ -397,7 +397,7 @@ class _MemexAuthSectionState extends State<MemexAuthSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _username ?? 'Memex',
+                  _username ?? 'DearCocoa',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,

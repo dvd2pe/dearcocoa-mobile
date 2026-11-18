@@ -756,7 +756,7 @@ class AppUpdateService {
 
   static Map<String, String> get _githubHeaders => const {
         'Accept': 'application/vnd.github+json',
-        'User-Agent': 'Memex-Early-Updater',
+        'User-Agent': 'DearCocoa-Early-Updater',
       };
 
   static String _normalize(String value) {

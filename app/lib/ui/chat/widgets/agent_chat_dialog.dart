@@ -2140,7 +2140,7 @@ class _AgentChatDialogState extends State<AgentChatDialog>
                   const SizedBox(width: 8),
                   const Flexible(
                     child: Text(
-                      'Memex',
+                      'DearCocoa',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
