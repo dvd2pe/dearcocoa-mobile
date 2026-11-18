@@ -9,7 +9,6 @@ on:
       - "app/pubspec.yaml"
       - "app/pubspec.lock"
       - "app/android/**"
-      - ".github/workflows/build-apk.yml"
 
 jobs:
   build-apk:
@@ -86,19 +85,35 @@ jobs:
 
       - run: flutter pub get
 
-      # SEMPRE release, mai debug (richiesta cliente)
-      - run: flutter build apk --release --flavor global
-
-      - name: Ridenomina l'artefatto
+      # SEMPRE release, mai debug (richiesta cliente).
+      # push: fat APK di conferma CI. dispatch (release): split-per-abi (3 APK ~-60%).
+      - name: Build APK
         run: |
-          APK=$(ls build/app/outputs/flutter-apk/*.apk 2>/dev/null | head -1)
-          [ -z "$APK" ] && APK=$(find build/app/outputs -name "*.apk" -not -path "*intermediates*" | head -1)
-          echo "APK trovato: $APK"
-          cp "$APK" dearcocoa-release.apk
-          ls -lh dearcocoa-release.apk
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            flutter build apk --release --flavor global --split-per-abi
+          else
+            flutter build apk --release --flavor global
+          fi
+
+      - name: Prepara artefatti
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            mkdir -p apks
+            for f in build/app/outputs/flutter-apk/*-release.apk; do
+              cp "$f" apks/
+              echo "split: $(basename $f) $(du -h "$f" | cut -f1)"
+            done
+          else
+            APK=$(ls build/app/outputs/flutter-apk/*release*.apk 2>/dev/null | grep -v -E '\-arm|\-x86' | head -1)
+            [ -z "$APK" ] && APK=$(find build/app/outputs -name "*.apk" -not -path "*intermediates*" | head -1)
+            echo "APK trovato: $APK"
+            mkdir -p apks
+            cp "$APK" apks/dearcocoa-release.apk
+          fi
+          ls -lh apks/
 
       - uses: actions/upload-artifact@v4
         with:
           name: dearcocoa-release-apk
-          path: app/dearcocoa-release.apk
+          path: app/apks/*.apk
           retention-days: 30
