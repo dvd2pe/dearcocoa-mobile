@@ -108,10 +108,7 @@ void main() {
     );
 
     final downloadButton = tester.widget<FilledButton>(
-      find.widgetWithText(
-        find.byWidgetPredicate((w) => w is FilledButton),
-        UserStorage.l10n.earlyUpdateDownloadInProgress,
-      ),
+      find.ancestor(of: find.text(UserStorage.l10n.earlyUpdateDownloadInProgress), matching: find.byWidgetPredicate((w) => w is FilledButton)),
     );
     expect(downloadButton.onPressed, isNull);
 
