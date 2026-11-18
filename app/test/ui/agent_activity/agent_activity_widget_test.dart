@@ -1,0 +1,457 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dearcocoa/data/services/agent_activity_service.dart';
+import 'package:dearcocoa/data/services/agent_background_coordinator.dart';
+import 'package:dearcocoa/data/services/agent_background_platform.dart';
+import 'package:dearcocoa/data/services/agent_background_status.dart';
+import 'package:dearcocoa/data/services/agent_queue_drain_scheduler.dart';
+import 'package:dearcocoa/data/services/local_task_executor.dart';
+import 'package:dearcocoa/l10n/app_localizations.dart';
+import 'package:dearcocoa/ui/agent_activity/widgets/agent_activity_widget.dart';
+import 'package:dearcocoa/utils/user_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({
+      'user_id': 'agent-activity-test',
+      'language': 'en',
+    });
+    await UserStorage.initL10n();
+    AgentActivityService.setInstance(LocalAgentActivityService.instance);
+  });
+
+  tearDown(() {
+    resetAgentBackgroundCoordinatorForTesting();
+  });
+
+  Widget buildHost({
+    bool forceVisible = false,
+    TaskActivitySnapshot initialTaskSnapshot =
+        const TaskActivitySnapshot.empty(),
+    Stream<TaskActivitySnapshot>? taskActivitySnapshotStream,
+  }) {
+    return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Center(
+          child: AgentActivityWidget(
+            forceVisible: forceVisible,
+            initialTaskSnapshot: initialTaskSnapshot,
+            taskActivitySnapshotStream: taskActivitySnapshotStream ??
+                const Stream<TaskActivitySnapshot>.empty(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  testWidgets(
+      'shows non-interactive processing affordance before task activity', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildHost(forceVisible: true));
+    await tester.pump();
+
+    expect(find.text('AI is processing...'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
+
+    await tester.tap(find.text('AI is processing...'));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('Activity Detail'), findsNothing);
+    expect(find.text('Processing...'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('uses fixed app logo instead of rotating processing frames', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildHost(forceVisible: true));
+    await tester.pump();
+
+    expect(_assetImage('assets/icon.png'), findsOneWidget);
+    expect(_assetImage('assets/icons/processing_1.png'), findsNothing);
+    expect(_assetImage('assets/icons/processing_2.png'), findsNothing);
+
+    await tester.tap(find.text('AI is processing...'));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(_assetImage('assets/icon.png'), findsOneWidget);
+    expect(_assetImage('assets/icons/processing_1.png'), findsNothing);
+    expect(_assetImage('assets/icons/processing_2.png'), findsNothing);
+    expect(find.text('Activity Detail'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('updates background task count while status is visible', (
+    tester,
+  ) async {
+    final taskSnapshots = StreamController<TaskActivitySnapshot>.broadcast();
+    const initialSnapshot = TaskActivitySnapshot(
+      pending: 1,
+      processing: 0,
+      retrying: 0,
+    );
+
+    await tester.pumpWidget(
+      buildHost(
+        initialTaskSnapshot: initialSnapshot,
+        taskActivitySnapshotStream: taskSnapshots.stream,
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 350));
+
+    final oneTaskMessage = formatAgentTaskSummary(
+      pending: 1,
+      processing: 0,
+      retrying: 0,
+    );
+    final twoTaskMessage = formatAgentTaskSummary(
+      pending: 1,
+      processing: 1,
+      retrying: 0,
+    );
+    expect(find.text(oneTaskMessage), findsOneWidget);
+
+    taskSnapshots.add(
+      const TaskActivitySnapshot(pending: 1, processing: 1, retrying: 0),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text(twoTaskMessage), findsOneWidget);
+    expect(find.text('Activity Detail'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await taskSnapshots.close();
+  });
+
+  testWidgets('shows background task count before agent tool messages', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        initialTaskSnapshot: const TaskActivitySnapshot(
+          pending: 1,
+          processing: 0,
+          retrying: 0,
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('AI is processing...'), findsOneWidget);
+
+    await tester.tap(find.text('AI is processing...'));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('Running 0, Pending 1, Retry 0'), findsOneWidget);
+    expect(find.text('Activity Detail'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('shows active task status as a static affordance', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        initialTaskSnapshot: const TaskActivitySnapshot(
+          pending: 4,
+          processing: 0,
+          retrying: 0,
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('AI is processing...'), findsOneWidget);
+    expect(find.text('Running 0, Pending 4, Retry 0'), findsOneWidget);
+
+    await tester.tap(find.text('AI is processing...'));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('Activity Detail'), findsNothing);
+    expect(find.text('Running 0, Pending 4, Retry 0'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('does not show stale non-terminal history without active work', (
+    tester,
+  ) async {
+    final activity = _FakeActivityService(history: [
+      _activityMessage(
+        id: 1,
+        type: AgentActivityType.info,
+        title: 'Old activity',
+        content: 'This should not reopen the processing affordance.',
+      ),
+    ]);
+    AgentActivityService.setInstance(activity);
+
+    await tester.pumpWidget(buildHost());
+    await tester.pump(const Duration(seconds: 4));
+
+    expect(find.text('AI is processing...'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    activity.dispose();
+  });
+
+  testWidgets('shows and hides from active task snapshots only', (
+    tester,
+  ) async {
+    final activity = _FakeActivityService();
+    AgentActivityService.setInstance(activity);
+    final taskSnapshots = StreamController<TaskActivitySnapshot>.broadcast();
+
+    await tester.pumpWidget(
+      buildHost(
+        taskActivitySnapshotStream: taskSnapshots.stream,
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('AI is processing...'), findsNothing);
+
+    await activity.pushMessage(
+      type: AgentActivityType.info,
+      title: 'Still working',
+      content: 'A non-terminal activity update.',
+      agentName: 'Worker Agent',
+      agentId: 'worker-agent',
+      userId: 'agent-activity-test',
+    );
+    await tester.pump();
+
+    expect(find.text('AI is processing...'), findsNothing);
+
+    taskSnapshots.add(
+      const TaskActivitySnapshot(pending: 1, processing: 0, retrying: 0),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('AI is processing...'), findsOneWidget);
+
+    taskSnapshots.add(const TaskActivitySnapshot.empty());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('AI is processing...'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await taskSnapshots.close();
+    activity.dispose();
+  });
+
+  testWidgets('ignores buffered notification activity action', (
+    tester,
+  ) async {
+    final platform = _FakePlatform();
+    final coordinator = AgentBackgroundCoordinator(
+      platform: platform,
+      scheduler: _NoopScheduler(),
+    );
+    setAgentBackgroundCoordinatorForTesting(coordinator);
+
+    await tester.pumpWidget(buildHost());
+    emitAgentBackgroundOpenActivityForTesting();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.text('Activity Detail'), findsNothing);
+    expect(find.text('No agent activity yet'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    platform.dispose();
+  });
+
+  testWidgets(
+    'notification action leaves the static background status unchanged',
+    (tester) async {
+      final platform = _FakePlatform();
+      final coordinator = AgentBackgroundCoordinator(
+        platform: platform,
+        scheduler: _NoopScheduler(),
+      );
+      setAgentBackgroundCoordinatorForTesting(coordinator);
+
+      await tester.pumpWidget(
+        buildHost(
+          initialTaskSnapshot: const TaskActivitySnapshot(
+            pending: 1,
+            processing: 1,
+            retrying: 0,
+          ),
+        ),
+      );
+      emitAgentBackgroundOpenActivityForTesting();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      final taskSummary = formatAgentTaskSummary(
+        pending: 1,
+        processing: 1,
+        retrying: 0,
+      );
+
+      expect(find.text('Activity Detail'), findsNothing);
+      expect(find.text('AI is processing...'), findsOneWidget);
+      expect(find.text(taskSummary), findsOneWidget);
+
+      await AgentActivityService.instance.pushMessage(
+        type: AgentActivityType.info,
+        title: 'Background notification step',
+        content: 'Live notification body',
+        agentName: 'Worker Agent',
+        agentId: 'worker-agent',
+        userId: 'agent-activity-test',
+      );
+      await tester.pump();
+
+      expect(find.text('Live notification body'), findsNothing);
+      expect(find.textContaining('Worker Agent'), findsNothing);
+      expect(find.text(taskSummary), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      platform.dispose();
+    },
+  );
+}
+
+Finder _assetImage(String assetName) {
+  return find.byWidgetPredicate((widget) {
+    if (widget is! Image) return false;
+    final image = widget.image;
+    return image is AssetImage && image.assetName == assetName;
+  });
+}
+
+AgentActivityMessageModel _activityMessage({
+  required int id,
+  required AgentActivityType type,
+  required String title,
+  String? content,
+}) {
+  return AgentActivityMessageModel(
+    id: id,
+    type: type,
+    title: title,
+    content: content,
+    agentName: 'Worker Agent',
+    agentId: 'worker-agent',
+    userId: 'agent-activity-test',
+    timestamp: DateTime(2026, 1, 1),
+  );
+}
+
+class _FakeActivityService implements AgentActivityService {
+  _FakeActivityService({List<AgentActivityMessageModel> history = const []})
+      : _history = List<AgentActivityMessageModel>.from(history);
+
+  final _controller = StreamController<AgentActivityMessageModel>.broadcast();
+  final List<AgentActivityMessageModel> _history;
+  var _nextId = 100;
+
+  @override
+  Stream<AgentActivityMessageModel> get messageStream => _controller.stream;
+
+  @override
+  Future<List<AgentActivityMessageModel>> getHistory({int limit = 10}) async {
+    return _history.take(limit).toList();
+  }
+
+  @override
+  Future<void> pushMessage({
+    required AgentActivityType type,
+    required String title,
+    String? content,
+    String? icon,
+    required String agentName,
+    required String agentId,
+    String? scene,
+    String? sceneId,
+    String? userId,
+  }) async {
+    final message = AgentActivityMessageModel(
+      id: _nextId++,
+      type: type,
+      title: title,
+      content: content,
+      icon: icon,
+      agentName: agentName,
+      agentId: agentId,
+      scene: scene,
+      sceneId: sceneId,
+      userId: userId,
+      timestamp: DateTime(2026, 1, 1),
+    );
+    _history.insert(0, message);
+    _controller.add(message);
+  }
+
+  void dispose() {
+    unawaited(_controller.close());
+  }
+}
+
+class _FakePlatform implements AgentBackgroundPlatform {
+  String? initialAction;
+  final _actions = StreamController<String>.broadcast();
+
+  @override
+  bool get isSupported => true;
+
+  @override
+  Stream<String> get actionStream => _actions.stream;
+
+  @override
+  Future<String?> consumeInitialAction() async => initialAction;
+
+  @override
+  Future<void> finishStatus(
+    AgentBackgroundStatus status, {
+    bool isInBackground = false,
+  }) async {}
+
+  @override
+  Future<void> stopStatus() async {}
+
+  @override
+  Future<void> updateStatus(
+    AgentBackgroundStatus status, {
+    bool isInBackground = false,
+  }) async {}
+
+  void dispose() {
+    unawaited(_actions.close());
+  }
+}
+
+class _NoopScheduler implements AgentQueueDrainScheduler {
+  @override
+  Future<void> cancel() async {}
+
+  @override
+  Future<void> schedule({
+    Duration? initialDelay,
+    bool expedited = false,
+  }) async {}
+}

@@ -1,0 +1,271 @@
+-- ============================================================================
+-- DearCocoa — seed demo v2 (17/11/2026)
+-- Crea 5 account demo con credenziali prefill + contenuti interconnessi:
+-- profili, 2 gruppi con messaggi, 3 eventi con programma e RSVP, 6 post
+-- community con like e commenti.
+--
+-- CREDENZIALI DEMO (prefill nel client, login con un tap):
+--   sofia@dearcocoa.demo  / Cocoa2026!  (Sofia Rossi)
+--   luca@dearcocoa.demo   / Cocoa2026!  (Luca Bianchi)
+--   giulia@dearcocoa.demo / Cocoa2026!  (Giulia Ferrari)
+--   marco@dearcocoa.demo  / Cocoa2026!  (Marco Conti)
+--   elena@dearcocoa.demo  / Cocoa2026!  (Elena Moretti)
+--
+-- Idempotente: rilanciarlo non duplica nulla.
+-- Richiede pgcrypto (default attivo su Supabase).
+-- ============================================================================
+
+do $$
+declare
+  u_sofia uuid; u_luca uuid; u_giulia uuid; u_marco uuid; u_elena uuid;
+  g_morning uuid; g_circle uuid;
+  e_moon uuid; e_breath uuid; e_write uuid;
+begin
+  -- ------------------------------------------------------------ utenti auth
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, last_sign_in_at)
+  values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated',
+    'sofia@dearcocoa.demo', extensions.crypt('Cocoa2026!', extensions.gen_salt('bf')),
+    now(), '{"provider":"email","providers":["email"]}', '{"username":"sofia_r"}',
+    now() - interval '30 days', now() - interval '30 days', '', '', '', '',
+    now() - interval '1 day')
+  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+      email_confirmed_at = now()
+  returning id into u_sofia;
+  if u_sofia is null then
+    select id into u_sofia from auth.users where email = 'sofia@dearcocoa.demo';
+  end if;
+
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, last_sign_in_at)
+  values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated',
+    'luca@dearcocoa.demo', extensions.crypt('Cocoa2026!', extensions.gen_salt('bf')),
+    now(), '{"provider":"email","providers":["email"]}', '{"username":"luca_b"}',
+    now() - interval '28 days', now() - interval '28 days', '', '', '', '',
+    now() - interval '2 days')
+  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+      email_confirmed_at = now()
+  returning id into u_luca;
+  if u_luca is null then
+    select id into u_luca from auth.users where email = 'luca@dearcocoa.demo';
+  end if;
+
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, last_sign_in_at)
+  values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated',
+    'giulia@dearcocoa.demo', extensions.crypt('Cocoa2026!', extensions.gen_salt('bf')),
+    now(), '{"provider":"email","providers":["email"]}', '{"username":"giulia_f"}',
+    now() - interval '25 days', now() - interval '25 days', '', '', '', '',
+    now() - interval '3 days')
+  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+      email_confirmed_at = now()
+  returning id into u_giulia;
+  if u_giulia is null then
+    select id into u_giulia from auth.users where email = 'giulia@dearcocoa.demo';
+  end if;
+
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, last_sign_in_at)
+  values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated',
+    'marco@dearcocoa.demo', extensions.crypt('Cocoa2026!', extensions.gen_salt('bf')),
+    now(), '{"provider":"email","providers":["email"]}', '{"username":"marco_c"}',
+    now() - interval '20 days', now() - interval '20 days', '', '', '', '',
+    now() - interval '4 days')
+  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+      email_confirmed_at = now()
+  returning id into u_marco;
+  if u_marco is null then
+    select id into u_marco from auth.users where email = 'marco@dearcocoa.demo';
+  end if;
+
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, recovery_token,
+      email_change_token_new, email_change, last_sign_in_at)
+  values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated',
+    'elena@dearcocoa.demo', extensions.crypt('Cocoa2026!', extensions.gen_salt('bf')),
+    now(), '{"provider":"email","providers":["email"]}', '{"username":"elena_m"}',
+    now() - interval '18 days', now() - interval '18 days', '', '', '', '',
+    now() - interval '5 days')
+  on conflict (email) do update set encrypted_password = excluded.encrypted_password,
+      email_confirmed_at = now()
+  returning id into u_elena;
+  if u_elena is null then
+    select id into u_elena from auth.users where email = 'elena@dearcocoa.demo';
+  end if;
+
+  -- -------------------------------------------------------------- profili
+  insert into public.profiles (id, username, display_name, bio, onboarded) values
+    (u_sofia,  'sofia_r',  'Sofia Rossi',   'Morning pages believer. Tea over coffee.', true),
+    (u_luca,   'luca_b',   'Luca Bianchi',  'Walking meditation & night journaling.', true),
+    (u_giulia, 'giulia_f', 'Giulia Ferrari','Gratitude lists changed my life.', true),
+    (u_marco,  'marco_c',  'Marco Conti',   'Runner. Tracking mood since January.', true),
+    (u_elena,  'elena_m',  'Elena Moretti', 'Here for gentle accountability.', true)
+  on conflict (id) do update set display_name = excluded.display_name,
+      bio = excluded.bio, onboarded = true;
+
+  -- -------------------------------------------------------------- gruppi
+  insert into public.groups (name, description, is_public, created_by)
+  values ('Morning Mindfulness', 'Gentle morning check-ins and gratitude rituals.', true, u_sofia)
+  on conflict do nothing
+  returning id into g_morning;
+  if g_morning is null then
+    select id into g_morning from public.groups where name = 'Morning Mindfulness';
+  end if;
+
+  insert into public.groups (name, description, is_public, created_by)
+  values ('Journaling Circle', 'Weekly prompts and sharing circles for writers.', true, u_giulia)
+  on conflict do nothing
+  returning id into g_circle;
+  if g_circle is null then
+    select id into g_circle from public.groups where name = 'Journaling Circle';
+  end if;
+
+  insert into public.group_members (group_id, user_id, role) values
+    (g_morning, u_sofia, 'admin'),  (g_morning, u_luca, 'member'),
+    (g_morning, u_giulia, 'member'),(g_morning, u_elena, 'member'),
+    (g_circle, u_giulia, 'admin'),  (g_circle, u_sofia, 'member'),
+    (g_circle, u_marco, 'member'),  (g_circle, u_elena, 'member')
+  on conflict (group_id, user_id) do nothing;
+
+  insert into public.group_messages (group_id, user_id, content, author_name, created_at) values
+    (g_morning, u_sofia, 'Good morning everyone 🌤 Starting the week with three things I am grateful for: morning light, my dog, and this group.', 'Sofia Rossi', now() - interval '2 days'),
+    (g_morning, u_luca, 'I did a 20-minute walk before sunrise today. The quiet made the journaling easier afterwards.', 'Luca Bianchi', now() - interval '2 days' + interval '37 minutes'),
+    (g_morning, u_elena, 'This group keeps me consistent. Day 12 of check-ins in a row!', 'Elena Moretti', now() - interval '1 day'),
+    (g_circle, u_giulia, 'New prompt for the week: describe a moment you felt proud, small or big. Write it as a scene.', 'Giulia Ferrari', now() - interval '3 days'),
+    (g_circle, u_marco, 'I wrote about finishing my first 10k. Turns out pride feels warm, not loud.', 'Marco Conti', now() - interval '3 days' + interval '52 minutes'),
+    (g_circle, u_sofia, 'Loved that prompt. Sharing mine tonight after work.', 'Sofia Rossi', now() - interval '2 days')
+  on conflict do nothing;
+
+  -- -------------------------------------------------------------- eventi
+  insert into public.events (created_by, title, description, category, is_virtual,
+      meeting_url, starts_at, ends_at, capacity)
+  values (u_sofia, 'Full Moon Journaling Night',
+      'A calm evening of guided prompts, candle light and shared reflection. Bring your favourite notebook.',
+      'meditation', true, 'https://meet.dearcocoa.app/full-moon',
+      now() + interval '5 days', now() + interval '5 days' + interval '90 minutes', 40)
+  on conflict do nothing
+  returning id into e_moon;
+  if e_moon is null then
+    select id into e_moon from public.events
+    where title = 'Full Moon Journaling Night' and starts_at > now() limit 1;
+  end if;
+
+  insert into public.events (created_by, title, description, category, is_virtual,
+      meeting_url, starts_at, ends_at, capacity)
+  values (u_marco, 'Breathwork for Anxious Days',
+      'A practical 45-minute session: grounding breath patterns you can reuse whenever the day gets loud.',
+      'wellness', true, 'https://meet.dearcocoa.app/breathwork',
+      now() + interval '9 days', now() + interval '9 days' + interval '45 minutes', 100)
+  on conflict do nothing
+  returning id into e_breath;
+  if e_breath is null then
+    select id into e_breath from public.events
+    where title = 'Breathwork for Anxious Days' and starts_at > now() limit 1;
+  end if;
+
+  insert into public.events (created_by, title, description, category, is_virtual,
+      meeting_url, starts_at, ends_at, capacity)
+  values (u_giulia, 'Sunday Writing Circle',
+      'Weekly circle for gentle accountability: 25 minutes of silent writing, then optional sharing.',
+      'workshop', true, 'https://meet.dearcocoa.app/circle',
+      now() + interval '3 days', now() + interval '3 days' + interval '60 minutes', 25)
+  on conflict do nothing
+  returning id into e_write;
+  if e_write is null then
+    select id into e_write from public.events
+    where title = 'Sunday Writing Circle' and starts_at > now() limit 1;
+  end if;
+
+  insert into public.event_program (event_id, title, speaker, description, starts_at, sort) values
+    (e_moon, 'Welcome & grounding', 'Sofia Rossi', 'Short arrival ritual: settle, breathe, arrive on the page.', now() + interval '5 days', 0),
+    (e_moon, 'Guided prompts', 'Sofia Rossi', 'Three moon-themed prompts, written in silence with soft music.', now() + interval '5 days' + interval '15 minutes', 1),
+    (e_moon, 'Optional sharing', 'Everyone', 'Share one line if you feel like it. Silence is welcome too.', now() + interval '5 days' + interval '55 minutes', 2),
+    (e_breath, 'Physiology of breath', 'Marco Conti', 'Why long exhales calm the nervous system, in plain words.', now() + interval '9 days', 0),
+    (e_breath, 'Guided practice', 'Marco Conti', '4-7-8 and box breathing, practised together.', now() + interval '9 days' + interval '10 minutes', 1)
+  on conflict do nothing;
+
+  insert into public.event_rsvps (event_id, user_id, status) values
+    (e_moon, u_luca, 'going'),   (e_moon, u_giulia, 'going'),   (e_moon, u_elena, 'interested'),
+    (e_breath, u_sofia, 'going'),(e_breath, u_elena, 'going'),  (e_breath, u_giulia, 'interested'),
+    (e_write, u_sofia, 'going'), (e_write, u_marco, 'going'),   (e_write, u_elena, 'going')
+  on conflict (event_id, user_id) do nothing;
+
+  -- ----------------------------------------------------------- community
+  insert into public.space_posts (user_id, content, created_at) values
+    (u_sofia, 'Week 3 of morning pages. Some days it is nonsense, some days it is gold — apparently both count. 🌱', now() - interval '3 days'),
+    (u_marco, 'Mood tracker says October was calmer than September. Small proof that the evening walks are doing something.', now() - interval '2 days'),
+    (u_giulia, 'Tip for anyone stuck: write three lines only. Tiny entries kept me going for a whole month.', now() - interval '2 days' + interval '4 hours'),
+    (u_luca, 'Tried journaling in the park today. The pigeons had opinions about my handwriting.', now() - interval '1 day'),
+    (u_elena, 'Day 12 of daily check-ins. The streak view is quietly the best motivation I have found.', now() - interval '18 hours'),
+    (u_giulia, 'Reminder: the Sunday Writing Circle is open. Come as you are, write as you can. ☕', now() - interval '5 hours')
+  on conflict do nothing;
+
+  -- like deterministici per prefisso di contenuto
+  insert into public.post_likes (post_id, user_id)
+  select p.id, a.id
+  from (values
+      ('Week 3 of morning pages',  'luca@dearcocoa.demo'),
+      ('Week 3 of morning pages',  'elena@dearcocoa.demo'),
+      ('Week 3 of morning pages',  'giulia@dearcocoa.demo'),
+      ('Mood tracker says October','giulia@dearcocoa.demo'),
+      ('Mood tracker says October','sofia@dearcocoa.demo'),
+      ('Tip for anyone stuck',     'sofia@dearcocoa.demo'),
+      ('Tip for anyone stuck',     'elena@dearcocoa.demo'),
+      ('Tried journaling in the park','marco@dearcocoa.demo'),
+      ('Day 12 of daily check-ins','sofia@dearcocoa.demo'),
+      ('Day 12 of daily check-ins','giulia@dearcocoa.demo'),
+      ('Reminder: the Sunday Writing Circle','luca@dearcocoa.demo'),
+      ('Reminder: the Sunday Writing Circle','marco@dearcocoa.demo')
+  ) as pairs(prefix, liker)
+  join public.space_posts p on p.content like pairs.prefix || '%'
+  join auth.users a on a.email = pairs.liker
+  where not exists (
+    select 1 from public.post_likes pl
+    where pl.post_id = p.id and pl.user_id = a.id);
+  update public.space_posts p set like_count = (
+    select count(*) from public.post_likes pl where pl.post_id = p.id);
+
+  -- commenti reali incrociati
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'Both count. Keep going 💛', 'Luca Bianchi', now() - interval '2 days' + interval '1 hour'
+  from public.space_posts p join auth.users a on a.email = 'luca@dearcocoa.demo'
+  where p.content like 'Week 3 of morning pages%'
+    and not exists (select 1 from public.post_comments c where c.post_id = p.id);
+
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'The data does not lie! 📈 Which tracker view is that?', 'Sofia Rossi', now() - interval '1 day' + interval '2 hours'
+  from public.space_posts p join auth.users a on a.email = 'sofia@dearcocoa.demo'
+  where p.content like 'Mood tracker says October%'
+    and not exists (select 1 from public.post_comments c where c.post_id = p.id);
+
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'Three lines is my maximum some days — and it still works.', 'Elena Moretti', now() - interval '20 hours'
+  from public.space_posts p join auth.users a on a.email = 'elena@dearcocoa.demo'
+  where p.content like 'Tip for anyone stuck%'
+    and not exists (select 1 from public.post_comments c where c.post_id = p.id);
+
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'The pigeons are the harshest editors. 😄', 'Giulia Ferrari', now() - interval '9 hours'
+  from public.space_posts p join auth.users a on a.email = 'giulia@dearcocoa.demo'
+  where p.content like 'Tried journaling in the park%'
+    and not exists (select 1 from public.post_comments c where c.post_id = p.id);
+
+  update public.space_posts p set like_count = (
+    select count(*) from public.post_likes pl where pl.post_id = p.id);
+
+  raise notice 'Seed demo v2 completato: 5 utenti, 2 gruppi, 3 eventi, 6 post.';
+end $$;

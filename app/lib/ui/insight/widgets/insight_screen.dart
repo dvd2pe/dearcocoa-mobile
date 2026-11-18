@@ -1,0 +1,558 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import 'package:dearcocoa/domain/models/knowledge_insight_card.dart';
+import 'package:dearcocoa/ui/insight/view_models/insight_viewmodel.dart';
+import 'insight_detail_page.dart';
+import 'package:dearcocoa/utils/toast_helper.dart';
+import 'package:dearcocoa/ui/core/cards/native_widget_factory.dart';
+import 'package:dearcocoa/ui/core/widgets/html_webview_card.dart';
+import 'package:dearcocoa/utils/user_storage.dart';
+import 'package:dearcocoa/ui/insight/widgets/insight_preview_data.dart';
+
+/// Insight screen - global knowledge analytics. Receives [viewModel] from parent (Compass-style).
+class InsightScreen extends StatefulWidget {
+  final InsightViewModel viewModel;
+  final bool isEmbedded;
+
+  const InsightScreen({
+    super.key,
+    required this.viewModel,
+    this.isEmbedded = false,
+  });
+
+  @override
+  State<InsightScreen> createState() => _InsightScreenState();
+}
+
+class _InsightScreenState extends State<InsightScreen> {
+  Future<void> _onTogglePin(
+    InsightViewModel vm,
+    KnowledgeInsightCard item,
+  ) async {
+    try {
+      final outcome = await vm.togglePin(item);
+      if (!mounted) return;
+      if (outcome == InsightActionOutcome.ignored) return;
+      if (outcome == InsightActionOutcome.rejected) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.operationFailed(UserStorage.l10n.unknownError),
+        );
+        return;
+      }
+      ToastHelper.showSuccess(
+        context,
+        item.isPinned
+            ? UserStorage.l10n.unpinned
+            : UserStorage.l10n.pinnedStyle,
+      );
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.operationFailed(e.toString()),
+        );
+      }
+    }
+  }
+
+  Future<void> _saveSortOrder(InsightViewModel vm) async {
+    try {
+      final outcome = await vm.saveSortOrder();
+      if (!mounted) return;
+      if (outcome == InsightActionOutcome.ignored) return;
+      if (outcome == InsightActionOutcome.rejected) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.sortSaveFailed(UserStorage.l10n.unknownError),
+        );
+        return;
+      }
+      ToastHelper.showSuccess(context, UserStorage.l10n.sortUpdated);
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.sortSaveFailed(e.toString()),
+        );
+      }
+    }
+  }
+
+  Future<void> _onDeleteCard(
+    InsightViewModel vm,
+    KnowledgeInsightCard item,
+  ) async {
+    try {
+      final outcome = await vm.deleteCard(item);
+      if (!mounted) return;
+      if (outcome == InsightActionOutcome.ignored) return;
+      if (outcome == InsightActionOutcome.rejected) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.deleteFailedShort(UserStorage.l10n.unknownError),
+        );
+        return;
+      }
+      ToastHelper.showSuccess(context, UserStorage.l10n.insightCardDeleted);
+    } catch (e) {
+      if (mounted) {
+        ToastHelper.showError(
+          context,
+          UserStorage.l10n.deleteFailedShort(e.toString()),
+        );
+      }
+    }
+  }
+
+  Widget _buildPinButton(InsightViewModel vm, KnowledgeInsightCard item) {
+    final isPinning = vm.pinningIds.contains(item.id);
+    return GestureDetector(
+      onTap: isPinning ? null : () => _onTogglePin(vm, item),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.9),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: isPinning
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5B6CFF)),
+                ),
+              )
+            : Icon(
+                item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                size: 20,
+                color: item.isPinned
+                    ? const Color(0xFF5B6CFF)
+                    : const Color(0xFF99A1AF),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildActionOverlay(InsightViewModel vm, KnowledgeInsightCard item) {
+    return Positioned.fill(
+      child: GestureDetector(
+        onTap: () => vm.setActiveCardId(null),
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.6),
+          child: Stack(
+            children: [
+              // Center actions
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Sort Button
+                    GestureDetector(
+                      onTap: () {
+                        vm.setActiveCardId(null);
+                        vm.setReordering(true);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF59E0B),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0xFFF59E0B,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.sort,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 32), // Spacing between buttons
+                    // Delete Button
+                    GestureDetector(
+                      onTap: vm.isDeleting
+                          ? null
+                          : () => _onDeleteCard(vm, item),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0xFFEF4444,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: vm.isDeleting
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Top-right cancel button
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: () => vm.setActiveCardId(null),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Color(0xFF4A5565),
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  int _insightListHeaderCount(InsightViewModel vm) {
+    var count = 0;
+    if (widget.isEmbedded) count += 1;
+    if (!widget.isEmbedded || vm.isReordering) count += 2;
+    return count;
+  }
+
+  int _insightListItemCount(InsightViewModel vm) {
+    final headerCount = _insightListHeaderCount(vm);
+    if (vm.isLoading || vm.errorMessage != null) return headerCount + 1;
+    final insights = vm.insights;
+    if (insights == null || insights.isEmpty) return headerCount + 1;
+    return headerCount + insights.length;
+  }
+
+  Widget _buildInsightListItem(
+    BuildContext context,
+    InsightViewModel vm,
+    int index,
+  ) {
+    final headerCount = _insightListHeaderCount(vm);
+    var cursor = 0;
+    if (widget.isEmbedded) {
+      if (index == cursor) return const SizedBox(height: 16);
+      cursor += 1;
+    }
+    if (!widget.isEmbedded || vm.isReordering) {
+      if (index == cursor) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (!widget.isEmbedded)
+              Text(
+                UserStorage.l10n.knowledgeInsight,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0A0A0A),
+                ),
+              )
+            else if (vm.isReordering)
+              const Spacer(),
+            if (vm.isReordering)
+              TextButton.icon(
+                onPressed: () => _saveSortOrder(vm),
+                icon: const Icon(Icons.check),
+                label: Text(UserStorage.l10n.completeSort),
+              ),
+          ],
+        );
+      }
+      cursor += 1;
+      if (index == cursor) return const SizedBox(height: 16);
+      cursor += 1;
+    }
+
+    if (vm.isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    if (vm.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Text(
+                vm.errorMessage!,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF99A1AF)),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => vm.loadData(),
+                child: Text(UserStorage.l10n.reload),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final insights = vm.insights;
+    if (insights == null || insights.isEmpty) {
+      return _buildPreviewCards();
+    }
+    final item = insights[index - headerCount];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onLongPress: () => vm.setActiveCardId(item.id),
+        child: Stack(
+          children: [
+            _buildItemCard(
+              vm,
+              item,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        InsightDetailPage.insight(insightId: item.id),
+                  ),
+                );
+              },
+            ),
+            Positioned(top: 8, right: 8, child: _buildPinButton(vm, item)),
+            if (vm.activeCardId == item.id) _buildActionOverlay(vm, item),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemCard(
+    InsightViewModel vm,
+    KnowledgeInsightCard item, {
+    VoidCallback? onTap,
+  }) {
+    if (item.widgetType == 'native' && item.widgetTemplate != null) {
+      final widget = NativeWidgetFactory.build(
+        item.widgetTemplate!,
+        item.mergedWidgetData,
+      );
+      if (widget != null) {
+        return GestureDetector(
+          onTap: onTap,
+          child: AbsorbPointer(absorbing: vm.isReordering, child: widget),
+        );
+      }
+    }
+    if (item.widgetType == 'html') {
+      if (item.html.isEmpty) {
+        if (vm.hasHtmlRenderFailed(item.id)) {
+          return SizedBox(
+            height: 160,
+            child: Center(
+              child: TextButton.icon(
+                onPressed: () => vm.retryHtmlRendered(item),
+                icon: const Icon(Icons.refresh),
+                label: Text(UserStorage.l10n.reload),
+              ),
+            ),
+          );
+        }
+        unawaited(vm.ensureHtmlRendered(item));
+        return const SizedBox(
+          height: 160,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+      return HtmlWebViewCard(
+        html: item.html,
+        config: const HtmlWebViewConfig.timeline(),
+        onContentTap: onTap,
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final vm = widget.viewModel;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final content = Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: vm.loadData,
+                  child: vm.isReordering
+                      ? ReorderableListView(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 160),
+                          onReorder: (oldIndex, newIndex) =>
+                              vm.moveItem(oldIndex, newIndex),
+                          header: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (!widget.isEmbedded)
+                                    Text(
+                                      UserStorage.l10n.knowledgeInsight,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0A0A0A),
+                                      ),
+                                    )
+                                  else
+                                    const SizedBox.shrink(),
+                                  TextButton.icon(
+                                    onPressed: () => _saveSortOrder(vm),
+                                    icon: const Icon(Icons.check),
+                                    label: Text(UserStorage.l10n.completeSort),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                          children: (vm.insights ?? [])
+                              .map(
+                                (item) => Container(
+                                  key: ValueKey(item.id),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  child: Stack(
+                                    children: [
+                                      _buildItemCard(vm, item),
+                                      // Maybe drag handle?
+                                      // ReorderableListView provides drag handle by default on long press or handle.
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 160),
+                          itemCount: _insightListItemCount(vm),
+                          itemBuilder: (context, index) =>
+                              _buildInsightListItem(context, vm, index),
+                        ),
+                ),
+              ],
+            );
+
+            // Wrap in Scaffold when not embedded
+            final wrappedContent = widget.isEmbedded
+                ? content
+                : Scaffold(
+                    backgroundColor: const Color(0xFFF7F8FA),
+                    body: SafeArea(child: content),
+                  );
+
+            return wrappedContent;
+          },
+        );
+      },
+    );
+  }
+
+  /// Preview cards shown when the user has no real insights yet.
+  /// Rendered with reduced opacity and a banner hint; non-interactive.
+  Widget _buildPreviewCards() {
+    final samples = InsightPreviewData.samples;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Banner hint
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome,
+                size: 18,
+                color: Color(0xFF6366F1),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  UserStorage.l10n.noKnowledgeInsight,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6366F1),
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Sample cards — visual only, no interaction
+        ...samples.map((s) {
+          final card = NativeWidgetFactory.build(s.template, s.data);
+          if (card == null) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Opacity(opacity: 0.55, child: IgnorePointer(child: card)),
+          );
+        }),
+      ],
+    );
+  }
+}

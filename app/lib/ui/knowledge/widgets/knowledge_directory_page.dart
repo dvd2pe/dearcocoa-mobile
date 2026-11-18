@@ -1,0 +1,219 @@
+import 'package:flutter/material.dart';
+import 'package:dearcocoa/utils/result.dart';
+import 'package:dearcocoa/data/repositories/memex_router.dart';
+import 'package:dearcocoa/ui/knowledge/widgets/knowledge/knowledge_file_card.dart';
+import 'package:dearcocoa/ui/core/widgets/agent_logo_loading.dart';
+import 'package:dearcocoa/ui/core/widgets/back_button.dart';
+import 'package:dearcocoa/utils/user_storage.dart';
+
+class KnowledgeDirectoryPage extends StatefulWidget {
+  final String path;
+
+  const KnowledgeDirectoryPage({
+    super.key,
+    required this.path,
+  });
+
+  @override
+  State<KnowledgeDirectoryPage> createState() => _KnowledgeDirectoryPageState();
+}
+
+class _KnowledgeDirectoryPageState extends State<KnowledgeDirectoryPage> {
+  final MemexRouter _memexRouter = MemexRouter();
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _files = [];
+  List<Map<String, dynamic>> _folders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchResult();
+  }
+
+  Future<void> _fetchResult() async {
+    setState(() => _isLoading = true);
+    final dataResult = await _memexRouter.listPkmDirectory(path: widget.path);
+    final data = dataResult.when(
+        onOk: (d) => d, onError: (_, __) => <String, dynamic>{});
+    if (data.isEmpty && dataResult.isError) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+    {
+      // Data expected structure: {'files': [{'name':..., 'path':...}], 'folders': [{'name':..., 'path':...}]}
+      // OR a map where key is filename.
+      // Checking listPkmDirectory signature: Future<Map<String, dynamic>>
+      // The implementation details of listPkmDirectory:
+      // It usually returns a tree or a flat list?
+      // If it returns a tree, we need to parse.
+      // Let's assume for now it returns a map of entries.
+      // If the backend isn't perfect, we might need to adjust.
+      // Based on pkm_endpoint.dart logic (not visible but assumed standard),
+      // standard directory listing usually separates files and folders.
+
+      // Let's parse whatever comes back.
+      // Inspecting prior assumptions in KnowledgeBasePage: it got a Map.
+
+      final items = data['items'] as List<dynamic>? ?? [];
+      final List<Map<String, dynamic>> files = [];
+      final List<Map<String, dynamic>> folders = [];
+
+      for (final item in items) {
+        if (item is Map<String, dynamic>) {
+          final isDirectory = item['is_directory'] == true;
+          if (isDirectory) {
+            folders.add(item);
+          } else {
+            files.add(item);
+          }
+        }
+      }
+
+      // Fetch counts for folders
+      if (folders.isNotEmpty) {
+        final folderPaths = folders.map((f) => f['path'] as String).toList();
+        final countResult = await _memexRouter.countPkmItems(folderPaths);
+        final counts = countResult.when(
+            onOk: (c) => c, onError: (_, __) => <String, int>{});
+        for (var f in folders) {
+          f['item_count'] = counts[f['path']] ?? 0;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _files = files;
+          _folders = folders;
+          _isLoading = false;
+        });
+      }
+    }
+    if (dataResult.isError && mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+      appBar: AppBar(
+        title: Text(widget.path,
+            style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontSize: 20,
+                fontWeight: FontWeight.w700)),
+        centerTitle: false,
+        backgroundColor: const Color(0xFFF7F8FA),
+        elevation: 0,
+        leading: const AppBackButton(),
+      ),
+      body: _isLoading
+          ? Center(child: AgentLogoLoading())
+          : KnowledgeDirectoryBody(
+              folders: _folders,
+              files: _files,
+              folderBuilder: _buildFolderCard,
+            ),
+    );
+  }
+
+  Widget _buildFolderCard(Map<String, dynamic> item) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => KnowledgeDirectoryPage(path: item['path']),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+                color: const Color(0xFF64748B).withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF), // Blue 50
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.folder_rounded,
+                  color: Color(0xFF3B82F6), size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item['name'] ?? '',
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B))),
+                  const SizedBox(height: 4),
+                  Text('${item['item_count'] ?? 0} items',
+                      style: const TextStyle(
+                          fontSize: 13, color: Color(0xFF94A3B8))),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class KnowledgeDirectoryBody extends StatelessWidget {
+  const KnowledgeDirectoryBody({
+    super.key,
+    required this.folders,
+    required this.files,
+    required this.folderBuilder,
+  });
+
+  final List<Map<String, dynamic>> folders;
+  final List<Map<String, dynamic>> files;
+  final Widget Function(Map<String, dynamic> item) folderBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    if (folders.isEmpty && files.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(40),
+            alignment: Alignment.center,
+            child: Text(UserStorage.l10n.emptyFolder,
+                style: const TextStyle(color: Color(0xFFCBD5E1))),
+          ),
+        ],
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: folders.length + files.length,
+      itemBuilder: (context, index) {
+        if (index < folders.length) {
+          return folderBuilder(folders[index]);
+        }
+        return KnowledgeFileCard(item: files[index - folders.length]);
+      },
+    );
+  }
+}

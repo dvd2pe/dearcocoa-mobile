@@ -1,0 +1,101 @@
+name: Build APK release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - ".github/workflows/build-apk.yml"
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      # La build (SDK + pub cache + gradle + output) sfora il disco libero
+      # del runner standard: si liberano ~20 GB.
+      - name: Libera spazio sul runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/share/swift /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost \
+            /usr/local/lib/node_modules /usr/local/share/chromium || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          df -h /
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.5"
+          channel: stable
+          cache: true
+
+      # Il plugin sherpa_onnx compila codice nativo (:app:configureCMakeRelease):
+      # serve CMake 3.22.1. Il runner non raggiunge dl.google.com e ha cmake
+      # 3.31.5/4.1.2 ma non il 3.22.1: tarball Kitware + cmake.dir.
+      - name: Installa CMake 3.22.1 (tarball Kitware)
+        run: |
+          if [ ! -x "$HOME/cmake-3.22.1-linux-x86_64/bin/cmake" ]; then
+            curl -sL -o /tmp/cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.tar.gz
+            tar -xzf /tmp/cmake.tar.gz -C "$HOME"
+          fi
+          echo "$HOME/cmake-3.22.1-linux-x86_64/bin" >> "$GITHUB_PATH"
+          echo "cmake.dir=$HOME/cmake-3.22.1-linux-x86_64" >> android/gradle.properties
+          "$HOME/cmake-3.22.1-linux-x86_64/bin/cmake" --version
+
+      # build.gradle.kts: key-global.properties si legge da rootProject (= app/android/)
+      # e storeFile viene risolto rispetto alla dir del modulo :app -> percorso assoluto.
+      # Keystore release dai secrets; fallback: keystore demo generato (solo test, mai store).
+      - name: Keystore (release da secrets, fallback demo)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          KS="$PWD/android/app/release.keystore"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$KS"
+            echo "Keystore release caricato dai secrets"
+          else
+            echo "Nessun secret keystore: genero keystore demo"
+            keytool -genkeypair -v -keystore "$KS" -alias dearcocoa -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass dearcocoa2026 -keypass dearcocoa2026 \
+              -dname "CN=DearCocoa, O=dvd2pe, C=IT"
+            STORE_PASSWORD=dearcocoa2026
+            KEY_PASSWORD=dearcocoa2026
+            KEY_ALIAS=dearcocoa
+          fi
+          cat > android/key-global.properties <<EOF
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          storeFile=$KS
+          storePassword=$STORE_PASSWORD
+          EOF
+
+      - run: flutter pub get
+
+      # SEMPRE release, mai debug (richiesta cliente)
+      - run: flutter build apk --release --flavor global
+
+      - name: Ridenomina l'artefatto
+        run: |
+          APK=$(ls build/app/outputs/flutter-apk/*.apk 2>/dev/null | head -1)
+          [ -z "$APK" ] && APK=$(find build/app/outputs -name "*.apk" -not -path "*intermediates*" | head -1)
+          echo "APK trovato: $APK"
+          cp "$APK" dearcocoa-release.apk
+          ls -lh dearcocoa-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dearcocoa-release-apk
+          path: app/dearcocoa-release.apk
+          retention-days: 30

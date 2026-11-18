@@ -1,0 +1,205 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
+import 'package:dearcocoa/domain/models/knowledge_insight_card.dart';
+import 'package:dearcocoa/data/repositories/memex_router.dart';
+import 'package:dearcocoa/data/services/event_bus_service.dart';
+import 'package:dearcocoa/utils/result.dart';
+import 'package:dearcocoa/utils/user_storage.dart';
+
+/// Pin, delete, and reorder either change the list, fail, or no-op because
+/// the same action is already running.
+enum InsightActionOutcome { applied, rejected, ignored }
+
+/// ViewModel for the Insight page. Holds insight list, pin/delete/reorder state.
+class InsightViewModel extends ChangeNotifier {
+  InsightViewModel({required MemexRouter router}) : _router = router {
+    EventBusService.instance.addHandler(
+      EventBusMessageType.newInsight,
+      _handleNewInsightEvent,
+    );
+  }
+
+  final MemexRouter _router;
+
+  List<KnowledgeInsightCard>? insights;
+  bool isLoading = false;
+  bool _hasLoaded = false;
+  String? errorMessage;
+  String? activeCardId;
+  bool isDeleting = false;
+  bool isReordering = false;
+  final Set<String> pinningIds = {};
+  final Set<String> _htmlLoadingIds = {};
+  final Set<String> _htmlFailedIds = {};
+  int _insightsGeneration = 0;
+
+  bool isHtmlLoading(String insightId) => _htmlLoadingIds.contains(insightId);
+
+  bool hasHtmlRenderFailed(String insightId) =>
+      _htmlFailedIds.contains(insightId);
+
+  void _handleNewInsightEvent(EventBusMessage message) {
+    if (message is! NewInsightMessage) return;
+    unawaited(_reloadAfterInsightUpdated());
+  }
+
+  Future<void> _reloadAfterInsightUpdated() async {
+    await loadData();
+  }
+
+  Future<void> ensureHtmlRendered(KnowledgeInsightCard item) async {
+    if (item.widgetType != 'html' || item.html.isNotEmpty) return;
+    if (_htmlFailedIds.contains(item.id)) return;
+    if (!_htmlLoadingIds.add(item.id)) return;
+    final generation = _insightsGeneration;
+    var failed = false;
+    try {
+      final result = await _router.renderInsightCardHtml(item.id);
+      if (generation != _insightsGeneration) return;
+      final index = insights?.indexWhere((card) => card.id == item.id) ?? -1;
+      result.when(
+        onOk: (html) {
+          if (index != -1 && insights != null && html.isNotEmpty) {
+            insights![index] = insights![index].copyWith(html: html);
+          } else {
+            failed = true;
+          }
+        },
+        onError: (_, __) => failed = true,
+      );
+      if (failed) _htmlFailedIds.add(item.id);
+    } finally {
+      _htmlLoadingIds.remove(item.id);
+      notifyListeners();
+    }
+  }
+
+  Future<void> retryHtmlRendered(KnowledgeInsightCard item) async {
+    _htmlFailedIds.remove(item.id);
+    await ensureHtmlRendered(item);
+  }
+
+  Future<void> ensureLoaded() async {
+    if (_hasLoaded || isLoading) return;
+    await loadData();
+  }
+
+  Future<void> loadData() async {
+    _insightsGeneration += 1;
+    _htmlFailedIds.clear();
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+    final result = await _router.fetchKnowledgeInsights();
+    result.when(
+      onOk: (list) {
+        insights = list;
+        errorMessage = null;
+      },
+      onError: (_, __) {
+        errorMessage = UserStorage.l10n.dataLoadFailedRetry;
+      },
+    );
+    _hasLoaded = true;
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<InsightActionOutcome> togglePin(KnowledgeInsightCard item) async {
+    if (pinningIds.contains(item.id)) return InsightActionOutcome.ignored;
+
+    final isOriginallyPinned = item.isPinned;
+    final index = insights?.indexWhere((i) => i.id == item.id) ?? -1;
+    if (index == -1 || insights == null) return InsightActionOutcome.ignored;
+
+    pinningIds.add(item.id);
+    insights![index] = item.copyWith(isPinned: !isOriginallyPinned);
+    notifyListeners();
+
+    final result = isOriginallyPinned
+        ? await _router.unpinInsight(item.id)
+        : await _router.pinInsight(item.id);
+    final success = result.when(onOk: (v) => v, onError: (_, __) => false);
+    if (!success) {
+      insights![index] = item;
+    }
+    pinningIds.remove(item.id);
+    notifyListeners();
+    return success
+        ? InsightActionOutcome.applied
+        : InsightActionOutcome.rejected;
+  }
+
+  void setActiveCardId(String? id) {
+    if (activeCardId == id) return;
+    activeCardId = id;
+    notifyListeners();
+  }
+
+  void setReordering(bool value) {
+    if (isReordering == value) return;
+    isReordering = value;
+    notifyListeners();
+  }
+
+  void moveItem(int oldIndex, int newIndex) {
+    if (insights == null) return;
+    if (oldIndex < newIndex) newIndex -= 1;
+    final item = insights!.removeAt(oldIndex);
+    insights!.insert(newIndex, item);
+    notifyListeners();
+  }
+
+  Future<InsightActionOutcome> saveSortOrder() async {
+    if (insights == null) return InsightActionOutcome.ignored;
+
+    isReordering = false;
+    notifyListeners();
+
+    final ids = insights!.map((e) => e.id).toList();
+    final result = await _router.updateInsightCardSortOrder(ids);
+    final saved = result.when(onOk: (v) => v, onError: (_, __) => false);
+    if (!saved) {
+      await loadData();
+      return InsightActionOutcome.rejected;
+    }
+    notifyListeners();
+    return InsightActionOutcome.applied;
+  }
+
+  Future<InsightActionOutcome> deleteCard(KnowledgeInsightCard item) async {
+    if (isDeleting) return InsightActionOutcome.ignored;
+
+    isDeleting = true;
+    final originalList = List<KnowledgeInsightCard>.from(insights ?? []);
+    final index = insights?.indexWhere((i) => i.id == item.id) ?? -1;
+
+    if (index != -1 && insights != null) {
+      insights!.removeAt(index);
+      activeCardId = null;
+      notifyListeners();
+    }
+
+    final result = await _router.deleteKnowledgeInsight(item.id);
+    final success = result.when(onOk: (v) => v, onError: (_, __) => false);
+    if (!success) {
+      insights = originalList;
+    }
+    isDeleting = false;
+    notifyListeners();
+    return success
+        ? InsightActionOutcome.applied
+        : InsightActionOutcome.rejected;
+  }
+
+  @override
+  void dispose() {
+    EventBusService.instance.removeHandler(
+      EventBusMessageType.newInsight,
+      _handleNewInsightEvent,
+    );
+    super.dispose();
+  }
+}

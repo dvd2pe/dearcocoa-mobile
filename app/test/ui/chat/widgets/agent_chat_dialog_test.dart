@@ -1,0 +1,1355 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:dearcocoa/data/model/chat_artifact.dart';
+import 'package:dearcocoa/data/model/chat_events.dart';
+import 'package:dearcocoa/data/services/demo_service.dart';
+import 'package:dearcocoa/data/services/file_system_service.dart';
+import 'package:dearcocoa/data/services/local_asset_server.dart';
+import 'package:dearcocoa/data/services/native_photo_picker_service.dart';
+import 'package:dearcocoa/data/services/photo_attachment_service.dart';
+import 'package:dearcocoa/data/services/photo_suggestion_service.dart';
+import 'package:dearcocoa/data/services/system_action_service.dart';
+import 'package:dearcocoa/db/app_database.dart';
+import 'package:dearcocoa/domain/models/native_photo_selection.dart';
+import 'package:dearcocoa/l10n/app_localizations.dart';
+import 'package:dearcocoa/ui/chat/view_models/photo_attachments_viewmodel.dart';
+import 'package:dearcocoa/ui/chat/widgets/agent_chat_dialog.dart';
+import 'package:dearcocoa/ui/core/widgets/agent_logo_loading.dart';
+import 'package:dearcocoa/ui/core/widgets/local_image.dart';
+import 'package:dearcocoa/ui/core/widgets/reliable_asset_picker.dart';
+import 'package:dearcocoa/ui/knowledge/widgets/knowledge_file_page.dart';
+import 'package:dearcocoa/utils/user_storage.dart';
+import 'package:path/path.dart' as p;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../helpers/fake_photo_asset.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({'language': 'en'});
+    await initializeDateFormatting('en');
+    await UserStorage.initL10n();
+  });
+
+  testWidgets('preparing and queued requests survive the previous run ending',
+      (tester) async {
+    final active = StreamController<ChatEvent>();
+    final next = StreamController<ChatEvent>();
+    await _pumpDialog(tester, dialog: AgentChatDialog(
+      initialItems: [UserMessageItem('First request'), UserMessageItem('Second request')],
+      chatEventsForTesting: active.stream,
+      additionalChatEventsForTesting: next.stream,
+    ));
+    active.add(ChatRunAttachedEvent('run-1'));
+    active.add(ChatAgentStartedEvent('first'));
+    next.add(ChatTurnPreparingEvent('second'));
+    await tester.pump();
+    active.add(ChatResponseChunkEvent('first', 'First reply', isDone: true));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('First reply', findRichText: true), findsOneWidget);
+    await active.close();
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+
+    next.add(ChatTurnQueuedEvent('second', 'run-2'));
+    next.add(ChatRunAttachedEvent('run-2'));
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+    next.add(ChatAgentStartedEvent('second'));
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+    next.add(ChatResponseChunkEvent('second', 'Second reply', isDone: true));
+    next.add(ChatAgentStoppedEvent('second'));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('Second reply', findRichText: true), findsOneWidget);
+    await next.close();
+    await tester.pumpAndSettle();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('duplicate attachment leaves queued work on the existing listener',
+      (tester) async {
+    final active = StreamController<ChatEvent>();
+    var duplicateCancelled = false;
+    final next = StreamController<ChatEvent>(onCancel: () { duplicateCancelled = true; });
+    await _pumpDialog(tester, dialog: AgentChatDialog(
+      initialItems: [UserMessageItem('First request'), UserMessageItem('Second request')],
+      chatEventsForTesting: active.stream,
+      additionalChatEventsForTesting: next.stream,
+    ));
+    active.add(ChatRunAttachedEvent('shared-run'));
+    active.add(ChatAgentStartedEvent('first'));
+    next.add(ChatTurnPreparingEvent('second'));
+    next.add(ChatTurnQueuedEvent('second', 'shared-run'));
+    next.add(ChatRunAttachedEvent('shared-run'));
+    next.add(ChatResponseChunkEvent('first', 'Duplicate replay'));
+    await tester.pump();
+    expect(duplicateCancelled, isTrue);
+    expect(find.text('Duplicate replay', findRichText: true), findsNothing);
+    unawaited(next.close());
+    await tester.pump();
+    active.add(ChatAgentStoppedEvent('first'));
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+    active.add(ChatAgentStartedEvent('second'));
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+    active.add(ChatResponseChunkEvent('second', 'Queued reply', isDone: true));
+    active.add(ChatAgentStoppedEvent('second'));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('Queued reply', findRichText: true), findsOneWidget);
+    await active.close();
+    await tester.pumpAndSettle();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('attachment failure does not stop another running request',
+      (tester) async {
+    final active = StreamController<ChatEvent>();
+    final next = StreamController<ChatEvent>();
+    await _pumpDialog(tester, dialog: AgentChatDialog(
+      initialItems: [UserMessageItem('First request'), UserMessageItem('Second request')],
+      chatEventsForTesting: active.stream,
+      additionalChatEventsForTesting: next.stream,
+    ));
+    active.add(ChatRunAttachedEvent('run-1'));
+    active.add(ChatAgentStartedEvent('first'));
+    next.add(ChatTurnPreparingEvent('second'));
+    next.add(ChatErrorEvent('second', 'Cannot read attachment'));
+    await tester.pump();
+    await next.close();
+    await tester.pump();
+    expect(find.text('Cannot read attachment'), findsOneWidget);
+    expect(find.text(UserStorage.l10n.chatThinkingMessage), findsOneWidget);
+    active.add(ChatResponseChunkEvent('first', 'Still listening', isDone: true));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('Still listening', findRichText: true), findsOneWidget);
+    await active.close();
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
+      'iOS gallery uses system picker and previews a limited-access selection before export',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      final original = Completer<Map<String, Object>>();
+      var pickerCalls = 0;
+      final released = <String>[];
+      final png = base64Decode(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          NativePhotoPickerService.channel, (call) async {
+        switch (call.method) {
+          case 'pickImages':
+            pickerCalls++;
+            expect(call.arguments['maxAssets'], 9);
+            return [
+              {'id': 'native-selected'}
+            ];
+          case 'thumbnail':
+            return png;
+          case 'prepareOriginal':
+            return original.future;
+          case 'release':
+            released.add(call.arguments['id'] as String);
+            return null;
+        }
+        throw StateError('Unexpected method');
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(NativePhotoPickerService.channel, null));
+      final vm = PhotoAttachmentsViewModel.forTesting(
+          loader: (_) async => throw StateError(
+              'Must use picker provider, not PhotoKit export'));
+      await _pumpDialogFrame(tester,
+          dialog: AgentChatDialog(
+              photoAttachmentsForTesting: vm,
+              initialDraftText: 'keep my draft'));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester
+          .tap(find.byKey(const ValueKey('super_agent_gallery_button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(pickerCalls, 1);
+      expect(find.byKey(const ValueKey('selected-photo-native-selected')),
+          findsOneWidget);
+      expect(find.byKey(const Key('native-photo-preview')), findsOneWidget);
+      final send = find.byKey(const ValueKey('super_agent_publish_button'));
+      expect(tester.widget<GestureDetector>(send).onTap, isNull);
+      expect(find.text('keep my draft'), findsOneWidget);
+      original.complete({
+        'path': '/original/IMG_native.HEIC',
+        'originalName': 'IMG_native.HEIC'
+      });
+      await tester.pump();
+      await tester.pump();
+      expect(tester.widget<GestureDetector>(send).onTap, isNotNull);
+      expect(vm.items.single.prepared!.originalName, 'IMG_native.HEIC');
+      expect(find.byKey(const Key('native-photo-preview')), findsOneWidget);
+      await tester
+          .tap(find.byKey(const ValueKey('remove-photo-native-selected')));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('selected-photo-native-selected')),
+          findsNothing);
+      expect(find.text('keep my draft'), findsOneWidget);
+      expect(released, ['native-selected']);
+      await tester.pumpWidget(const SizedBox.shrink());
+      vm.dispose();
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets(
+      'recommended photo selected through native picker can be deselected by asset ID',
+      (tester) async {
+    final original = Completer<Map<String, Object>>();
+    final png = base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+    final released = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        NativePhotoPickerService.channel, (call) async {
+      switch (call.method) {
+        case 'thumbnail':
+          return png;
+        case 'prepareOriginal':
+          return original.future;
+        case 'release':
+          released.add(call.arguments['id'] as String);
+          return null;
+      }
+      return null;
+    });
+    const photoChannel = MethodChannel('com.fluttercandies/photo_manager');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        photoChannel,
+        (call) async =>
+            call.method == 'getTitleAsync' ? 'suggestion.jpg' : png);
+    addTearDown(() {
+      tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(NativePhotoPickerService.channel, null);
+      tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(photoChannel, null);
+    });
+    final vm = PhotoAttachmentsViewModel.forTesting(
+        loader: (_) async => throw StateError('No library export expected'));
+    vm.addNativePhotos(
+        [const NativePhotoSelection(id: 'native-copy', assetId: 'same-photo')]);
+    final suggestion = EnhancedPhoto(
+        entity:
+            AssetEntity(id: 'same-photo', typeInt: 1, width: 100, height: 100),
+        xFile: XFile('/different/suggestion.jpg'),
+        time: DateTime(2026, 10, 30));
+    await _pumpDialogFrame(tester,
+        dialog: AgentChatDialog(
+            photoAttachmentsForTesting: vm,
+            photoSuggestionsForTesting: [
+              [suggestion]
+            ],
+            initialDraftText: 'keep draft'));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.check_circle));
+    await tester.pump();
+    expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
+    expect(vm.items, isEmpty);
+    expect(released, ['native-copy']);
+    original.complete(
+        {'path': '/native/export.heic', 'originalName': 'export.heic'});
+    await tester.pump();
+    expect(vm.items, isEmpty);
+    expect(find.text('keep draft'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    vm.dispose();
+  });
+
+  testWidgets(
+      'gallery preview appears before original export and cannot submit an incomplete attachment',
+      (tester) async {
+    const channel = MethodChannel('com.fluttercandies/photo_manager');
+    final original = Completer<String>();
+    var exportCalls = 0;
+    final png = base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (call) async {
+      if (call.method == 'getThumb') return png;
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null));
+    final service = PhotoAttachmentService.forTesting(
+        assetLoader: (id) async => FakePhotoAsset(
+            id: id,
+            fileLoader: (isOrigin) async {
+              expect(isOrigin, isTrue);
+              exportCalls++;
+              return File(await original.future);
+            },
+            titleLoader: () async => 'IMG_original.HEIC'));
+    final vm =
+        PhotoAttachmentsViewModel.forTesting(loader: service.prepareAsset);
+    addTearDown(vm.dispose);
+    await _pumpDialogFrame(tester,
+        dialog: AgentChatDialog(
+          photoAttachmentsForTesting: vm,
+          imagePickerForTesting: (_) async => [
+            AssetEntity(
+                id: 'selection-original', typeInt: 1, width: 4000, height: 3000)
+          ],
+        ));
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.tap(find.byKey(const ValueKey('super_agent_gallery_button')));
+    await tester.pump();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const ValueKey('selected-photo-selection-original')),
+        findsOneWidget);
+    expect(find.byKey(reliableThumbnailImageKey), findsOneWidget);
+    expect(find.text(UserStorage.l10n.preparingSelectedPhotos), findsOneWidget);
+    final send = find.byKey(const ValueKey('super_agent_publish_button'));
+    expect(tester.widget<GestureDetector>(send).onTap, isNull);
+    expect(exportCalls, 1);
+    original.complete('/original/IMG_original.HEIC');
+    await tester.pump();
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.preparingSelectedPhotos), findsNothing);
+    expect(tester.widget<GestureDetector>(send).onTap, isNotNull);
+    expect(vm.items.single.prepared!.path, '/original/IMG_original.HEIC');
+    expect(vm.items.single.prepared!.originalName, 'IMG_original.HEIC');
+    expect(find.byKey(reliableThumbnailImageKey), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
+      'failed gallery originals offer retry and removal without losing the draft',
+      (tester) async {
+    const channel = MethodChannel('com.fluttercandies/photo_manager');
+    var fail = true;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel,
+        (call) async {
+      if (call.method == 'getThumb') {
+        return base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+      }
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null));
+    final service = PhotoAttachmentService.forTesting(
+        assetLoader: (id) async => FakePhotoAsset(
+            id: id,
+            fileLoader: (isOrigin) async {
+              expect(isOrigin, isTrue);
+              if (fail) throw PlatformException(code: 'offline');
+              return File('/original/photo.heic');
+            },
+            titleLoader: () async => 'photo.heic'));
+    final vm =
+        PhotoAttachmentsViewModel.forTesting(loader: service.prepareAsset);
+    addTearDown(vm.dispose);
+    await _pumpDialogFrame(tester,
+        dialog: AgentChatDialog(
+          initialDraftText: 'keep this draft',
+          photoAttachmentsForTesting: vm,
+          imagePickerForTesting: (_) async => [
+            AssetEntity(
+                id: 'failed-selection', typeInt: 1, width: 100, height: 100)
+          ],
+        ));
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.tap(find.byKey(const ValueKey('super_agent_gallery_button')));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text(UserStorage.l10n.selectedPhotosPreparationFailed),
+        findsOneWidget);
+    expect(find.text('keep this draft'), findsOneWidget);
+    fail = false;
+    await tester
+        .tap(find.byKey(const ValueKey('retry-photo-failed-selection')));
+    await tester.pump();
+    await tester.pump();
+    expect(vm.canSubmit, isTrue);
+    await tester
+        .tap(find.byKey(const ValueKey('remove-photo-failed-selection')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('selected-photo-failed-selection')),
+        findsNothing);
+    expect(find.text('keep this draft'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  group('AgentChatDialog layout metrics', () {
+    test('resolves default sheet and full-screen heights', () {
+      const viewport = Size(390, 800);
+
+      expect(resolveAgentChatDialogHeight(viewport, isFullScreen: false), 600);
+      expect(resolveAgentChatDialogHeight(viewport, isFullScreen: true), 800);
+      expect(
+        resolveAgentChatDialogHeight(
+          viewport,
+          isFullScreen: false,
+          keyboardInset: 320,
+        ),
+        480,
+      );
+      expect(
+        resolveAgentChatDialogHeight(
+          viewport,
+          isFullScreen: true,
+          keyboardInset: 320,
+        ),
+        480,
+      );
+      expect(
+        resolveAgentChatDialogHeight(
+          viewport,
+          isFullScreen: false,
+          keyboardInset: 320,
+          topSafeInset: 44,
+        ),
+        436,
+      );
+    });
+
+    test('uses rounded sheet corners only outside full screen', () {
+      expect(
+        resolveAgentChatDialogBorderRadius(isFullScreen: false),
+        const BorderRadius.vertical(top: Radius.circular(32)),
+      );
+      expect(
+        resolveAgentChatDialogBorderRadius(isFullScreen: true),
+        BorderRadius.zero,
+      );
+    });
+
+    test('uses keyboard inset whenever the keyboard is visible and editable',
+        () {
+      expect(
+        resolveSuperAgentInputBottomInset(
+          keyboardInset: 320,
+          inputFocused: true,
+          isStreaming: false,
+        ),
+        320,
+      );
+      expect(
+        resolveSuperAgentInputBottomInset(
+          keyboardInset: 320,
+          inputFocused: true,
+          isStreaming: true,
+        ),
+        320,
+      );
+      expect(
+        resolveSuperAgentInputBottomInset(
+          keyboardInset: 320,
+          inputFocused: false,
+          isStreaming: false,
+        ),
+        320,
+      );
+    });
+
+    test('does not create an empty assistant bubble for final done chunks', () {
+      expect(
+        shouldCreateAIMessageForResponseChunk(text: '', isDone: true),
+        isFalse,
+      );
+      expect(
+        shouldCreateAIMessageForResponseChunk(text: '', isDone: false),
+        isTrue,
+      );
+      expect(
+        shouldCreateAIMessageForResponseChunk(text: 'Done', isDone: true),
+        isTrue,
+      );
+    });
+
+    test('requests older history near the top or when content is too short',
+        () {
+      expect(
+        shouldRequestOlderSuperAgentHistory(
+          hasMoreHistory: true,
+          isLoading: false,
+          pixels: 0,
+          maxScrollExtent: 0,
+        ),
+        isTrue,
+      );
+      expect(
+        shouldRequestOlderSuperAgentHistory(
+          hasMoreHistory: true,
+          isLoading: false,
+          pixels: 80,
+          maxScrollExtent: 100,
+        ),
+        isTrue,
+      );
+      expect(
+        shouldRequestOlderSuperAgentHistory(
+          hasMoreHistory: true,
+          isLoading: false,
+          pixels: 60,
+          maxScrollExtent: 100,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldRequestOlderSuperAgentHistory(
+          hasMoreHistory: true,
+          isLoading: true,
+          pixels: 100,
+          maxScrollExtent: 100,
+        ),
+        isFalse,
+      );
+    });
+
+    test('snaps down when the keyboard inset shrinks', () {
+      expect(
+        resolveSuperAgentKeyboardInsetAnimationDuration(
+          previousInset: 0,
+          nextInset: 320,
+        ),
+        const Duration(milliseconds: 220),
+      );
+      expect(
+        resolveSuperAgentKeyboardInsetAnimationDuration(
+          previousInset: 320,
+          nextInset: 0,
+        ),
+        Duration.zero,
+      );
+    });
+
+    test('maps reversed chat list indexes around live status rows', () {
+      expect(
+        superAgentItemIndexForReversedList(
+          listIndex: 0,
+          itemCount: 10,
+          extraItems: 0,
+        ),
+        9,
+      );
+      expect(
+        superAgentItemIndexForReversedList(
+          listIndex: 1,
+          itemCount: 10,
+          extraItems: 1,
+        ),
+        9,
+      );
+      expect(
+        superAgentItemIndexForReversedList(
+          listIndex: 10,
+          itemCount: 10,
+          extraItems: 1,
+        ),
+        0,
+      );
+    });
+
+    test('formats chat time dividers like persona chat', () {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day, 9, 8);
+
+      expect(formatSuperAgentTimeDivider(today), '09:08');
+      expect(
+        formatSuperAgentTimeDivider(
+          today.subtract(const Duration(days: 1)),
+        ),
+        contains(UserStorage.l10n.yesterday),
+      );
+    });
+
+    test('formats token usage without estimated cost', () {
+      final text = formatSuperAgentTokenUsage(
+        ChatTokenUsageEvent(
+          promptTokens: 100,
+          completionTokens: 25,
+          cachedTokens: 40,
+          totalTokens: 125,
+          estimatedCost: 0.12345,
+          effectivePromptTokens: 100,
+          cachedTokensForRate: 40,
+        ),
+      );
+
+      expect(text, 'Tokens: 125 (P:100 C:25 Cache:40.0%)');
+      expect(text, isNot(contains('Est')));
+      expect(text, isNot(contains(r'$')));
+      expect(text, isNot(contains('0.12345')));
+    });
+
+    test('shows standalone thinking only before process or reply appears', () {
+      expect(shouldShowSuperAgentThinkingRow(
+        isLoadingAgent: true, primaryItem: ProcessItem()..isFinished = true,
+      ), isTrue);
+      expect(
+        shouldShowSuperAgentThinkingRow(
+          isLoadingAgent: false,
+          primaryItem: UserMessageItem('hello'),
+        ),
+        isFalse,
+      );
+      expect(
+        shouldShowSuperAgentThinkingRow(
+          isLoadingAgent: true,
+          primaryItem: UserMessageItem('hello'),
+        ),
+        isTrue,
+      );
+      expect(
+        shouldShowSuperAgentThinkingRow(
+          isLoadingAgent: true,
+          primaryItem: ProcessItem(),
+        ),
+        isFalse,
+      );
+      expect(
+        shouldShowSuperAgentThinkingRow(
+          isLoadingAgent: true,
+          primaryItem: AIMessageItem('reply', isStreaming: true),
+        ),
+        isFalse,
+      );
+    });
+
+    test('uses final process state instead of historical tool errors', () {
+      final failedTool = ToolCallItem(
+        'read-1',
+        'read',
+        '{}',
+        result: 'temporary failure',
+        isError: true,
+      );
+      final completedProcess = ProcessItem(isFinished: true)
+        ..children.add(failedTool);
+      final attentionProcess = ProcessItem(
+        isFinished: true,
+        needsAttention: true,
+      )..children.add(failedTool);
+
+      expect(
+        superAgentProcessVisualState(completedProcess),
+        SuperAgentProcessVisualState.done,
+      );
+      expect(
+        superAgentProcessVisualState(attentionProcess),
+        SuperAgentProcessVisualState.needsAttention,
+      );
+      expect(completedProcess.hasToolError, isTrue);
+    });
+
+    test('shows the photo suggestion status until suggestions resolve', () {
+      expect(
+        shouldShowSuperAgentPhotoSuggestionStatus(
+          isLoading: true,
+          hasSuggestions: false,
+          hasLoadedSuggestions: false,
+        ),
+        isTrue,
+      );
+      expect(
+        shouldShowSuperAgentPhotoSuggestionStatus(
+          isLoading: false,
+          hasSuggestions: true,
+          hasLoadedSuggestions: true,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldShowSuperAgentPhotoSuggestionStatus(
+          isLoading: false,
+          hasSuggestions: false,
+          hasLoadedSuggestions: true,
+        ),
+        isFalse,
+      );
+    });
+
+    test(
+        'explains notification permission only for first eligible Android send',
+        () {
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.android,
+          isDemoActive: false,
+          alreadyPrompted: false,
+          notificationStatus: PermissionStatus.denied,
+        ),
+        isTrue,
+      );
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.iOS,
+          isDemoActive: false,
+          alreadyPrompted: false,
+          notificationStatus: PermissionStatus.denied,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.android,
+          isDemoActive: true,
+          alreadyPrompted: false,
+          notificationStatus: PermissionStatus.denied,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.android,
+          isDemoActive: false,
+          alreadyPrompted: true,
+          notificationStatus: PermissionStatus.denied,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.android,
+          isDemoActive: false,
+          alreadyPrompted: false,
+          notificationStatus: PermissionStatus.granted,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldExplainMemexAgentNotificationPermission(
+          platform: TargetPlatform.android,
+          isDemoActive: false,
+          alreadyPrompted: false,
+          notificationStatus: PermissionStatus.permanentlyDenied,
+        ),
+        isFalse,
+      );
+    });
+
+    test('keeps original filenames only for selected initial images', () {
+      final selected = [
+        XFile('/tmp/a.jpg'),
+        XFile('/tmp/b.jpg'),
+      ];
+
+      expect(
+        initialOriginalFilenamesForSelectedImages(selected, {
+          '/tmp/a.jpg': 'camera-original.jpg',
+          '/tmp/b.jpg': ' ',
+          '/tmp/unused.jpg': 'unused.jpg',
+        }),
+        {'/tmp/a.jpg': 'camera-original.jpg'},
+      );
+    });
+
+    test('uses demo send key only while spotlighting super agent publish', () {
+      expect(superAgentDemoPublishTargetKey(null), isNull);
+      expect(superAgentDemoPublishTargetKey(DemoStep.tapAddButton), isNull);
+      expect(
+        superAgentDemoPublishTargetKey(DemoStep.tapSend),
+        same(DemoService.instance.sendButtonKey),
+      );
+    });
+
+    test('keeps artifacts attached to the assistant reply item', () {
+      final artifact = ArtifactItem(
+        ChatArtifact.schedule(title: 'Schedule presentation', updated: true),
+      );
+      final reply =
+          AIMessageItem('Done', turnId: 'turn-1', artifacts: [artifact]);
+
+      expect(reply.artifacts, [artifact]);
+      expect(reply.artifacts.single.artifact.title, 'Schedule presentation');
+    });
+
+    test('coalesces artifact revisions without changing card order', () {
+      final current = <ArtifactItem>[
+        ArtifactItem(
+          ChatArtifact.timelineCard(
+            cardId: 'xinjiang',
+            title: 'Draft',
+            updated: false,
+          ),
+        ),
+        ArtifactItem(
+          ChatArtifact.schedule(title: 'Schedule', updated: false),
+        ),
+      ];
+
+      mergeArtifactItems(current, [
+        ArtifactItem(
+          ChatArtifact.timelineCard(
+            cardId: 'xinjiang',
+            title: 'Final',
+            updated: true,
+          ),
+        ),
+      ]);
+
+      expect(current, hasLength(2));
+      expect(current.first.artifact.title, 'Final');
+      expect(current.last.artifact.kind, ChatArtifact.kindSchedule);
+    });
+
+    test('attaches pending artifacts only to the same assistant turn', () {
+      expect(
+        shouldAttachArtifactsToAssistantReply(
+          turnId: 'turn-1',
+          primaryItem: AIMessageItem('Done', turnId: 'turn-1'),
+        ),
+        isTrue,
+      );
+      expect(
+        shouldAttachArtifactsToAssistantReply(
+          turnId: 'turn-2',
+          primaryItem: AIMessageItem('Done', turnId: 'turn-1'),
+        ),
+        isFalse,
+      );
+      expect(
+        shouldAttachArtifactsToAssistantReply(
+          turnId: 'turn-1',
+          primaryItem: UserMessageItem('next request'),
+        ),
+        isFalse,
+      );
+    });
+
+    test('toggles demo overlay suspension for routed detail pages', () {
+      final demo = DemoService.instance;
+
+      demo.resumeOverlay();
+      expect(demo.isOverlaySuspended, isFalse);
+
+      demo.suspendOverlay();
+      expect(demo.isOverlaySuspended, isTrue);
+
+      demo.resumeOverlay();
+      expect(demo.isOverlaySuspended, isFalse);
+    });
+  });
+
+  group('AgentChatDialog full-screen affordance', () {
+    testWidgets('starts as a bottom sheet with a full-screen action', (
+      tester,
+    ) async {
+      await _pumpDialog(tester);
+
+      expect(find.text(UserStorage.l10n.aiInputHint), findsWidgets);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byTooltip(UserStorage.l10n.chatHistory), findsNothing);
+      expect(
+        find.byTooltip(UserStorage.l10n.enterFullScreenTooltip),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.open_in_full), findsOneWidget);
+      expect(find.byTooltip(UserStorage.l10n.close), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('super_agent_run_mode_chip')),
+        findsNothing,
+      );
+
+      final container = tester.widget<AnimatedContainer>(
+        find.byKey(const ValueKey('agent_chat_dialog_container')),
+      );
+      final decoration = container.decoration! as BoxDecoration;
+
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('agent_chat_dialog_container')))
+            .height,
+        600,
+      );
+      expect(
+        decoration.borderRadius,
+        const BorderRadius.vertical(top: Radius.circular(32)),
+      );
+    });
+
+    testWidgets('keeps the keyboard sheet below the top safe area', (
+      tester,
+    ) async {
+      const viewportSize = Size(390, 800);
+      const topSafeInset = 44.0;
+      const keyboardInset = 320.0;
+      await _pumpDialog(
+        tester,
+        viewportSize: viewportSize,
+        mediaQueryData: const MediaQueryData(
+          size: viewportSize,
+          viewPadding: EdgeInsets.only(top: topSafeInset),
+          viewInsets: EdgeInsets.only(bottom: keyboardInset),
+        ),
+      );
+
+      final dialogRect = tester.getRect(
+        find.byKey(const ValueKey('agent_chat_dialog_container')),
+      );
+      expect(dialogRect.top, topSafeInset);
+      expect(dialogRect.bottom, viewportSize.height - keyboardInset);
+    });
+
+    testWidgets('expands to full screen and restores the sheet', (
+      tester,
+    ) async {
+      await _pumpDialog(tester);
+
+      await tester.tap(
+        find.byKey(const ValueKey('agent_chat_fullscreen_toggle')),
+      );
+      await tester.pumpAndSettle();
+
+      var container = tester.widget<AnimatedContainer>(
+        find.byKey(const ValueKey('agent_chat_dialog_container')),
+      );
+      var decoration = container.decoration! as BoxDecoration;
+
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('agent_chat_dialog_container')))
+            .height,
+        800,
+      );
+      expect(decoration.borderRadius, BorderRadius.zero);
+      expect(
+        find.byTooltip(UserStorage.l10n.exitFullScreenTooltip),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.close_fullscreen), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const ValueKey('agent_chat_fullscreen_toggle')),
+      );
+      await tester.pumpAndSettle();
+
+      container = tester.widget<AnimatedContainer>(
+        find.byKey(const ValueKey('agent_chat_dialog_container')),
+      );
+      decoration = container.decoration! as BoxDecoration;
+
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('agent_chat_dialog_container')))
+            .height,
+        600,
+      );
+      expect(
+        decoration.borderRadius,
+        const BorderRadius.vertical(top: Radius.circular(32)),
+      );
+      expect(
+        find.byTooltip(UserStorage.l10n.enterFullScreenTooltip),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.open_in_full), findsOneWidget);
+    });
+
+    testWidgets('does not show a loading logo while opening a session', (
+      tester,
+    ) async {
+      await _pumpDialogFrame(
+        tester,
+        dialog: const AgentChatDialog(initialSessionId: 'session-1'),
+      );
+
+      expect(find.byType(AgentLogoLoading), findsNothing);
+    });
+
+    testWidgets('reserves the photo suggestion slot on the first frame', (
+      tester,
+    ) async {
+      await _pumpDialogFrame(tester);
+
+      final slotFinder = find.byKey(superAgentPhotoSuggestionSlotKey);
+
+      expect(slotFinder, findsOneWidget);
+      expect(
+        tester.getSize(slotFinder).height,
+        superAgentPhotoSuggestionSlotHeight,
+      );
+      expect(
+        find.text(UserStorage.l10n.agentChat.findingRecentPhotos),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('renders selected images through the cached image widget', (
+      tester,
+    ) async {
+      await _pumpDialogFrame(
+        tester,
+        dialog: AgentChatDialog(
+          initialImages: [XFile('/tmp/memex-selected-image.jpg')],
+        ),
+      );
+
+      expect(find.byType(LocalImage), findsOneWidget);
+    });
+
+    testWidgets('keeps process thinking and token usage inside details', (
+      tester,
+    ) async {
+      final usage = ChatTokenUsageEvent(
+        promptTokens: 100,
+        completionTokens: 25,
+        cachedTokens: 40,
+        totalTokens: 125,
+        estimatedCost: 0.0,
+        effectivePromptTokens: 100,
+        cachedTokensForRate: 40,
+      );
+      final process = ProcessItem()
+        ..children.add(ThinkingItem('Inspecting the plan'));
+
+      await _pumpDialogFrame(
+        tester,
+        dialog: AgentChatDialog(
+          initialItems: [process],
+          initialIsLoadingAgent: true,
+          initialTokenUsage: usage,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+
+      final tokenText = formatSuperAgentTokenUsage(usage);
+      expect(find.text(UserStorage.l10n.agentChat.thinking), findsNothing);
+      expect(find.text('Inspecting the plan'), findsNothing);
+      expect(find.text(tokenText), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('agent_chat_process_toggle')));
+      await tester.pump();
+
+      expect(find.text(UserStorage.l10n.agentChat.thinking), findsOneWidget);
+      expect(find.text('Inspecting the plan'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('agent_chat_token_usage_debug')),
+        findsOneWidget,
+      );
+      expect(find.text(tokenText), findsOneWidget);
+    });
+
+    testWidgets('shows completed process despite intermediate tool errors', (
+      tester,
+    ) async {
+      final failedTool = ToolCallItem(
+        'read-1',
+        'read',
+        '{}',
+        result: 'temporary failure',
+        isError: true,
+      );
+      final process = ProcessItem(isFinished: true)..children.add(failedTool);
+
+      await _pumpDialogFrame(
+        tester,
+        dialog: AgentChatDialog(initialItems: [process]),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(
+        find.text(UserStorage.l10n.agentChat.completedActions(1)),
+        findsOneWidget,
+      );
+      expect(find.text(UserStorage.l10n.agentChat.actionNeedsAttention),
+          findsNothing);
+      expect(find.text(UserStorage.l10n.agentChat.issue), findsNothing);
+    });
+
+    test('resolves persisted user image paths as local files', () async {
+      final tempDir = Directory.systemTemp.createTempSync(
+        'memex_user_message_image_',
+      );
+      try {
+        await FileSystemService.init(tempDir.path);
+        const relativePath = 'workspace/_alice/Facts/assets/photo.jpg';
+
+        expect(
+          superAgentUserMessageImageSourceForLocalDisplay(relativePath),
+          p.join(tempDir.path, relativePath),
+        );
+        expect(
+          superAgentUserMessageImageSourceForLocalDisplay(
+            'https://example.com/photo.jpg',
+          ),
+          'https://example.com/photo.jpg',
+        );
+      } finally {
+        await LocalAssetServer.stopServer();
+        if (tempDir.existsSync()) {
+          tempDir.deleteSync(recursive: true);
+        }
+      }
+    });
+
+    testWidgets(
+      'keeps header actions inside the compact header on narrow screens',
+      (tester) async {
+        await _pumpDialog(
+          tester,
+          viewportSize: const Size(320, 800),
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(
+          find.byKey(const ValueKey('agent_chat_fullscreen_toggle')),
+          findsOneWidget,
+        );
+        expect(find.byTooltip(UserStorage.l10n.close), findsOneWidget);
+      },
+    );
+
+    testWidgets('super agent entry hides chat controls and uses send input', (
+      tester,
+    ) async {
+      await _pumpDialog(tester);
+
+      expect(find.byTooltip(UserStorage.l10n.chatHistory), findsNothing);
+      expect(find.byIcon(Icons.mic), findsNothing);
+      expect(
+        find.byKey(const ValueKey('super_agent_camera_button')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('super_agent_gallery_button')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('super_agent_publish_button')),
+        findsOneWidget,
+      );
+      expect(find.text(UserStorage.l10n.sendLabel), findsOneWidget);
+    });
+
+    testWidgets('renders a legacy schedule artifact without a dead link', (
+      tester,
+    ) async {
+      await _pumpDialog(
+        tester,
+        dialog: AgentChatDialog(
+          initialItems: [
+            AIMessageItem(
+              'I updated your schedule.',
+              artifacts: [
+                ArtifactItem(
+                  ChatArtifact.schedule(
+                    title: 'Schedule presentation',
+                    summary: 'Pending schedule items: 3',
+                    updated: true,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(find.text('I updated your schedule.'), findsOneWidget);
+      expect(find.text('${UserStorage.l10n.agentChat.result} · 1'),
+          findsOneWidget);
+      expect(find.text(UserStorage.l10n.schedule), findsOneWidget);
+      expect(find.text('Schedule presentation'), findsOneWidget);
+      expect(find.text('Pending schedule items: 3'), findsOneWidget);
+      expect(find.text(UserStorage.l10n.artifactOpen), findsNothing);
+    });
+
+    testWidgets('renders a system action with inline confirmation controls', (
+      tester,
+    ) async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      AppDatabase.setTestInstance(db);
+      addTearDown(db.close);
+      await SystemActionService.instance.createAction(
+        id: 'calendar-action-1',
+        type: 'calendar',
+        data: const {
+          'title': 'Team review',
+          'start_time': '2026-08-01 15:30:00',
+        },
+      );
+
+      await _pumpDialog(
+        tester,
+        dialog: AgentChatDialog(
+          initialItems: [
+            AIMessageItem(
+              'Ready for confirmation.',
+              artifacts: [
+                ArtifactItem(
+                  ChatArtifact.systemAction(
+                    actionId: 'calendar-action-1',
+                    systemActionKind: 'calendar',
+                    title: 'Team review',
+                    summary: '2026-08-01 15:30',
+                    updated: false,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(
+        find.text(UserStorage.l10n.discoveredCalendarEvent),
+        findsOneWidget,
+      );
+      expect(
+        find.text(UserStorage.l10n.agentChat.calendarEventCreated),
+        findsNothing,
+      );
+      expect(find.text('Team review'), findsOneWidget);
+      expect(
+        find.text(UserStorage.l10n.systemActionPendingExplanation),
+        findsOneWidget,
+      );
+      expect(find.text(UserStorage.l10n.addToCalendar), findsOneWidget);
+      expect(find.text(UserStorage.l10n.ignore), findsOneWidget);
+    });
+
+    testWidgets('opens knowledge file artifacts with normalized PKM path', (
+      tester,
+    ) async {
+      await _pumpDialog(
+        tester,
+        dialog: AgentChatDialog(
+          initialItems: [
+            AIMessageItem(
+              'I updated the knowledge file.',
+              artifacts: [
+                ArtifactItem(
+                  ChatArtifact.knowledgeFile(
+                    path: 'PKM/Projects/memex.md',
+                    title: 'memex.md',
+                    summary: '# Memex',
+                    updated: true,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expect(find.text('I updated the knowledge file.'), findsOneWidget);
+      expect(find.text('${UserStorage.l10n.agentChat.result} · 1'),
+          findsOneWidget);
+      expect(
+        find.text(UserStorage.l10n.agentChat.documentUpdated),
+        findsOneWidget,
+      );
+      expect(find.text('memex.md'), findsOneWidget);
+      expect(find.text('PKM/Projects/memex.md'), findsOneWidget);
+      expect(find.text(UserStorage.l10n.artifactOpen), findsOneWidget);
+
+      await tester.tap(find.text(UserStorage.l10n.artifactOpen));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final page = tester.widget<KnowledgeFilePage>(
+        find.byType(KnowledgeFilePage),
+      );
+      expect(page.filePath, 'Projects/memex.md');
+    });
+
+    testWidgets('keeps super agent header actions tight to the right edge', (
+      tester,
+    ) async {
+      const viewportSize = Size(390, 800);
+      await _pumpDialog(
+        tester,
+        viewportSize: viewportSize,
+      );
+
+      final dialogRect = tester.getRect(
+        find.byKey(const ValueKey('agent_chat_dialog_container')),
+      );
+      final fullscreenButtonRect = tester.getRect(
+        find.byKey(const ValueKey('agent_chat_fullscreen_toggle')),
+      );
+      final closeButtonFinder =
+          find.byKey(const ValueKey('agent_chat_close_button'));
+      final closeButtonRect = tester.getRect(closeButtonFinder);
+      final closeIconRect = tester.getRect(
+        find.descendant(
+          of: closeButtonFinder,
+          matching: find.byIcon(Icons.close),
+        ),
+      );
+
+      expect(dialogRect.width, moreOrLessEquals(viewportSize.width));
+      expect(closeButtonRect.size, const Size.square(36));
+      expect(fullscreenButtonRect.size, const Size.square(36));
+      expect(
+        dialogRect.right - closeButtonRect.right,
+        moreOrLessEquals(4),
+      );
+      expect(
+        viewportSize.width - closeButtonRect.right,
+        moreOrLessEquals(4),
+      );
+      expect(closeIconRect.right, greaterThan(dialogRect.right - 13));
+      expect(closeIconRect.right, greaterThan(viewportSize.width - 13));
+      expect(closeButtonRect.left - fullscreenButtonRect.right, 0);
+    });
+  });
+}
+
+Future<void> _pumpDialog(
+  WidgetTester tester, {
+  Size viewportSize = const Size(390, 800),
+  Widget dialog = const AgentChatDialog(),
+  MediaQueryData? mediaQueryData,
+}) async {
+  await _pumpDialogFrame(
+    tester,
+    viewportSize: viewportSize,
+    dialog: dialog,
+    mediaQueryData: mediaQueryData,
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> _pumpDialogFrame(
+  WidgetTester tester, {
+  Size viewportSize = const Size(390, 800),
+  Widget dialog = const AgentChatDialog(),
+  MediaQueryData? mediaQueryData,
+}) async {
+  tester.view.physicalSize = viewportSize;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: mediaQueryData == null
+            ? dialog
+            : MediaQuery(data: mediaQueryData, child: dialog),
+      ),
+    ),
+  );
+  await tester.pump();
+}

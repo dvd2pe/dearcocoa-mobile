@@ -1,0 +1,61 @@
+import 'package:dart_agent_core/dart_agent_core.dart';
+import 'package:dearcocoa/agent/built_in_tools/file_tools.dart';
+import 'package:dearcocoa/agent/security/file_permission_manager.dart';
+import 'package:dearcocoa/agent/skills/comment_agent/tools/comment_tools.dart';
+import 'package:dearcocoa/agent/skills/comment_agent/tools/memory_tools.dart';
+
+class CharacterToolsFactory {
+  CharacterToolsFactory._();
+
+  static List<Tool> buildCommentTools({
+    required String userId,
+    required String workingDirectory,
+    required String factId,
+    String? characterId,
+    String? forcedReplyToId,
+    bool includeSaveCommentTool = true,
+    bool includeSkipCommentTool = true,
+    bool includeFileTools = true,
+  }) {
+    final tools = <Tool>[];
+
+    if (includeFileTools) {
+      final permissionManager = FilePermissionManager(userId, [
+        PermissionRule(rootPath: workingDirectory, access: FileAccessType.read),
+      ]);
+      final fileFactory = FileToolFactory(
+        permissionManager: permissionManager,
+        workingDirectory: workingDirectory,
+      );
+      tools.add(fileFactory.buildReadTool());
+      tools.add(fileFactory.buildGrepTool());
+    }
+
+    if (includeSaveCommentTool) {
+      final commentFactory = CommentToolFactory(
+        userId: userId,
+        cardId: factId,
+        characterId: characterId,
+        forcedReplyToId: forcedReplyToId,
+      );
+      tools.add(commentFactory.buildSaveCommentTool());
+      if (includeSkipCommentTool) {
+        tools.add(commentFactory.buildSkipCommentTool());
+      }
+    }
+
+    if (characterId != null) {
+      final memoryFactory = MemoryToolFactory(
+        userId: userId,
+        defaultCharacterId: characterId,
+      );
+      tools.add(memoryFactory.buildMemoryReadTool());
+      tools.add(memoryFactory.buildMemoryWriteTool());
+      tools.add(memoryFactory.buildMemoryEditTool());
+      tools.add(memoryFactory.buildMemoryRemoveTool());
+      tools.add(memoryFactory.buildHistorySearchTool());
+    }
+
+    return tools;
+  }
+}
