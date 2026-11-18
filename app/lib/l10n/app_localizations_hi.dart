@@ -1982,11 +1982,11 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'अपना पूरा डेटा (कार्ड, ज्ञान आधार, अंतर्दृष्टियाँ, सेटिंग्स) .memex फ़ाइल में पैक करें। इसे शेयर शीट से iCloud ड्राइव, Google ड्राइव या किसी भी जगह सहेजें।';
+      'अपना पूरा डेटा (कार्ड, ज्ञान आधार, अंतर्दृष्टियाँ, सेटिंग्स) .dearcocoa फ़ाइल में पैक करें। इसे शेयर शीट से iCloud ड्राइव, Google ड्राइव या किसी भी जगह सहेजें।';
 
   @override
   String get restoreDescription =>
-      'पूरा डेटा बहाल करने के लिए .memex बैकअप फ़ाइल चुनें। इससे मौजूदा डेटा ओवरराइट होगा।';
+      'पूरा डेटा बहाल करने के लिए .dearcocoa बैकअप फ़ाइल चुनें। इससे मौजूदा डेटा ओवरराइट होगा।';
 
   @override
   String get selectBackupFile => 'बैकअप फ़ाइल चुनें';
@@ -2023,7 +2023,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'अमान्य बैकअप फ़ाइल। कृपया .memex फ़ाइल चुनें।';
+      'अमान्य बैकअप फ़ाइल। कृपया .dearcocoa फ़ाइल चुनें।';
 
   @override
   String get automaticBackup => 'स्वचालित बैकअप';

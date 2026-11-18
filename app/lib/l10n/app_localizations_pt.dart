@@ -1995,11 +1995,11 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Empacote todos os seus dados (cartões, base de conhecimento, insights, configurações) em um arquivo .memex. Salve no iCloud Drive, Google Drive ou qualquer local pelo share sheet.';
+      'Empacote todos os seus dados (cartões, base de conhecimento, insights, configurações) em um arquivo .dearcocoa. Salve no iCloud Drive, Google Drive ou qualquer local pelo share sheet.';
 
   @override
   String get restoreDescription =>
-      'Selecione um arquivo de backup .memex para restaurar todos os dados. Isso substituirá os dados atuais.';
+      'Selecione um arquivo de backup .dearcocoa para restaurar todos os dados. Isso substituirá os dados atuais.';
 
   @override
   String get selectBackupFile => 'Selecionar arquivo de backup';
@@ -2036,7 +2036,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Arquivo de backup inválido. Selecione um arquivo .memex.';
+      'Arquivo de backup inválido. Selecione um arquivo .dearcocoa.';
 
   @override
   String get automaticBackup => 'Backup automático';

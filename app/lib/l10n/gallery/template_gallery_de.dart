@@ -383,7 +383,7 @@ const insightTemplateGalleryItemsDe = [
         {'label': 'Dart', 'value': 80, 'color': '#8B5CF6'},
         {'label': 'AI', 'value': 60, 'color': '#EC4899'},
         {'label': 'Design', 'value': 40, 'color': '#10B981'},
-        {'label': 'Memex', 'value': 90, 'color': '#F59E0B'},
+        {'label': 'DearCocoa', 'value': 90, 'color': '#F59E0B'},
       ],
       'footer': 'Analyse basierend auf 42 Notizen',
     },

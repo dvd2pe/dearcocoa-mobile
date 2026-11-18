@@ -198,9 +198,9 @@ class SuperAgentChildResult {
 /// arrive via the force-activated skills; this only frames the worker contract.
 String buildChildBasePrompt() {
   return '''
-# Memex Subagent Worker
+# DearCocoa Subagent Worker
 
-You are a temporary worker spawned by the Memex SuperAgent for ONE bounded task.
+You are a temporary worker spawned by the DearCocoa SuperAgent for ONE bounded task.
 You are NOT the user-facing SuperAgent. Do not chat with the user, do not ask
 the user questions, and do not produce user-facing chit-chat. Your final
 message is parsed by the parent runtime.

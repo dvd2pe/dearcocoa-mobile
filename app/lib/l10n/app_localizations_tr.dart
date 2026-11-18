@@ -1994,11 +1994,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Tüm verilerinizi (kartlar, bilgi tabanı, öngörüler, ayarlar) bir .memex dosyasına paketleyin. Paylaşım sayfasını kullanarak bunu iCloud Drive\'a, Google Drive\'a veya herhangi bir konuma kaydedin.';
+      'Tüm verilerinizi (kartlar, bilgi tabanı, öngörüler, ayarlar) bir .dearcocoa dosyasına paketleyin. Paylaşım sayfasını kullanarak bunu iCloud Drive\'a, Google Drive\'a veya herhangi bir konuma kaydedin.';
 
   @override
   String get restoreDescription =>
-      'Tüm verileri geri yüklemek için bir .memex yedekleme dosyası seçin. Bu, mevcut verilerin üzerine yazacaktır.';
+      'Tüm verileri geri yüklemek için bir .dearcocoa yedekleme dosyası seçin. Bu, mevcut verilerin üzerine yazacaktır.';
 
   @override
   String get selectBackupFile => 'Yedekleme Dosyasını Seçin';
@@ -2035,7 +2035,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Geçersiz yedekleme dosyası. Lütfen bir .memex dosyası seçin.';
+      'Geçersiz yedekleme dosyası. Lütfen bir .dearcocoa dosyası seçin.';
 
   @override
   String get automaticBackup => 'Otomatik Yedekleme';

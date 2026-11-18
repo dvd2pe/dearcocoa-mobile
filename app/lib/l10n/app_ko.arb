@@ -892,8 +892,8 @@
   "backupAndRestore": "백업 및 복원",
   "createBackup": "백업 만들기",
   "restoreBackup": "백업 복원",
-  "backupDescription": "모든 데이터(카드, 지식 베이스, 인사이트, 설정)를 .memex 파일로 묶습니다. 공유 시트를 통해 iCloud Drive, Google Drive 또는 원하는 위치에 저장하세요.",
-  "restoreDescription": ".memex 백업 파일을 선택해 모든 데이터를 복원합니다. 현재 데이터는 덮어써집니다.",
+  "backupDescription": "모든 데이터(카드, 지식 베이스, 인사이트, 설정)를 .dearcocoa 파일로 묶습니다. 공유 시트를 통해 iCloud Drive, Google Drive 또는 원하는 위치에 저장하세요.",
+  "restoreDescription": ".dearcocoa 백업 파일을 선택해 모든 데이터를 복원합니다. 현재 데이터는 덮어써집니다.",
   "selectBackupFile": "백업 파일 선택",
   "estimatedSize": "예상 크기",
   "backupComplete": "백업이 생성되었습니다",
@@ -913,7 +913,7 @@
       "error": {}
     }
   },
-  "invalidBackupFile": "올바르지 않은 백업 파일입니다. .memex 파일을 선택해 주세요.",
+  "invalidBackupFile": "올바르지 않은 백업 파일입니다. .dearcocoa 파일을 선택해 주세요.",
   "automaticBackup": "자동 백업",
   "autoBackupDescription": "활성화하면 DearCocoa가 시작 후 또는 포그라운드로 돌아올 때 하루 최대 한 번 로컬 스냅샷을 만듭니다.",
   "backupSensitiveSettingsHint": "백업에는 설정과 모델 제공업체 키가 포함됩니다. 신뢰할 수 있는 위치에 보관하세요.",

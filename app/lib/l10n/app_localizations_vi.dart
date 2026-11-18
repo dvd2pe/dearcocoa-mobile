@@ -1971,11 +1971,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Đóng gói tất cả dữ liệu (thẻ, cơ sở kiến thức, insight, cài đặt) vào tệp .memex. Lưu vào iCloud Drive, Google Drive hoặc bất kỳ vị trí nào qua bảng chia sẻ.';
+      'Đóng gói tất cả dữ liệu (thẻ, cơ sở kiến thức, insight, cài đặt) vào tệp .dearcocoa. Lưu vào iCloud Drive, Google Drive hoặc bất kỳ vị trí nào qua bảng chia sẻ.';
 
   @override
   String get restoreDescription =>
-      'Chọn tệp sao lưu .memex để khôi phục tất cả dữ liệu. Sẽ ghi đè dữ liệu hiện tại.';
+      'Chọn tệp sao lưu .dearcocoa để khôi phục tất cả dữ liệu. Sẽ ghi đè dữ liệu hiện tại.';
 
   @override
   String get selectBackupFile => 'Chọn tệp sao lưu';
@@ -2012,7 +2012,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Tệp sao lưu không hợp lệ. Vui lòng chọn tệp .memex.';
+      'Tệp sao lưu không hợp lệ. Vui lòng chọn tệp .dearcocoa.';
 
   @override
   String get automaticBackup => 'Sao lưu tự động';

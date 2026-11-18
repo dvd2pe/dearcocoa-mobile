@@ -111,7 +111,7 @@ android {
         create("globalEarly") {
             dimension = "market"
             applicationId = globalEarlyApplicationId
-            manifestPlaceholders["appLabel"] = "Memex Early"
+            manifestPlaceholders["appLabel"] = "DearCocoa Early"
             if (hasEarlyKeystore) {
                 signingConfig = signingConfigs.getByName("earlyRelease")
             }
@@ -119,7 +119,7 @@ android {
         create("cnEarly") {
             dimension = "market"
             applicationId = cnEarlyApplicationId
-            manifestPlaceholders["appLabel"] = "Memex Early CN"
+            manifestPlaceholders["appLabel"] = "DearCocoa Early CN"
             if (hasEarlyKeystore) {
                 signingConfig = signingConfigs.getByName("earlyRelease")
             }
@@ -132,7 +132,7 @@ android {
         create("cnDev") {
             dimension = "market"
             applicationId = cnDevApplicationId
-            manifestPlaceholders["appLabel"] = "Memex Dev CN"
+            manifestPlaceholders["appLabel"] = "DearCocoa Dev CN"
         }
     }
 

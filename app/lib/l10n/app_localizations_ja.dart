@@ -1934,11 +1934,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'すべてのデータ（カード、ナレッジベース、インサイト、設定）を .memex ファイルにまとめます。共有シートから iCloud Drive、Google Drive、または任意の場所に保存できます。';
+      'すべてのデータ（カード、ナレッジベース、インサイト、設定）を .dearcocoa ファイルにまとめます。共有シートから iCloud Drive、Google Drive、または任意の場所に保存できます。';
 
   @override
   String get restoreDescription =>
-      '.memex バックアップファイルを選択してすべてのデータを復元します。現在のデータは上書きされます。';
+      '.dearcocoa バックアップファイルを選択してすべてのデータを復元します。現在のデータは上書きされます。';
 
   @override
   String get selectBackupFile => 'バックアップファイルを選択';
@@ -1973,7 +1973,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get invalidBackupFile => '無効なバックアップファイルです。.memex ファイルを選択してください。';
+  String get invalidBackupFile => '無効なバックアップファイルです。.dearcocoa ファイルを選択してください。';
 
   @override
   String get automaticBackup => '自動バックアップ';

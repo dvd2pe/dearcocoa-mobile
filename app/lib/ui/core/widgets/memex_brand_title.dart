@@ -18,7 +18,7 @@ class MemexBrandTitle extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: 'Meme',
+                text: 'Dear',
                 style: GoogleFonts.bricolageGrotesque(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -28,7 +28,7 @@ class MemexBrandTitle extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: 'x',
+                text: 'Cocoa',
                 style: GoogleFonts.bricolageGrotesque(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,

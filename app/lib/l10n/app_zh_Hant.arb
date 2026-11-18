@@ -892,8 +892,8 @@
   "backupAndRestore": "備份與還原",
   "createBackup": "建立備份",
   "restoreBackup": "還原備份",
-  "backupDescription": "將所有資料（卡片、知識庫、洞察、設定）打包為 .memex 檔案。可透過分享儲存到 iCloud Drive、Google Drive 或任意位置。",
-  "restoreDescription": "選擇 .memex 備份檔還原所有資料。這會覆蓋目前資料。",
+  "backupDescription": "將所有資料（卡片、知識庫、洞察、設定）打包為 .dearcocoa 檔案。可透過分享儲存到 iCloud Drive、Google Drive 或任意位置。",
+  "restoreDescription": "選擇 .dearcocoa 備份檔還原所有資料。這會覆蓋目前資料。",
   "selectBackupFile": "選擇備份檔",
   "estimatedSize": "預估大小",
   "backupComplete": "備份已建立",
@@ -913,7 +913,7 @@
       "error": {}
     }
   },
-  "invalidBackupFile": "無效的備份檔，請選擇 .memex 檔案。",
+  "invalidBackupFile": "無效的備份檔，請選擇 .dearcocoa 檔案。",
   "automaticBackup": "自動備份",
   "autoBackupDescription": "開啟後，DearCocoa 會在啟動或回到前景時檢查，每天最多建立一次本機時間點快照。",
   "backupSensitiveSettingsHint": "備份包含設定和模型服務商金鑰，請只儲存到你信任的位置。",

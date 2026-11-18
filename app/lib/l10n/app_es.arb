@@ -892,8 +892,8 @@
   "backupAndRestore": "Copia de seguridad y restauración",
   "createBackup": "Crear copia de seguridad",
   "restoreBackup": "Restaurar copia de seguridad",
-  "backupDescription": "Empaqueta todos tus datos (tarjetas, base de conocimiento, insights, configuración) en un archivo .memex. Guárdalo en iCloud Drive, Google Drive o cualquier ubicación mediante la hoja de compartir.",
-  "restoreDescription": "Selecciona un archivo de copia .memex para restaurar todos los datos. Esto sobrescribirá los datos actuales.",
+  "backupDescription": "Empaqueta todos tus datos (tarjetas, base de conocimiento, insights, configuración) en un archivo .dearcocoa. Guárdalo en iCloud Drive, Google Drive o cualquier ubicación mediante la hoja de compartir.",
+  "restoreDescription": "Selecciona un archivo de copia .dearcocoa para restaurar todos los datos. Esto sobrescribirá los datos actuales.",
   "selectBackupFile": "Seleccionar archivo de copia",
   "estimatedSize": "Tamaño estimado",
   "backupComplete": "Copia de seguridad creada",
@@ -913,7 +913,7 @@
       "error": {}
     }
   },
-  "invalidBackupFile": "Archivo de copia de seguridad inválido. Selecciona un archivo .memex.",
+  "invalidBackupFile": "Archivo de copia de seguridad inválido. Selecciona un archivo .dearcocoa.",
   "automaticBackup": "Copia de seguridad automática",
   "autoBackupDescription": "Cuando está activado, DearCocoa crea como máximo una instantánea local al día después de iniciar o al volver al primer plano.",
   "backupSensitiveSettingsHint": "Las copias de seguridad incluyen configuración y claves de proveedores de modelos. Guárdalas en un lugar de confianza.",

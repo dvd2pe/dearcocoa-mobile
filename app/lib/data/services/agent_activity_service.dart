@@ -74,7 +74,7 @@ abstract class AgentActivityService {
   static AgentActivityService get instance {
     if (_instance == null) {
       throw Exception(
-        'AgentActivityService not initialized. Use MemexRouter to initialize it.',
+        'AgentActivityService not initialized. Use DearCocoa to initialize it.',
       );
     }
     return _instance!;

@@ -18,7 +18,7 @@ class TimelineDiagnosticsSkill extends Skill {
       : super(
           name: 'timeline_diagnostics',
           description:
-              'Finds and inspects Memex Timeline cards. Use when the user refers to an existing card, a past record, or a failed/wrong Timeline card that may need repair.',
+              'Finds and inspects DearCocoa Timeline cards. Use when the user refers to an existing card, a past record, or a failed/wrong Timeline card that may need repair.',
           systemPrompt: _buildSystemPrompt(),
           tools: _buildTools(),
         );

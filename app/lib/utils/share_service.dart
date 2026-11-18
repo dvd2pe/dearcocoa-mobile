@@ -182,6 +182,6 @@ class ShareService {
         .trim()
         .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
         .replaceAll(RegExp(r'\s+'), ' ');
-    return sanitized.isEmpty ? 'memex.md' : sanitized;
+    return sanitized.isEmpty ? 'dearcocoa.md' : sanitized;
   }
 }

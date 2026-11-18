@@ -186,7 +186,7 @@ class GeocodingService {
       );
 
       final response = await http
-          .get(uri, headers: {'User-Agent': 'memex_app'}).timeout(timeout);
+          .get(uri, headers: {'User-Agent': 'dearcocoa_app'}).timeout(timeout);
 
       if (response.statusCode != 200) {
         final reason = 'OSM reverse geocode failed: ${response.statusCode}';

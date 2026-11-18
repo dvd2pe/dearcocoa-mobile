@@ -449,7 +449,7 @@ class _MemexAppState extends State<MemexApp> with WidgetsBindingObserver {
       valueListenable: UserStorage.localeNotifier,
       builder: (context, locale, _) {
         return MaterialApp.router(
-          title: 'Memex',
+          title: 'DearCocoa',
           debugShowCheckedModeBanner: false,
           scaffoldMessengerKey: rootScaffoldMessengerKey,
           theme: AppTheme.lightTheme,

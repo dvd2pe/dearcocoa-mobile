@@ -1918,10 +1918,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      '将所有数据（卡片、知识库、洞察、设置）打包为 .memex 文件。可通过分享保存到 iCloud Drive、Google Drive 或任意位置。';
+      '将所有数据（卡片、知识库、洞察、设置）打包为 .dearcocoa 文件。可通过分享保存到 iCloud Drive、Google Drive 或任意位置。';
 
   @override
-  String get restoreDescription => '选择 .memex 备份文件恢复所有数据。这将覆盖当前数据。';
+  String get restoreDescription => '选择 .dearcocoa 备份文件恢复所有数据。这将覆盖当前数据。';
 
   @override
   String get selectBackupFile => '选择备份文件';
@@ -1956,7 +1956,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get invalidBackupFile => '无效的备份文件，请选择 .memex 文件。';
+  String get invalidBackupFile => '无效的备份文件，请选择 .dearcocoa 文件。';
 
   @override
   String get automaticBackup => '自动备份';
@@ -5147,10 +5147,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get backupDescription =>
-      '將所有資料（卡片、知識庫、洞察、設定）打包為 .memex 檔案。可透過分享儲存到 iCloud Drive、Google Drive 或任意位置。';
+      '將所有資料（卡片、知識庫、洞察、設定）打包為 .dearcocoa 檔案。可透過分享儲存到 iCloud Drive、Google Drive 或任意位置。';
 
   @override
-  String get restoreDescription => '選擇 .memex 備份檔還原所有資料。這會覆蓋目前資料。';
+  String get restoreDescription => '選擇 .dearcocoa 備份檔還原所有資料。這會覆蓋目前資料。';
 
   @override
   String get selectBackupFile => '選擇備份檔';
@@ -5185,7 +5185,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String get invalidBackupFile => '無效的備份檔，請選擇 .memex 檔案。';
+  String get invalidBackupFile => '無效的備份檔，請選擇 .dearcocoa 檔案。';
 
   @override
   String get automaticBackup => '自動備份';

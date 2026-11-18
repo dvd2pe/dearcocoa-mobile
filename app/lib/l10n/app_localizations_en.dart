@@ -1975,11 +1975,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Pack all your data (cards, knowledge base, insights, settings) into a .memex file. Save it to iCloud Drive, Google Drive, or any location via the share sheet.';
+      'Pack all your data (cards, knowledge base, insights, settings) into a .dearcocoa file. Save it to iCloud Drive, Google Drive, or any location via the share sheet.';
 
   @override
   String get restoreDescription =>
-      'Select a .memex backup file to restore all data. This will overwrite current data.';
+      'Select a .dearcocoa backup file to restore all data. This will overwrite current data.';
 
   @override
   String get selectBackupFile => 'Select Backup File';
@@ -2016,7 +2016,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Invalid backup file. Please select a .memex file.';
+      'Invalid backup file. Please select a .dearcocoa file.';
 
   @override
   String get automaticBackup => 'Automatic Backup';

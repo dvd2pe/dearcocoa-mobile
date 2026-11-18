@@ -188,7 +188,7 @@ String buildSuperAgentImportMessage(
   final workerGuidance = _workerGuidance(options);
 
   return '''
-I imported external files into my local Memex workspace.
+I imported external files into my local DearCocoa workspace.
 
 Imported source folder: `$path`
 Source name: `${result.sourceName}`

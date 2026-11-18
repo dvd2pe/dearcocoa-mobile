@@ -1966,11 +1966,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'اجمع كل بياناتك (البطاقات، قاعدة المعرفة، الرؤى، الإعدادات) في ملف .memex. احفظه في iCloud Drive أو Google Drive أو أي مكان عبر قائمة المشاركة.';
+      'اجمع كل بياناتك (البطاقات، قاعدة المعرفة، الرؤى، الإعدادات) في ملف .dearcocoa. احفظه في iCloud Drive أو Google Drive أو أي مكان عبر قائمة المشاركة.';
 
   @override
   String get restoreDescription =>
-      'اختر ملف .memex نسخة احتياطية لاستعادة كل البيانات. سيستبدل هذا البيانات الحالية.';
+      'اختر ملف .dearcocoa نسخة احتياطية لاستعادة كل البيانات. سيستبدل هذا البيانات الحالية.';
 
   @override
   String get selectBackupFile => 'اختر ملف النسخة الاحتياطية';
@@ -2007,7 +2007,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'ملف النسخة الاحتياطية غير صالح. يرجى اختيار ملف .memex.';
+      'ملف النسخة الاحتياطية غير صالح. يرجى اختيار ملف .dearcocoa.';
 
   @override
   String get automaticBackup => 'نسخ احتياطي تلقائي';

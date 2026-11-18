@@ -708,7 +708,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {
                 launchUrl(
                   Uri.parse(
-                    'https://github.com/memex-lab/memex/blob/main/PRIVACY_POLICY.md',
+                    'https://github.com/dvd2pe/dearcocoa-app/blob/main/PRIVACY_POLICY.md',
                   ),
                   mode: LaunchMode.externalApplication,
                 );

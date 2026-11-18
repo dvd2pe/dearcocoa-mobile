@@ -314,7 +314,7 @@ class AppUpdateService {
 
   static final AppUpdateService instance = AppUpdateService();
   static const String releasesUrl =
-      'https://api.github.com/repos/memex-lab/memex/releases?per_page=20';
+      'https://api.github.com/repos/dvd2pe/dearcocoa-mobile/releases?per_page=20';
 
   final http.Client _httpClient;
   final AppUpdatePlatform _platform;
@@ -809,7 +809,7 @@ class AppUpdateService {
     }
 
     final assetMatch = RegExp(
-      r'memex_[^_]+_([^_]+)_\d+\.apk$',
+      r'dearcocoa[_-][^_-]*[_-]([\d.]+)[_-]',
       caseSensitive: false,
     ).firstMatch(value.trim());
     if (assetMatch != null) {
@@ -823,7 +823,7 @@ class AppUpdateService {
   }
 
   static String _safeFileName(String value) {
-    final fallback = value.trim().isEmpty ? 'memex_early_update.apk' : value;
+    final fallback = value.trim().isEmpty ? 'dearcocoa_early_update.apk' : value;
     return fallback.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
   }
 

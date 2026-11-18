@@ -26,13 +26,17 @@ import 'package:synchronized/synchronized.dart';
 /// Keys to exclude from backup (Flutter internals, not user data).
 const _excludePrefKeys = <String>{'flutter.'};
 
-const _backupExtension = '.memex';
+const _backupExtension = '.dearcocoa';
+/// Backup pre-rename (v0.3.x) ancora accettati in lettura.
+const _legacyBackupExtension = '.memex';
 const _autoBackupPrefix = 'memex_auto';
 const _safetyBackupPrefix = 'memex_safety';
 const _autoBackupInterval = Duration(hours: 24);
 const _backupStoreWithoutCompressionThreshold = 16 * 1024 * 1024; // 16 MB
 const _backupManifestFileName = 'manifest.json';
-const _backupFormat = 'memex.backup';
+const _backupFormat = 'dearcocoa.backup';
+/// Formato manifest dei backup pre-rename, ancora accettato.
+const _legacyBackupFormat = 'memex.backup';
 const _currentBackupSchemaVersion = 1;
 const _backupStoreWithoutCompressionExtensions = <String>{
   '.7z',
@@ -216,15 +220,15 @@ class UnsupportedBackupVersionException implements Exception {
   @override
   String toString() {
     return 'Backup schema $backupSchemaVersion is newer than supported schema '
-        '$supportedSchemaVersion. Please update Memex before restoring.';
+        '$supportedSchemaVersion. Please update DearCocoa before restoring.';
   }
 }
 
-/// Service for creating and restoring full app backups as .memex (zip) files.
+/// Service for creating and restoring full app backups as .dearcocoa (zip) files.
 class BackupService {
   static final Logger _logger = getLogger('BackupService');
   static final Lock _autoBackupLock = Lock();
-  static const backupMimeType = 'application/x-memex-backup';
+  static const backupMimeType = 'application/x-dearcocoa-backup';
   static const currentBackupSchemaVersion = _currentBackupSchemaVersion;
 
   static const MethodChannel _backupStorageChannel = MethodChannel(
@@ -237,7 +241,8 @@ class BackupService {
   }
 
   static bool isMemexBackupFile(String filePath) {
-    return _normalizeFilePath(filePath).toLowerCase().endsWith('.memex');
+    final p = _normalizeFilePath(filePath).toLowerCase();
+    return p.endsWith(_backupExtension) || p.endsWith(_legacyBackupExtension);
   }
 
   /// Create a backup zip containing:
@@ -246,11 +251,11 @@ class BackupService {
   /// - settings.json (selected SharedPreferences keys)
   /// - manifest.json with entry checksums
   ///
-  /// Returns the path to the generated .memex file.
+  /// Returns the path to the generated .dearcocoa file.
   static Future<String> createBackup({
     void Function(String status)? onProgress,
     String? outputDirectory,
-    String filePrefix = 'memex_backup',
+    String filePrefix = 'dearcocoa_backup',
   }) async {
     final userId = await UserStorage.getUserId();
     if (userId == null) throw Exception('No user logged in');
@@ -765,7 +770,7 @@ class BackupService {
     final normalizedPath = _normalizeFilePath(filePath);
     if (!isMemexBackupFile(normalizedPath)) {
       throw const InvalidBackupFileException(
-        'Invalid backup file. Please select a .memex file.',
+        'Invalid backup file. Please select a .dearcocoa file.',
       );
     }
 
@@ -1048,7 +1053,7 @@ class BackupService {
     await for (final entity in dir.list(followLinks: false)) {
       if (entity is! File) continue;
       final name = path.basename(entity.path);
-      if (!name.endsWith(_backupExtension)) continue;
+      if (!(name.endsWith(_backupExtension) || name.endsWith(_legacyBackupExtension))) continue;
 
       try {
         final stat = await entity.stat();
@@ -1081,7 +1086,9 @@ class BackupService {
     return result
         .whereType<Map>()
         .map((item) => _snapshotFromAndroidInfo(item.cast<String, dynamic>()))
-        .where((snapshot) => snapshot.name.endsWith(_backupExtension))
+        .where((snapshot) =>
+            snapshot.name.endsWith(_backupExtension) ||
+            snapshot.name.endsWith(_legacyBackupExtension))
         .toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
@@ -1246,7 +1253,7 @@ class BackupService {
     final normalizedPath = _normalizeFilePath(backupFilePath);
     if (!isSelectableBackupFile(normalizedPath)) {
       throw const InvalidBackupFileException(
-        'Invalid backup file. Please select a .memex file.',
+        'Invalid backup file. Please select a .dearcocoa file.',
       );
     }
 
@@ -1283,7 +1290,7 @@ class BackupService {
       if (manifestFile == null) {
         if (!_looksLikeLegacyBackup(archive)) {
           throw const InvalidBackupFileException(
-            'Invalid backup file. Please select a .memex file.',
+            'Invalid backup file. Please select a .dearcocoa file.',
           );
         }
         return BackupFileInfo(
@@ -1294,7 +1301,8 @@ class BackupService {
       }
 
       final manifest = _readManifest(manifestFile);
-      if (manifest.format != _backupFormat) {
+      if (manifest.format != _backupFormat &&
+        manifest.format != _legacyBackupFormat) {
         throw InvalidBackupFileException(
           'Unsupported backup format: ${manifest.format}',
         );
@@ -1330,7 +1338,7 @@ class BackupService {
       return ZipDecoder().decodeStream(InputFileStream(backupFilePath));
     } catch (_) {
       throw const InvalidBackupFileException(
-        'Invalid backup file. Please select a .memex file.',
+        'Invalid backup file. Please select a .dearcocoa file.',
       );
     }
   }
@@ -1454,7 +1462,7 @@ Future<_StagedRestoreResult> _stageBackupRestoreArchive({
 
     if (manifest == null && !looksLikeBackup) {
       throw const InvalidBackupFileException(
-        'Invalid backup file. Please select a .memex file.',
+        'Invalid backup file. Please select a .dearcocoa file.',
       );
     }
 
@@ -1572,7 +1580,8 @@ Future<void> _removeStaleWorkspaceFiles({
 }
 
 void _validateBackupManifestHeader(BackupManifest manifest) {
-  if (manifest.format != _backupFormat) {
+  if (manifest.format != _backupFormat &&
+        manifest.format != _legacyBackupFormat) {
     throw InvalidBackupFileException(
       'Unsupported backup format: ${manifest.format}',
     );

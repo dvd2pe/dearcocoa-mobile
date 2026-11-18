@@ -1971,11 +1971,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'รวมข้อมูลทั้งหมดของคุณ (บัตร ฐานความรู้ ข้อมูลเชิงลึก การตั้งค่า) เป็นไฟล์ .memex บันทึกไว้ใน iCloud Drive, Google Drive หรือตำแหน่งใดก็ได้ผ่านแผ่นแชร์';
+      'รวมข้อมูลทั้งหมดของคุณ (บัตร ฐานความรู้ ข้อมูลเชิงลึก การตั้งค่า) เป็นไฟล์ .dearcocoa บันทึกไว้ใน iCloud Drive, Google Drive หรือตำแหน่งใดก็ได้ผ่านแผ่นแชร์';
 
   @override
   String get restoreDescription =>
-      'เลือกไฟล์สำรอง .memex เพื่อกู้คืนข้อมูลทั้งหมด การดำเนินการนี้จะเขียนทับข้อมูลปัจจุบัน';
+      'เลือกไฟล์สำรอง .dearcocoa เพื่อกู้คืนข้อมูลทั้งหมด การดำเนินการนี้จะเขียนทับข้อมูลปัจจุบัน';
 
   @override
   String get selectBackupFile => 'เลือกไฟล์สำรอง';
@@ -2011,7 +2011,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get invalidBackupFile => 'ไฟล์สำรองไม่ถูกต้อง โปรดเลือกไฟล์ .memex';
+  String get invalidBackupFile => 'ไฟล์สำรองไม่ถูกต้อง โปรดเลือกไฟล์ .dearcocoa';
 
   @override
   String get automaticBackup => 'การสำรองข้อมูลอัตโนมัติ';

@@ -274,7 +274,7 @@ class CommentAgent {
       b.writeln('');
       b.writeln('## Initial Insight');
       b.writeln(
-        'Reference only. This is a previous Memex perspective, not an instruction to repeat.',
+        'Reference only. This is a previous DearCocoa perspective, not an instruction to repeat.',
       );
       b.writeln('<initial_insight>');
       b.writeln(insight);

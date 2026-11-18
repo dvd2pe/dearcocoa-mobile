@@ -1996,11 +1996,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Упакуйте все ваши данные (карточки, базу знаний, инсайты, настройки) в файл .memex. Сохраните его в iCloud Drive, Google Drive или любое место через share sheet.';
+      'Упакуйте все ваши данные (карточки, базу знаний, инсайты, настройки) в файл .dearcocoa. Сохраните его в iCloud Drive, Google Drive или любое место через share sheet.';
 
   @override
   String get restoreDescription =>
-      'Выберите файл резервной копии .memex для восстановления всех данных. Это перезапишет текущие данные.';
+      'Выберите файл резервной копии .dearcocoa для восстановления всех данных. Это перезапишет текущие данные.';
 
   @override
   String get selectBackupFile => 'Выбрать файл резервной копии';
@@ -2037,7 +2037,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Недопустимый файл резервной копии. Выберите файл .memex.';
+      'Недопустимый файл резервной копии. Выберите файл .dearcocoa.';
 
   @override
   String get automaticBackup => 'Автоматическое резервное копирование';

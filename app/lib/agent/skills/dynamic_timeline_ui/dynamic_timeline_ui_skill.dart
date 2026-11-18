@@ -44,7 +44,7 @@ class DynamicTimelineUiSkill extends Skill {
     return '''
 # Dynamic Timeline UI Skill
 
-Use this skill when the user explicitly wants a custom visual card, timeline UI, mini dashboard, generated view, or a style/layout change that should appear on the Memex Timeline.
+Use this skill when the user explicitly wants a custom visual card, timeline UI, mini dashboard, generated view, or a style/layout change that should appear on the DearCocoa Timeline.
 
 This skill is a sub-step of card creation: design a reusable template here, then go back to `manage_timeline_card.save_timeline_card` (passing the template_id) to actually create or update the card. Designing a template alone does not produce a card.
 

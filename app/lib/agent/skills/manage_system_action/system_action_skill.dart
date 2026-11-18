@@ -39,7 +39,7 @@ report is not permission to create one.
   user did not provide enough information to resolve that time, ask instead of
   guessing.
 - Each tool creates a pending proposal. The user must review it and press the
-  add button before Memex requests system permission and writes to the device.
+  add button before DearCocoa requests system permission and writes to the device.
 - Never claim the event or reminder is already in the device app after this
   tool succeeds. Say it is ready for confirmation in the attached card.
 - Do not create a Timeline record unless the user separately asks to capture

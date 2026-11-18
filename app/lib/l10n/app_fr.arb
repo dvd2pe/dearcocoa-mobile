@@ -892,8 +892,8 @@
   "backupAndRestore": "Sauvegarde et restauration",
   "createBackup": "Créer une sauvegarde",
   "restoreBackup": "Restaurer une sauvegarde",
-  "backupDescription": "Regroupez toutes vos données (cartes, base de connaissances, insights, paramètres) dans un fichier .memex. Enregistrez-le sur iCloud Drive, Google Drive ou n'importe quel emplacement via la feuille de partage.",
-  "restoreDescription": "Sélectionnez un fichier de sauvegarde .memex pour restaurer toutes les données. Cela écrasera les données actuelles.",
+  "backupDescription": "Regroupez toutes vos données (cartes, base de connaissances, insights, paramètres) dans un fichier .dearcocoa. Enregistrez-le sur iCloud Drive, Google Drive ou n'importe quel emplacement via la feuille de partage.",
+  "restoreDescription": "Sélectionnez un fichier de sauvegarde .dearcocoa pour restaurer toutes les données. Cela écrasera les données actuelles.",
   "selectBackupFile": "Sélectionner le fichier de sauvegarde",
   "estimatedSize": "Taille estimée",
   "backupComplete": "Sauvegarde créée",
@@ -913,7 +913,7 @@
       "error": {}
     }
   },
-  "invalidBackupFile": "Fichier de sauvegarde invalide. Sélectionnez un fichier .memex.",
+  "invalidBackupFile": "Fichier de sauvegarde invalide. Sélectionnez un fichier .dearcocoa.",
   "automaticBackup": "Sauvegarde automatique",
   "autoBackupDescription": "Lorsque c'est activé, DearCocoa crée au maximum un snapshot local par jour après le démarrage ou le retour au premier plan.",
   "backupSensitiveSettingsHint": "Les sauvegardes incluent paramètres et clés de fournisseurs de modèles. Gardez les fichiers de sauvegarde dans un endroit fiable.",

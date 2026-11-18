@@ -1981,11 +1981,11 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'همه داده‌های شما (کارت‌ها، پایگاه دانش، بینش‌ها، تنظیمات) را در یک فایل .memex بسته‌بندی کنید. از طریق برگه اشتراک‌گذاری آن را در iCloud Drive، Google Drive یا هر مکان دیگری ذخیره کنید.';
+      'همه داده‌های شما (کارت‌ها، پایگاه دانش، بینش‌ها، تنظیمات) را در یک فایل .dearcocoa بسته‌بندی کنید. از طریق برگه اشتراک‌گذاری آن را در iCloud Drive، Google Drive یا هر مکان دیگری ذخیره کنید.';
 
   @override
   String get restoreDescription =>
-      'یک فایل پشتیبان .memex انتخاب کنید تا همه داده‌ها بازیابی شوند. این کار داده‌های فعلی را بازنویسی می‌کند.';
+      'یک فایل پشتیبان .dearcocoa انتخاب کنید تا همه داده‌ها بازیابی شوند. این کار داده‌های فعلی را بازنویسی می‌کند.';
 
   @override
   String get selectBackupFile => 'انتخاب فایل پشتیبان';
@@ -2022,7 +2022,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'فایل پشتیبان نامعتبر است. لطفاً یک فایل .memex انتخاب کنید.';
+      'فایل پشتیبان نامعتبر است. لطفاً یک فایل .dearcocoa انتخاب کنید.';
 
   @override
   String get automaticBackup => 'پشتیبان‌گیری خودکار';

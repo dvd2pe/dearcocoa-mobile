@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 处理用户认证、套餐购买、凭证获取等
 class MemexCloudService {
   // TODO: 发布时改为实际域名
-  static const String _baseUrl = 'https://www.memexlab.ai';
+  static const String _baseUrl = 'https://github.com/dvd2pe/dearcocoa-app';
 
   static const String _keyAuthToken = 'memex_cloud_auth_token';
   static const String _keyUserId = 'memex_cloud_user_id';

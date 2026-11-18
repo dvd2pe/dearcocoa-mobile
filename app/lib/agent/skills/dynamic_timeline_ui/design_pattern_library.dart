@@ -349,7 +349,7 @@ class DynamicTimelineDesignPatternLibrary {
       id: 'system_action_receipt',
       name: 'System Action Receipt',
       intent:
-          'Show what an agent changed, generated, archived, scheduled, or prepared inside Memex.',
+          'Show what an agent changed, generated, archived, scheduled, or prepared inside DearCocoa.',
       visualDirection:
           'Trust-building receipt with action, affected surface, permission note, and rollback hint.',
       matchSignals: [
@@ -396,7 +396,7 @@ class DynamicTimelineDesignPatternLibrary {
   </style>
   <div class="head"><div class="mark">OK</div><div><div class="meta">Agent receipt</div><h2>Timeline UI card created</h2></div></div>
   <div class="panel"><div class="row"><span>Affected surface</span><b>Timeline</b></div><div class="row"><span>Permission</span><b>Auto allowed</b></div><div class="row"><span>Status</span><b>Completed</b></div></div>
-  <div class="note">The generated card is saved as a normal Memex timeline card and can be revised by asking the agent.</div>
+  <div class="note">The generated card is saved as a normal DearCocoa timeline card and can be revised by asking the agent.</div>
 </section>
 ''',
     ),

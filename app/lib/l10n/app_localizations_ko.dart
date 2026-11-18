@@ -1932,11 +1932,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      '모든 데이터(카드, 지식 베이스, 인사이트, 설정)를 .memex 파일로 묶습니다. 공유 시트를 통해 iCloud Drive, Google Drive 또는 원하는 위치에 저장하세요.';
+      '모든 데이터(카드, 지식 베이스, 인사이트, 설정)를 .dearcocoa 파일로 묶습니다. 공유 시트를 통해 iCloud Drive, Google Drive 또는 원하는 위치에 저장하세요.';
 
   @override
   String get restoreDescription =>
-      '.memex 백업 파일을 선택해 모든 데이터를 복원합니다. 현재 데이터는 덮어써집니다.';
+      '.dearcocoa 백업 파일을 선택해 모든 데이터를 복원합니다. 현재 데이터는 덮어써집니다.';
 
   @override
   String get selectBackupFile => '백업 파일 선택';
@@ -1972,7 +1972,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get invalidBackupFile => '올바르지 않은 백업 파일입니다. .memex 파일을 선택해 주세요.';
+  String get invalidBackupFile => '올바르지 않은 백업 파일입니다. .dearcocoa 파일을 선택해 주세요.';
 
   @override
   String get automaticBackup => '자동 백업';

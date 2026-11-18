@@ -2019,11 +2019,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Raccogli tutti i tuoi dati (schede, knowledge base, approfondimenti, impostazioni) in un file .memex. Salvalo su iCloud Drive, Google Drive o qualsiasi posizione tramite il foglio di condivisione.';
+      'Raccogli tutti i tuoi dati (schede, knowledge base, approfondimenti, impostazioni) in un file .dearcocoa. Salvalo su iCloud Drive, Google Drive o qualsiasi posizione tramite il foglio di condivisione.';
 
   @override
   String get restoreDescription =>
-      'Seleziona un file di backup .memex per ripristinare tutti i dati. Ciò sovrascriverà i dati correnti.';
+      'Seleziona un file di backup .dearcocoa per ripristinare tutti i dati. Ciò sovrascriverà i dati correnti.';
 
   @override
   String get selectBackupFile => 'Seleziona File di backup';
@@ -2060,7 +2060,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'File di backup non valido. Seleziona un file .memex.';
+      'File di backup non valido. Seleziona un file .dearcocoa.';
 
   @override
   String get automaticBackup => 'Backup automatico';

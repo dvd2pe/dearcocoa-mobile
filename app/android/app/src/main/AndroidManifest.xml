@@ -68,6 +68,9 @@
                 <data
                     android:scheme="memex"
                     android:host="quick_note" />
+                <data
+                    android:scheme="dearcocoa"
+                    android:host="quick_note" />
             </intent-filter>
 
             <!-- share_handler: handle incoming shares -->
@@ -102,11 +105,12 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
 
-            <!-- Memex backup files (.memex) -->
+            <!-- DearCocoa backup files (.dearcocoa, legacy .memex) -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/x-memex-backup" />
+                <data android:mimeType="application/x-dearcocoa-backup" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -120,6 +124,9 @@
                 <data
                     android:scheme="content"
                     android:mimeType="application/x-memex-backup" />
+                <data
+                    android:scheme="content"
+                    android:mimeType="application/x-dearcocoa-backup" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -128,6 +135,9 @@
                 <data
                     android:scheme="file"
                     android:mimeType="application/x-memex-backup" />
+                <data
+                    android:scheme="file"
+                    android:mimeType="application/x-dearcocoa-backup" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -138,6 +148,11 @@
                     android:host="*"
                     android:pathPattern=".*\\.memex"
                     android:mimeType="application/octet-stream" />
+                <data
+                    android:scheme="content"
+                    android:host="*"
+                    android:pathPattern=".*\\.dearcocoa"
+                    android:mimeType="application/octet-stream" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -146,6 +161,10 @@
                 <data
                     android:scheme="file"
                     android:pathPattern=".*\\.memex"
+                    android:mimeType="application/octet-stream" />
+                <data
+                    android:scheme="file"
+                    android:pathPattern=".*\\.dearcocoa"
                     android:mimeType="application/octet-stream" />
             </intent-filter>
             <intent-filter>
@@ -157,6 +176,11 @@
                     android:host="*"
                     android:pathPattern=".*\\.memex"
                     android:mimeType="application/zip" />
+                <data
+                    android:scheme="content"
+                    android:host="*"
+                    android:pathPattern=".*\\.dearcocoa"
+                    android:mimeType="application/zip" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -165,6 +189,10 @@
                 <data
                     android:scheme="file"
                     android:pathPattern=".*\\.memex"
+                    android:mimeType="application/zip" />
+                <data
+                    android:scheme="file"
+                    android:pathPattern=".*\\.dearcocoa"
                     android:mimeType="application/zip" />
             </intent-filter>
 

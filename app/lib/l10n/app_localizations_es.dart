@@ -2009,11 +2009,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Empaqueta todos tus datos (tarjetas, base de conocimiento, insights, configuración) en un archivo .memex. Guárdalo en iCloud Drive, Google Drive o cualquier ubicación mediante la hoja de compartir.';
+      'Empaqueta todos tus datos (tarjetas, base de conocimiento, insights, configuración) en un archivo .dearcocoa. Guárdalo en iCloud Drive, Google Drive o cualquier ubicación mediante la hoja de compartir.';
 
   @override
   String get restoreDescription =>
-      'Selecciona un archivo de copia .memex para restaurar todos los datos. Esto sobrescribirá los datos actuales.';
+      'Selecciona un archivo de copia .dearcocoa para restaurar todos los datos. Esto sobrescribirá los datos actuales.';
 
   @override
   String get selectBackupFile => 'Seleccionar archivo de copia';
@@ -2050,7 +2050,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'Archivo de copia de seguridad inválido. Selecciona un archivo .memex.';
+      'Archivo de copia de seguridad inválido. Selecciona un archivo .dearcocoa.';
 
   @override
   String get automaticBackup => 'Copia de seguridad automática';

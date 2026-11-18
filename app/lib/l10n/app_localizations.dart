@@ -3637,13 +3637,13 @@ abstract class AppLocalizations {
   /// No description provided for @backupDescription.
   ///
   /// In en, this message translates to:
-  /// **'Pack all your data (cards, knowledge base, insights, settings) into a .memex file. Save it to iCloud Drive, Google Drive, or any location via the share sheet.'**
+  /// **'Pack all your data (cards, knowledge base, insights, settings) into a .dearcocoa file. Save it to iCloud Drive, Google Drive, or any location via the share sheet.'**
   String get backupDescription;
 
   /// No description provided for @restoreDescription.
   ///
   /// In en, this message translates to:
-  /// **'Select a .memex backup file to restore all data. This will overwrite current data.'**
+  /// **'Select a .dearcocoa backup file to restore all data. This will overwrite current data.'**
   String get restoreDescription;
 
   /// No description provided for @selectBackupFile.
@@ -3703,7 +3703,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalidBackupFile.
   ///
   /// In en, this message translates to:
-  /// **'Invalid backup file. Please select a .memex file.'**
+  /// **'Invalid backup file. Please select a .dearcocoa file.'**
   String get invalidBackupFile;
 
   /// No description provided for @automaticBackup.

@@ -431,8 +431,8 @@ String? _localizeKnownStatusText(
     'All background tasks finished.' => labels.completedDetail,
     'Processing stopped with an error.' => labels.failedDetail,
     'Processing is paused and will continue later.' => labels.pausedDetail,
-    'Background time expired. Memex will continue later.' ||
-    'iOS paused background processing. Memex will continue later.' ||
+    'Background time expired. DearCocoa will continue later.' ||
+    'iOS paused background processing. DearCocoa will continue later.' ||
     'Background time expired. DearCocoa will continue later.' ||
     'iOS paused background processing. DearCocoa will continue later.' =>
       labels.pausedDetail,

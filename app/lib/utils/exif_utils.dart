@@ -206,7 +206,7 @@ class ExifUtils {
 
       // Nominatim requires User-Agent header
       final response = await http.get(uri, headers: {
-        'User-Agent': 'memex_app'
+        'User-Agent': 'dearcocoa_app'
       }).timeout(Duration(seconds: timeoutSeconds));
 
       if (response.statusCode == 200) {

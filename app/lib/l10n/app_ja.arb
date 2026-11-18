@@ -892,8 +892,8 @@
   "backupAndRestore": "バックアップと復元",
   "createBackup": "バックアップを作成",
   "restoreBackup": "バックアップを復元",
-  "backupDescription": "すべてのデータ（カード、ナレッジベース、インサイト、設定）を .memex ファイルにまとめます。共有シートから iCloud Drive、Google Drive、または任意の場所に保存できます。",
-  "restoreDescription": ".memex バックアップファイルを選択してすべてのデータを復元します。現在のデータは上書きされます。",
+  "backupDescription": "すべてのデータ（カード、ナレッジベース、インサイト、設定）を .dearcocoa ファイルにまとめます。共有シートから iCloud Drive、Google Drive、または任意の場所に保存できます。",
+  "restoreDescription": ".dearcocoa バックアップファイルを選択してすべてのデータを復元します。現在のデータは上書きされます。",
   "selectBackupFile": "バックアップファイルを選択",
   "estimatedSize": "推定サイズ",
   "backupComplete": "バックアップを作成しました",
@@ -913,7 +913,7 @@
       "error": {}
     }
   },
-  "invalidBackupFile": "無効なバックアップファイルです。.memex ファイルを選択してください。",
+  "invalidBackupFile": "無効なバックアップファイルです。.dearcocoa ファイルを選択してください。",
   "automaticBackup": "自動バックアップ",
   "autoBackupDescription": "有効にすると、DearCocoa は起動後またはフォアグラウンドに戻ったときに、1 日最大 1 回ローカルスナップショットを作成します。",
   "backupSensitiveSettingsHint": "バックアップには設定とモデルプロバイダーのキーが含まれます。信頼できる場所に保管してください。",

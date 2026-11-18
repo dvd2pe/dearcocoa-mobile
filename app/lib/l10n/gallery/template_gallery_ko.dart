@@ -383,7 +383,7 @@ const insightTemplateGalleryItemsKo = [
         {'label': 'Dart', 'value': 80, 'color': '#8B5CF6'},
         {'label': 'AI', 'value': 60, 'color': '#EC4899'},
         {'label': '설계', 'value': 40, 'color': '#10B981'},
-        {'label': 'Memex', 'value': 90, 'color': '#F59E0B'},
+        {'label': 'DearCocoa', 'value': 90, 'color': '#F59E0B'},
       ],
       'footer': '42개의 노트를 기반으로 한 분석',
     },

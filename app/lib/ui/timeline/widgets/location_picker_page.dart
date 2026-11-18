@@ -106,7 +106,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
       });
 
       final response = await http.get(uri, headers: {
-        'User-Agent': 'memex_app',
+        'User-Agent': 'dearcocoa_app',
       });
 
       if (response.statusCode == 200) {

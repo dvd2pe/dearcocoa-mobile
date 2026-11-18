@@ -52,7 +52,7 @@ class _PersonalCenterScreenState extends State<PersonalCenterScreen> {
     if (mounted) {
       setState(() {
         _userId = userId ?? UserStorage.l10n.notSet;
-        _userEmail = userId != null ? '$userId@memex.local' : null;
+        _userEmail = userId != null ? '$userId@dearcocoa.local' : null;
         _userAvatar = avatar;
       });
     }

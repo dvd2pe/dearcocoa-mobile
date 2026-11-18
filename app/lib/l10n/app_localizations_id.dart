@@ -1994,11 +1994,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get backupDescription =>
-      'Kemas semua data Anda (kartu, basis pengetahuan, insight, pengaturan) ke dalam file .memex. Simpan ke iCloud Drive, Google Drive, atau lokasi mana pun melalui share sheet.';
+      'Kemas semua data Anda (kartu, basis pengetahuan, insight, pengaturan) ke dalam file .dearcocoa. Simpan ke iCloud Drive, Google Drive, atau lokasi mana pun melalui share sheet.';
 
   @override
   String get restoreDescription =>
-      'Pilih file cadangan .memex untuk memulihkan semua data. Ini akan menimpa data saat ini.';
+      'Pilih file cadangan .dearcocoa untuk memulihkan semua data. Ini akan menimpa data saat ini.';
 
   @override
   String get selectBackupFile => 'Pilih File Cadangan';
@@ -2035,7 +2035,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get invalidBackupFile =>
-      'File cadangan tidak valid. Pilih file .memex.';
+      'File cadangan tidak valid. Pilih file .dearcocoa.';
 
   @override
   String get automaticBackup => 'Cadangan Otomatis';
