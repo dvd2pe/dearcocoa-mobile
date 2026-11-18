@@ -1,0 +1,7 @@
+.dart_tool/
+build/
+.supabase/
+backend/supabase/.temp/
+backend/supabase/supabase/
+*.log
+.DS_Store
