@@ -149,7 +149,11 @@ android {
         val variant = this
         outputs.all {
             val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            output.outputFileName = "dearcocoa_${variant.flavorName}_${variant.versionName}_${variant.versionCode}.apk"
+            // split-per-abi: each split has its own ABI filter; the fat APK has none.
+            // Without the ABI suffix all splits would race on the same output file name.
+            val abi = output.getFilter(com.android.build.OutputFile.ABI)
+            val abiSuffix = if (abi != null) "_$abi" else ""
+            output.outputFileName = "dearcocoa_${variant.flavorName}_${variant.versionName}_${variant.versionCode}$abiSuffix.apk"
         }
     }
 }
