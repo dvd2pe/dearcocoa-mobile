@@ -3233,6 +3233,138 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => '授权超时';
+
+  @override
+  String get groqSpeechTitle => '语音转录（Groq Whisper）';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_...（Groq API 密钥）';
+
+  @override
+  String get groqSpeechSave => '保存密钥';
+
+  @override
+  String get groqSpeechSaved => 'Groq API 密钥已保存';
+
+  @override
+  String get providerGroq => 'Groq（Llama、GPT-OSS、Kimi）';
+
+  @override
+  String get composerTitle => '新记录';
+
+  @override
+  String get composerModeNote => '笔记';
+
+  @override
+  String get composerModeTask => '待办';
+
+  @override
+  String get composerModeRating => '评分';
+
+  @override
+  String get composerHint => '写下你的笔记…';
+
+  @override
+  String get composerMoodOptional => '你现在感觉如何？（可选）';
+
+  @override
+  String get composerTaskDefaultTitle => '待办清单';
+
+  @override
+  String get composerTaskItemHint => '待办事项';
+
+  @override
+  String get composerAddItem => '添加事项';
+
+  @override
+  String get composerRatingDefaultSubject => '你想给什么评分？';
+
+  @override
+  String get composerSaved => '已添加到时间线';
+
+  @override
+  String get moodTitle => '心情';
+
+  @override
+  String get moodTodayTitle => '今天感觉怎么样？';
+
+  @override
+  String get moodTodayHint => '点一下即可记录——仅保存在本地。';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return '已记录为$mood。再次点击可修改。';
+  }
+
+  @override
+  String get moodLast14Days => '最近 14 天';
+
+  @override
+  String get moodChartHint => '分值从 1（很低）到 5（很好）';
+
+  @override
+  String get moodCurrentStreak => '连续记录';
+
+  @override
+  String get moodLongestStreak => '最长连续';
+
+  @override
+  String get moodAverageMood => '平均心情';
+
+  @override
+  String get moodDays => '天';
+
+  @override
+  String get moodOf5 => '满分 5';
+
+  @override
+  String get moodVeryLow => '很低';
+
+  @override
+  String get moodLow => '低落';
+
+  @override
+  String get moodOkay => '一般';
+
+  @override
+  String get moodGood => '不错';
+
+  @override
+  String get moodGreat => '很好';
+
+  @override
+  String get pkmAdd => '添加';
+
+  @override
+  String get pkmNewFolder => '新建文件夹';
+
+  @override
+  String get pkmNewNote => '新建笔记';
+
+  @override
+  String get pkmNameHint => '名称';
+
+  @override
+  String get pkmCreate => '创建';
+
+  @override
+  String get pkmDelete => '删除';
+
+  @override
+  String get pkmDeleteConfirm => '删除此项？此操作无法撤销。';
+
+  @override
+  String get pkmMoveTo => '移动到';
+
+  @override
+  String get pkmEntryCreated => '已创建';
+
+  @override
+  String get pkmEntryDeleted => '已删除';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -6466,4 +6598,136 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get authorizationTimedOut => '授權逾時';
+
+  @override
+  String get groqSpeechTitle => '語音轉錄（Groq Whisper）';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_...（Groq API 金鑰）';
+
+  @override
+  String get groqSpeechSave => '儲存金鑰';
+
+  @override
+  String get groqSpeechSaved => 'Groq API 金鑰已儲存';
+
+  @override
+  String get providerGroq => 'Groq（Llama、GPT-OSS、Kimi）';
+
+  @override
+  String get composerTitle => '新記錄';
+
+  @override
+  String get composerModeNote => '笔记';
+
+  @override
+  String get composerModeTask => '待辦';
+
+  @override
+  String get composerModeRating => '评分';
+
+  @override
+  String get composerHint => '写下你的笔记…';
+
+  @override
+  String get composerMoodOptional => '你现在感觉如何？（可选）';
+
+  @override
+  String get composerTaskDefaultTitle => '待辦清單';
+
+  @override
+  String get composerTaskItemHint => '待辦事項';
+
+  @override
+  String get composerAddItem => '添加事项';
+
+  @override
+  String get composerRatingDefaultSubject => '你想给什么评分？';
+
+  @override
+  String get composerSaved => '已加入時間軸';
+
+  @override
+  String get moodTitle => '心情';
+
+  @override
+  String get moodTodayTitle => '今天感觉怎么样？';
+
+  @override
+  String get moodTodayHint => '点一下即可记录——仅保存在本地。';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return '已記錄為$mood。再次點擊可修改。';
+  }
+
+  @override
+  String get moodLast14Days => '最近 14 天';
+
+  @override
+  String get moodChartHint => '分值从 1（很低）到 5（很好）';
+
+  @override
+  String get moodCurrentStreak => '连续记录';
+
+  @override
+  String get moodLongestStreak => '最长连续';
+
+  @override
+  String get moodAverageMood => '平均心情';
+
+  @override
+  String get moodDays => '天';
+
+  @override
+  String get moodOf5 => '满分 5';
+
+  @override
+  String get moodVeryLow => '很低';
+
+  @override
+  String get moodLow => '低落';
+
+  @override
+  String get moodOkay => '一般';
+
+  @override
+  String get moodGood => '不错';
+
+  @override
+  String get moodGreat => '很好';
+
+  @override
+  String get pkmAdd => '添加';
+
+  @override
+  String get pkmNewFolder => '新建文件夹';
+
+  @override
+  String get pkmNewNote => '新建笔记';
+
+  @override
+  String get pkmNameHint => '名称';
+
+  @override
+  String get pkmCreate => '创建';
+
+  @override
+  String get pkmDelete => '删除';
+
+  @override
+  String get pkmDeleteConfirm => '删除此项？此操作无法撤销。';
+
+  @override
+  String get pkmMoveTo => '移动到';
+
+  @override
+  String get pkmEntryCreated => '已创建';
+
+  @override
+  String get pkmEntryDeleted => '已删除';
 }

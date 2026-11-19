@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show RealtimeChannel, PostgresChangeEvent;
@@ -16,6 +18,43 @@ String bestProfileName({String? display, String? username, String fallback = 'Co
   if (display != null && display.isNotEmpty) return display;
   if (username != null && username.isNotEmpty) return username;
   return fallback;
+}
+
+/// Split a stored media reference into its parts.
+///
+/// Accepted forms:
+///  - `https://...` / `http://...`  -> passthrough (seeded demo media)
+///  - `bucket/path/file.jpg`        -> (bucket, path)
+/// Returns (url, null) for passthrough, (null, (bucket, path)) for storage
+/// refs, (null, null) for empty/invalid input. Pure, so it is unit-testable.
+(String?, (String, String)?) splitMediaRef(String? ref) {
+  if (ref == null) return (null, null);
+  final trimmed = ref.trim();
+  if (trimmed.isEmpty) return (null, null);
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return (trimmed, null);
+  }
+  final slash = trimmed.indexOf('/');
+  if (slash <= 0 || slash == trimmed.length - 1) return (null, null);
+  return (
+    null,
+    (trimmed.substring(0, slash), trimmed.substring(slash + 1)),
+  );
+}
+
+/// Resolve a stored media reference to a fetchable URL (see [splitMediaRef]).
+String? resolveMediaUrl(String? ref) {
+  final (passthrough, storageRef) = splitMediaRef(ref);
+  if (passthrough != null) return passthrough;
+  if (storageRef == null) return null;
+  final (bucket, path) = storageRef;
+  try {
+    return SupabaseService.instance.client.storage
+        .from(bucket)
+        .getPublicUrl(path);
+  } catch (_) {
+    return null;
+  }
 }
 
 /// Bulk-fetch display names for user ids (client-side join).
@@ -61,7 +100,21 @@ CommunityPost communityPostFromRow(
     likeCount: (r['like_count'] as int?) ?? 0,
     commentCount: _commentCount(r),
     likedByMe: _likedByMe(r, uid),
+    mediaUrls: _postMediaUrls(r),
   );
+}
+
+List<String> _postMediaUrls(Map<String, dynamic> row) {
+  try {
+    final paths = row['media_paths'];
+    if (paths is List) {
+      return [
+        for (final p in paths)
+          if (p is String && resolveMediaUrl(p) != null) resolveMediaUrl(p)!,
+      ];
+    }
+  } catch (_) {}
+  return const <String>[];
 }
 
 Future<List<CommunityPost>> fetchCommunityFeed({int limit = 50}) async {
@@ -69,7 +122,7 @@ Future<List<CommunityPost>> fetchCommunityFeed({int limit = 50}) async {
   final rows = await SupabaseService.instance.client
       .from('space_posts')
       .select('''
-        id, user_id, content, created_at, like_count,
+        id, user_id, content, created_at, like_count, media_paths,
         comments:post_comments(count),
         likes:post_likes(user_id)
       ''')
@@ -127,12 +180,70 @@ String _displayName(Map<String, dynamic>? profile) {
   return 'Cocoa friend';
 }
 
-Future<void> createPost(String content) async {
+/// Fetch a member profile with activity counts (profile sheet).
+/// Returns null when the profile cannot be loaded.
+Future<MemberProfile?> fetchMemberProfile(String userId) async {
+  try {
+    final rows = await SupabaseService.instance.client
+        .from('profiles')
+        .select('id, username, display_name, bio, avatar_path, created_at')
+        .eq('id', userId)
+        .limit(1);
+    if (rows.isEmpty) return null;
+    final r = rows.first;
+    final postRows = await SupabaseService.instance.client
+        .from('space_posts')
+        .select('id')
+        .eq('user_id', userId);
+    return MemberProfile(
+      userId: r['id'] as String,
+      username: r['username'] as String? ?? '',
+      displayName: _displayName(r),
+      bio: r['bio'] as String? ?? '',
+      avatarUrl: resolveMediaUrl(r['avatar_path'] as String?),
+      joinedAt: DateTime.tryParse(r['created_at'] as String? ?? ''),
+      postCount: postRows.length,
+    );
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<void> createPost(String content, {List<String>? mediaPaths}) async {
   final uid = _uid();
   if (uid == null) return;
   await SupabaseService.instance.client
       .from('space_posts')
-      .insert({'user_id': uid, 'content': content});
+      .insert({
+        'user_id': uid,
+        'content': content,
+        if (mediaPaths != null && mediaPaths.isNotEmpty)
+          'media_paths': mediaPaths,
+      });
+}
+
+/// Upload picked images to the public post-media bucket and return the
+/// `bucket/path` references to store in space_posts.media_paths.
+Future<List<String>> uploadPostMedia(List<String> localPaths) async {
+  final uid = _uid();
+  if (uid == null) return const [];
+  final storage = SupabaseService.instance.client.storage;
+  final uploaded = <String>[];
+  for (var i = 0; i < localPaths.length; i++) {
+    try {
+      final file = File(localPaths[i]);
+      if (!file.existsSync()) continue;
+      final ext = localPaths[i].split('.').last.toLowerCase().replaceAll(
+          RegExp('[^a-z0-9]'), '');
+      final name =
+          'posts/$uid/${DateTime.now().millisecondsSinceEpoch}_$i.$ext';
+      await storage.from('post-media').upload(name, file);
+      uploaded.add('post-media/$name');
+    } catch (_) {
+      // One failed image must not block the whole post.
+    }
+  }
+  return uploaded;
 }
 
 Future<List<CommunityComment>> fetchPostComments(String postId) async {
@@ -277,6 +388,14 @@ EventItem eventItemFromRow(
   String? uid,
 ) {
   final createdBy = r['created_by'] as String;
+  final rsvps = (r['rsvps'] as List? ?? []);
+  final goingNames = <String>[];
+  for (final s in rsvps) {
+    final m = s as Map;
+    if (m['status'] != 'going') continue;
+    final name = profileNames[m['user_id'] as String? ?? ''];
+    if (name != null && name.isNotEmpty) goingNames.add(name);
+  }
   return EventItem(
     id: r['id'] as String,
     title: r['title'] as String,
@@ -287,18 +406,24 @@ EventItem eventItemFromRow(
         ? DateTime.parse(r['ends_at'] as String).toLocal()
         : null,
     capacity: (r['capacity'] as int?) ?? 100,
-    rsvpCount: (r['rsvps'] as List? ?? [])
+    rsvpCount: rsvps
         .where((s) => (s as Map)['status'] == 'going')
         .length,
     myStatus: uid == null
         ? null
-        : (r['rsvps'] as List? ?? [])
+        : rsvps
             .where((s) => (s as Map)['user_id'] == uid)
             .cast<Map>()
             .map<String?>((s) => s['status'] as String?)
             .firstOrNull,
     hostName: profileNames[createdBy] ?? 'DearCocoa',
     meetingUrl: r['meeting_url'] as String?,
+    coverUrl: resolveMediaUrl(r['cover_path'] as String?),
+    isVirtual: (r['is_virtual'] as bool?) ?? true,
+    location: (r['location'] as String?)?.isNotEmpty == true
+        ? r['location'] as String
+        : null,
+    goingNames: goingNames.take(4).toList(),
     program: [
       for (final p in (r['program'] as List? ?? []))
         EventProgramItem(
@@ -317,15 +442,23 @@ Future<List<EventItem>> fetchEvents() async {
       .from('events')
       .select('''
         id, title, description, category, starts_at, ends_at, capacity,
-        meeting_url, created_by,
+        meeting_url, cover_path, is_virtual, location, created_by,
         rsvps:event_rsvps(user_id, status),
         program:event_program(title, speaker, description, starts_at, sort)
       ''')
       .gte('starts_at', DateTime.now().toUtc().toIso8601String())
       .order('starts_at', ascending: true)
       .limit(30);
+  final goingUserIds = <String>{
+    for (final r in rows)
+      for (final s in (r['rsvps'] as List? ?? []))
+        if ((s as Map)['status'] == 'going') (s['user_id'] as String),
+  };
   final names = await fetchProfileNames(
-      rows.map<String>((r) => r['created_by'] as String));
+      {
+        ...rows.map<String>((r) => r['created_by'] as String),
+        ...goingUserIds,
+      });
   return [
     for (final r in rows) eventItemFromRow(r, names, uid),
   ];

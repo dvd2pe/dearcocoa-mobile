@@ -6021,6 +6021,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Authorization timed out'**
   String get authorizationTimedOut;
+
+  /// No description provided for @groqSpeechTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice transcription (Groq Whisper)'**
+  String get groqSpeechTitle;
+
+  /// No description provided for @groqSpeechDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.'**
+  String get groqSpeechDesc;
+
+  /// No description provided for @groqSpeechHint.
+  ///
+  /// In en, this message translates to:
+  /// **'gsk_... (Groq API key)'**
+  String get groqSpeechHint;
+
+  /// No description provided for @groqSpeechSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save key'**
+  String get groqSpeechSave;
+
+  /// No description provided for @groqSpeechSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Groq API key saved'**
+  String get groqSpeechSaved;
+
+  /// No description provided for @providerGroq.
+  ///
+  /// In en, this message translates to:
+  /// **'Groq (Llama, GPT-OSS, Kimi)'**
+  String get providerGroq;
+
+  /// No description provided for @composerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New entry'**
+  String get composerTitle;
+
+  /// No description provided for @composerModeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get composerModeNote;
+
+  /// No description provided for @composerModeTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get composerModeTask;
+
+  /// No description provided for @composerModeRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get composerModeRating;
+
+  /// No description provided for @composerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your note…'**
+  String get composerHint;
+
+  /// No description provided for @composerMoodOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you? (optional)'**
+  String get composerMoodOptional;
+
+  /// No description provided for @composerTaskDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To-do'**
+  String get composerTaskDefaultTitle;
+
+  /// No description provided for @composerTaskItemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Task item'**
+  String get composerTaskItemHint;
+
+  /// No description provided for @composerAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get composerAddItem;
+
+  /// No description provided for @composerRatingDefaultSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to rate?'**
+  String get composerRatingDefaultSubject;
+
+  /// No description provided for @composerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry added to the timeline'**
+  String get composerSaved;
+
+  /// No description provided for @moodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get moodTitle;
+
+  /// No description provided for @moodTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel today?'**
+  String get moodTodayTitle;
+
+  /// No description provided for @moodTodayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One tap and it is logged — locally, for your eyes only.'**
+  String get moodTodayHint;
+
+  /// No description provided for @moodLoggedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged as {mood}. Tap again to change it.'**
+  String moodLoggedAs(String mood);
+
+  /// No description provided for @moodLast14Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 14 days'**
+  String get moodLast14Days;
+
+  /// No description provided for @moodChartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale from 1 (very low) to 5 (great)'**
+  String get moodChartHint;
+
+  /// No description provided for @moodCurrentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Current streak'**
+  String get moodCurrentStreak;
+
+  /// No description provided for @moodLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get moodLongestStreak;
+
+  /// No description provided for @moodAverageMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Average mood'**
+  String get moodAverageMood;
+
+  /// No description provided for @moodDays.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get moodDays;
+
+  /// No description provided for @moodOf5.
+  ///
+  /// In en, this message translates to:
+  /// **'of 5'**
+  String get moodOf5;
+
+  /// No description provided for @moodVeryLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Very low'**
+  String get moodVeryLow;
+
+  /// No description provided for @moodLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get moodLow;
+
+  /// No description provided for @moodOkay.
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get moodOkay;
+
+  /// No description provided for @moodGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get moodGood;
+
+  /// No description provided for @moodGreat.
+  ///
+  /// In en, this message translates to:
+  /// **'Great'**
+  String get moodGreat;
+
+  /// No description provided for @pkmAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get pkmAdd;
+
+  /// No description provided for @pkmNewFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get pkmNewFolder;
+
+  /// No description provided for @pkmNewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'New note'**
+  String get pkmNewNote;
+
+  /// No description provided for @pkmNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pkmNameHint;
+
+  /// No description provided for @pkmCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get pkmCreate;
+
+  /// No description provided for @pkmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get pkmDelete;
+
+  /// No description provided for @pkmDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this item? This cannot be undone.'**
+  String get pkmDeleteConfirm;
+
+  /// No description provided for @pkmMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to'**
+  String get pkmMoveTo;
+
+  /// No description provided for @pkmEntryCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get pkmEntryCreated;
+
+  /// No description provided for @pkmEntryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get pkmEntryDeleted;
 }
 
 class _AppLocalizationsDelegate

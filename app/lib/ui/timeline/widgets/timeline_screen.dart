@@ -19,6 +19,7 @@ import 'package:dearcocoa/ui/core/cards/card_action_notification.dart';
 import 'package:dearcocoa/data/repositories/memex_router.dart';
 import 'package:dearcocoa/ui/timeline/view_models/timeline_viewmodel.dart';
 import 'package:dearcocoa/ui/timeline/widgets/timeline_card_detail_screen.dart';
+import 'package:dearcocoa/ui/timeline/widgets/timeline_template_gallery_page.dart';
 import 'package:dearcocoa/ui/settings/widgets/personal_center_screen.dart';
 import 'package:dearcocoa/ui/insight/view_models/insight_viewmodel.dart';
 import 'package:dearcocoa/ui/insight/widgets/insight_screen.dart';
@@ -265,6 +266,33 @@ class TimelineScreenState extends State<TimelineScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // DearCocoa v0.3.5: template gallery entry point —
+                        // all 22 card types, visible like in Memex.
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const TimelineTemplateGalleryPage(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.iconBgLight,
+                            ),
+                            child: const Icon(
+                              Icons.widgets_outlined,
+                              size: 20,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
                         // DearCocoa mood tracking entry point
                         GestureDetector(
                           onTap: () => context.push(AppRoutes.mood),

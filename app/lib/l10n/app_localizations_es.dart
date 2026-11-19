@@ -3401,4 +3401,138 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => 'La autorización expiró';
+
+  @override
+  String get groqSpeechTitle => 'Transcripción de voz (Groq Whisper)';
+
+  @override
+  String get groqSpeechDesc =>
+      'Opcional. Pega tu clave API de Groq para convertir notas de voz en texto (whisper-large-v3-turbo rápido). Las notas de voz siempre se guardan como audio; sin clave permanecen solo como audio. Clave gratuita en console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_... (clave API de Groq)';
+
+  @override
+  String get groqSpeechSave => 'Guardar clave';
+
+  @override
+  String get groqSpeechSaved => 'Clave API de Groq guardada';
+
+  @override
+  String get providerGroq => 'Groq (Llama, GPT-OSS, Kimi)';
+
+  @override
+  String get composerTitle => 'Nueva entrada';
+
+  @override
+  String get composerModeNote => 'Nota';
+
+  @override
+  String get composerModeTask => 'Tarea';
+
+  @override
+  String get composerModeRating => 'Valoración';
+
+  @override
+  String get composerHint => 'Escribe tu nota…';
+
+  @override
+  String get composerMoodOptional => '¿Cómo estás? (opcional)';
+
+  @override
+  String get composerTaskDefaultTitle => 'Pendientes';
+
+  @override
+  String get composerTaskItemHint => 'Elemento de la tarea';
+
+  @override
+  String get composerAddItem => 'Añadir elemento';
+
+  @override
+  String get composerRatingDefaultSubject => '¿Qué quieres valorar?';
+
+  @override
+  String get composerSaved => 'Entrada añadida a la cronología';
+
+  @override
+  String get moodTitle => 'Ánimo';
+
+  @override
+  String get moodTodayTitle => '¿Cómo te sientes hoy?';
+
+  @override
+  String get moodTodayHint =>
+      'Un toque y queda registrado — localmente, solo para ti.';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return 'Registrado como $mood. Toca de nuevo para cambiarlo.';
+  }
+
+  @override
+  String get moodLast14Days => 'Últimos 14 días';
+
+  @override
+  String get moodChartHint => 'Escala de 1 (muy bajo) a 5 (genial)';
+
+  @override
+  String get moodCurrentStreak => 'Racha actual';
+
+  @override
+  String get moodLongestStreak => 'Racha más larga';
+
+  @override
+  String get moodAverageMood => 'Ánimo medio';
+
+  @override
+  String get moodDays => 'días';
+
+  @override
+  String get moodOf5 => 'de 5';
+
+  @override
+  String get moodVeryLow => 'Muy bajo';
+
+  @override
+  String get moodLow => 'Bajo';
+
+  @override
+  String get moodOkay => 'Normal';
+
+  @override
+  String get moodGood => 'Bien';
+
+  @override
+  String get moodGreat => 'Genial';
+
+  @override
+  String get pkmAdd => 'Añadir';
+
+  @override
+  String get pkmNewFolder => 'Nueva carpeta';
+
+  @override
+  String get pkmNewNote => 'Nueva nota';
+
+  @override
+  String get pkmNameHint => 'Nombre';
+
+  @override
+  String get pkmCreate => 'Crear';
+
+  @override
+  String get pkmDelete => 'Eliminar';
+
+  @override
+  String get pkmDeleteConfirm =>
+      '¿Eliminar este elemento? No se puede deshacer.';
+
+  @override
+  String get pkmMoveTo => 'Mover a';
+
+  @override
+  String get pkmEntryCreated => 'Creado';
+
+  @override
+  String get pkmEntryDeleted => 'Eliminado';
 }

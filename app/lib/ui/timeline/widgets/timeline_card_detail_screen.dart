@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:dearcocoa/routing/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:dearcocoa/ui/timeline/widgets/location_picker_page.dart';
+import 'package:dearcocoa/ui/timeline/widgets/edit_card_sheet.dart';
 import 'package:dearcocoa/ui/calendar/view_models/calendar_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -284,6 +285,15 @@ class _TimelineCardDetailScreenState extends State<TimelineCardDetailScreen> {
     );
     vm.fetchMonthData(DateTime(initialDate.year, initialDate.month));
     context.push(AppRoutes.calendar, extra: initialDate);
+  }
+
+  /// DearCocoa v0.3.5: manual editing of title/text/tags.
+  Future<void> _editCard() async {
+    if (_detail == null) return;
+    final saved = await showEditCardSheet(context, _detail!);
+    if (saved) {
+      _fetchDetail();
+    }
   }
 
   Future<void> _editTime() async {
@@ -1121,6 +1131,22 @@ class _TimelineCardDetailScreenState extends State<TimelineCardDetailScreen> {
                                 'assets/icons/chat_add.svg',
                                 width: 22,
                                 height: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        // DearCocoa v0.3.5: manual entry editing.
+                        GestureDetector(
+                          onTap: _editCard,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            child: Center(
+                              child: Icon(
+                                Icons.edit_outlined,
+                                size: 20,
+                                color: const Color(0xFF99A1AF),
                               ),
                             ),
                           ),

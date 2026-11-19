@@ -12,6 +12,7 @@ class CommunityPost {
     required this.commentCount,
     required this.likedByMe,
     this.groupName,
+    this.mediaUrls = const <String>[],
   });
 
   final String id;
@@ -23,6 +24,9 @@ class CommunityPost {
   final int commentCount;
   final bool likedByMe;
   final String? groupName;
+
+  /// DearCocoa v0.3.5: photo attachments (post-media storage or external URLs).
+  final List<String> mediaUrls;
 }
 
 class CommunityComment {
@@ -37,6 +41,27 @@ class CommunityComment {
   final String authorName;
   final String content;
   final DateTime createdAt;
+}
+
+/// DearCocoa v0.3.5: public member profile (tappable author in the feed).
+class MemberProfile {
+  const MemberProfile({
+    required this.userId,
+    required this.username,
+    required this.displayName,
+    required this.bio,
+    this.avatarUrl,
+    this.joinedAt,
+    this.postCount = 0,
+  });
+
+  final String userId;
+  final String username;
+  final String displayName;
+  final String bio;
+  final String? avatarUrl;
+  final DateTime? joinedAt;
+  final int postCount;
 }
 
 class GroupInfo {
@@ -87,6 +112,10 @@ class EventItem {
     required this.hostName,
     this.program = const <EventProgramItem>[],
     this.meetingUrl,
+    this.coverUrl,
+    this.isVirtual = true,
+    this.location,
+    this.goingNames = const <String>[],
   });
 
   final String id;
@@ -102,8 +131,18 @@ class EventItem {
   final List<EventProgramItem> program;
   final String? meetingUrl;
 
+  /// DearCocoa v0.3.5: richer event cards.
+  final String? coverUrl;
+  final bool isVirtual;
+  final String? location;
+
+  /// Display names of the first going participants (avatar circles).
+  final List<String> goingNames;
+
   bool get isGoing => myStatus == 'going';
+  bool get isMaybe => myStatus == 'interested';
   bool get isFull => rsvpCount >= capacity;
+  String get placeLabel => isVirtual ? 'Virtual' : (location ?? 'In person');
 }
 
 class EventProgramItem {

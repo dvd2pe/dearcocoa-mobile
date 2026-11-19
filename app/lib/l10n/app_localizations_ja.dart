@@ -3268,4 +3268,136 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => '認証がタイムアウトしました';
+
+  @override
+  String get groqSpeechTitle => '音声文字起こし（Groq Whisper）';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_...（Groq API キー）';
+
+  @override
+  String get groqSpeechSave => 'キーを保存';
+
+  @override
+  String get groqSpeechSaved => 'Groq API キーを保存しました';
+
+  @override
+  String get providerGroq => 'Groq（Llama、GPT-OSS、Kimi）';
+
+  @override
+  String get composerTitle => '新規エントリー';
+
+  @override
+  String get composerModeNote => 'メモ';
+
+  @override
+  String get composerModeTask => 'タスク';
+
+  @override
+  String get composerModeRating => '評価';
+
+  @override
+  String get composerHint => 'メモを書く…';
+
+  @override
+  String get composerMoodOptional => '今の気分は？（任意）';
+
+  @override
+  String get composerTaskDefaultTitle => 'やること';
+
+  @override
+  String get composerTaskItemHint => 'タスク項目';
+
+  @override
+  String get composerAddItem => '項目を追加';
+
+  @override
+  String get composerRatingDefaultSubject => '何を評価しますか？';
+
+  @override
+  String get composerSaved => 'タイムラインに追加しました';
+
+  @override
+  String get moodTitle => '気分';
+
+  @override
+  String get moodTodayTitle => '今日の気分は？';
+
+  @override
+  String get moodTodayHint => 'タップするだけで記録 — 端末内に保存されます。';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return '$moodとして記録しました。タップし直すと変更できます。';
+  }
+
+  @override
+  String get moodLast14Days => '過去 14 日間';
+
+  @override
+  String get moodChartHint => '1（とても低い）から 5（最高）のスケール';
+
+  @override
+  String get moodCurrentStreak => '連続記録';
+
+  @override
+  String get moodLongestStreak => '最長記録';
+
+  @override
+  String get moodAverageMood => '平均気分';
+
+  @override
+  String get moodDays => '日';
+
+  @override
+  String get moodOf5 => '／ 5';
+
+  @override
+  String get moodVeryLow => 'とても低い';
+
+  @override
+  String get moodLow => '低い';
+
+  @override
+  String get moodOkay => 'まあまあ';
+
+  @override
+  String get moodGood => '良い';
+
+  @override
+  String get moodGreat => '最高';
+
+  @override
+  String get pkmAdd => '追加';
+
+  @override
+  String get pkmNewFolder => '新規フォルダ';
+
+  @override
+  String get pkmNewNote => '新規メモ';
+
+  @override
+  String get pkmNameHint => '名前';
+
+  @override
+  String get pkmCreate => '作成';
+
+  @override
+  String get pkmDelete => '削除';
+
+  @override
+  String get pkmDeleteConfirm => 'この項目を削除しますか？元に戻せません。';
+
+  @override
+  String get pkmMoveTo => '移動先';
+
+  @override
+  String get pkmEntryCreated => '作成しました';
+
+  @override
+  String get pkmEntryDeleted => '削除しました';
 }

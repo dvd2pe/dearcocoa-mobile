@@ -149,5 +149,74 @@ void main() {
       expect(ev.endsAt, isNull);
       expect(ev.program, isEmpty);
     });
+
+    test('v0.3.5: maps cover, in-person location and going names', () {
+      final row = <String, dynamic>{
+        ...baseRow,
+        'cover_path': 'https://picsum.photos/seed/cocoa-moon/800/450',
+        'is_virtual': false,
+        'location': 'Villa Borghese, north gate',
+      };
+      final ev = eventItemFromRow(row, {
+        'u1': 'Sofia Rossi',
+        'u3': 'Luca Bianchi',
+      }, 'u1');
+      expect(ev.coverUrl, 'https://picsum.photos/seed/cocoa-moon/800/450');
+      expect(ev.isVirtual, isFalse);
+      expect(ev.location, 'Villa Borghese, north gate');
+      expect(ev.placeLabel, 'Villa Borghese, north gate');
+      expect(ev.isMaybe, isFalse);
+      // going names exclude the 'interested' RSVP and are capped at 4
+      expect(ev.goingNames, containsAll(['Sofia Rossi', 'Luca Bianchi']));
+      expect(ev.goingNames, isNot(contains('Giulia Ferrari')));
+    });
+
+    test('v0.3.5: virtual defaults and maybe flag', () {
+      final row = <String, dynamic>{
+        ...baseRow,
+        'is_virtual': true,
+        'location': null,
+      };
+      final ev = eventItemFromRow(row, {}, 'u2');
+      expect(ev.isVirtual, isTrue);
+      expect(ev.placeLabel, 'Virtual');
+      expect(ev.coverUrl, isNull);
+      expect(ev.isMaybe, isTrue);
+    });
+  });
+
+  group('splitMediaRef', () {
+    test('passthrough for http(s) urls', () {
+      final (url, ref) =
+          splitMediaRef('https://picsum.photos/seed/cocoa-run/900/600');
+      expect(url, 'https://picsum.photos/seed/cocoa-run/900/600');
+      expect(ref, isNull);
+    });
+
+    test('splits bucket/path for storage refs', () {
+      final (url, ref) = splitMediaRef('post-media/posts/u1/123_0.jpg');
+      expect(url, isNull);
+      expect(ref, isNotNull);
+      expect(ref!.$1, 'post-media');
+      expect(ref.$2, 'posts/u1/123_0.jpg');
+    });
+
+    test('returns empty parts for invalid refs', () {
+      var (url, ref) = splitMediaRef(null);
+      expect(url, isNull);
+      expect(ref, isNull);
+      (url, ref) = splitMediaRef('');
+      expect(url, isNull);
+      expect(ref, isNull);
+      (url, ref) = splitMediaRef('   ');
+      expect(url, isNull);
+      expect(ref, isNull);
+      (url, ref) = splitMediaRef('noslash');
+      expect(url, isNull);
+      expect(ref, isNull);
+      (url, ref) = splitMediaRef('bucket/');
+      expect(url, isNull);
+      expect(ref, isNull);
+    });
   });
 }

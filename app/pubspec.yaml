@@ -1,7 +1,7 @@
 name: dearcocoa
 description: DearCocoa - social wellness platform (private journaling, AI reflections, mood, community, groups, events)
 publish_to: "none"
-version: 0.3.4+129
+version: 0.3.5+130
 
 environment:
   sdk: ">=3.6.0 <4.0.0"

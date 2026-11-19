@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../core/themes/app_colors.dart';
 import '../core/themes/app_shadows.dart';
 import '../core/themes/app_text_styles.dart';
+import '../core/widgets/local_image.dart';
 import '../../data/repositories/social.dart';
 import '../../data/services/supabase_service.dart';
 import '../../domain/models/social_models.dart';
@@ -200,6 +201,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
               );
               _load();
             },
+            onAuthorTap: () async {
+              final post = _posts[index];
+              await showModalBottomSheet<void>(
+                context: context,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (_) => ProfileSheet(
+                  userId: post.userId,
+                  fallbackName: post.authorName,
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -285,11 +301,17 @@ class _SegmentButton extends StatelessWidget {
 }
 
 class _PostCard extends StatelessWidget {
-  const _PostCard({required this.post, required this.onLike, required this.onComment});
+  const _PostCard({
+    required this.post,
+    required this.onLike,
+    required this.onComment,
+    this.onAuthorTap,
+  });
 
   final CommunityPost post;
   final VoidCallback onLike;
   final VoidCallback onComment;
+  final VoidCallback? onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
@@ -305,28 +327,35 @@ class _PostCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _AvatarBubble(name: post.authorName, size: 40),
+              GestureDetector(
+                onTap: onAuthorTap,
+                child: _AvatarBubble(name: post.authorName, size: 40),
+              ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      post.authorName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onAuthorTap,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.authorName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                    Text(
-                      _relativeTime(post.createdAt),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textTertiary,
+                      Text(
+                        _relativeTime(post.createdAt),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textTertiary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -340,6 +369,31 @@ class _PostCard extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
           ),
+          // Photo attachments (DearCocoa v0.3.5)
+          if (post.mediaUrls.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            for (final url in post.mediaUrls)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: LocalImage(
+                    url: url,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 120,
+                      color: AppColors.iconBgLight,
+                      child: const Center(
+                        child: Icon(Icons.image_outlined,
+                            color: AppColors.textTertiary),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
           const SizedBox(height: 14),
           Row(
             children: [

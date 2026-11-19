@@ -3374,4 +3374,137 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => 'Время авторизации истекло';
+
+  @override
+  String get groqSpeechTitle => 'Транскрипция речи (Groq Whisper)';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_... (Groq API key)';
+
+  @override
+  String get groqSpeechSave => 'Save key';
+
+  @override
+  String get groqSpeechSaved => 'Groq API key saved';
+
+  @override
+  String get providerGroq => 'Groq (Llama, GPT-OSS, Kimi)';
+
+  @override
+  String get composerTitle => 'Новая запись';
+
+  @override
+  String get composerModeNote => 'Заметка';
+
+  @override
+  String get composerModeTask => 'Задача';
+
+  @override
+  String get composerModeRating => 'Оценка';
+
+  @override
+  String get composerHint => 'Напишите заметку…';
+
+  @override
+  String get composerMoodOptional => 'Как вы себя чувствуете? (необязательно)';
+
+  @override
+  String get composerTaskDefaultTitle => 'Список дел';
+
+  @override
+  String get composerTaskItemHint => 'Пункт задачи';
+
+  @override
+  String get composerAddItem => 'Добавить пункт';
+
+  @override
+  String get composerRatingDefaultSubject => 'Что вы хотите оценить?';
+
+  @override
+  String get composerSaved => 'Запись добавлена в хронику';
+
+  @override
+  String get moodTitle => 'Настроение';
+
+  @override
+  String get moodTodayTitle => 'Как вы себя чувствуете сегодня?';
+
+  @override
+  String get moodTodayHint =>
+      'Один тап — и записано. Локально, только для вас.';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return 'Записано как «$mood». Нажмите ещё раз, чтобы изменить.';
+  }
+
+  @override
+  String get moodLast14Days => 'Последние 14 дней';
+
+  @override
+  String get moodChartHint => 'Шкала от 1 (очень плохо) до 5 (отлично)';
+
+  @override
+  String get moodCurrentStreak => 'Текущая серия';
+
+  @override
+  String get moodLongestStreak => 'Самая длинная серия';
+
+  @override
+  String get moodAverageMood => 'Среднее настроение';
+
+  @override
+  String get moodDays => 'дн.';
+
+  @override
+  String get moodOf5 => 'из 5';
+
+  @override
+  String get moodVeryLow => 'Очень плохо';
+
+  @override
+  String get moodLow => 'Плохо';
+
+  @override
+  String get moodOkay => 'Нормально';
+
+  @override
+  String get moodGood => 'Хорошо';
+
+  @override
+  String get moodGreat => 'Отлично';
+
+  @override
+  String get pkmAdd => 'Добавить';
+
+  @override
+  String get pkmNewFolder => 'Новая папка';
+
+  @override
+  String get pkmNewNote => 'Новая заметка';
+
+  @override
+  String get pkmNameHint => 'Название';
+
+  @override
+  String get pkmCreate => 'Создать';
+
+  @override
+  String get pkmDelete => 'Удалить';
+
+  @override
+  String get pkmDeleteConfirm => 'Удалить этот элемент? Это нельзя отменить.';
+
+  @override
+  String get pkmMoveTo => 'Переместить в';
+
+  @override
+  String get pkmEntryCreated => 'Создано';
+
+  @override
+  String get pkmEntryDeleted => 'Удалено';
 }

@@ -3344,4 +3344,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => 'Authorization timed out';
+
+  @override
+  String get groqSpeechTitle => 'Voice transcription (Groq Whisper)';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_... (Groq API key)';
+
+  @override
+  String get groqSpeechSave => 'Save key';
+
+  @override
+  String get groqSpeechSaved => 'Groq API key saved';
+
+  @override
+  String get providerGroq => 'Groq (Llama, GPT-OSS, Kimi)';
+
+  @override
+  String get composerTitle => 'New entry';
+
+  @override
+  String get composerModeNote => 'Note';
+
+  @override
+  String get composerModeTask => 'Task';
+
+  @override
+  String get composerModeRating => 'Rating';
+
+  @override
+  String get composerHint => 'Write your note…';
+
+  @override
+  String get composerMoodOptional => 'How are you? (optional)';
+
+  @override
+  String get composerTaskDefaultTitle => 'To-do';
+
+  @override
+  String get composerTaskItemHint => 'Task item';
+
+  @override
+  String get composerAddItem => 'Add item';
+
+  @override
+  String get composerRatingDefaultSubject => 'What do you want to rate?';
+
+  @override
+  String get composerSaved => 'Entry added to the timeline';
+
+  @override
+  String get moodTitle => 'Mood';
+
+  @override
+  String get moodTodayTitle => 'How do you feel today?';
+
+  @override
+  String get moodTodayHint =>
+      'One tap and it is logged — locally, for your eyes only.';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return 'Logged as $mood. Tap again to change it.';
+  }
+
+  @override
+  String get moodLast14Days => 'Last 14 days';
+
+  @override
+  String get moodChartHint => 'Scale from 1 (very low) to 5 (great)';
+
+  @override
+  String get moodCurrentStreak => 'Current streak';
+
+  @override
+  String get moodLongestStreak => 'Longest streak';
+
+  @override
+  String get moodAverageMood => 'Average mood';
+
+  @override
+  String get moodDays => 'days';
+
+  @override
+  String get moodOf5 => 'of 5';
+
+  @override
+  String get moodVeryLow => 'Very low';
+
+  @override
+  String get moodLow => 'Low';
+
+  @override
+  String get moodOkay => 'Okay';
+
+  @override
+  String get moodGood => 'Good';
+
+  @override
+  String get moodGreat => 'Great';
+
+  @override
+  String get pkmAdd => 'Add';
+
+  @override
+  String get pkmNewFolder => 'New folder';
+
+  @override
+  String get pkmNewNote => 'New note';
+
+  @override
+  String get pkmNameHint => 'Name';
+
+  @override
+  String get pkmCreate => 'Create';
+
+  @override
+  String get pkmDelete => 'Delete';
+
+  @override
+  String get pkmDeleteConfirm => 'Delete this item? This cannot be undone.';
+
+  @override
+  String get pkmMoveTo => 'Move to';
+
+  @override
+  String get pkmEntryCreated => 'Created';
+
+  @override
+  String get pkmEntryDeleted => 'Deleted';
 }

@@ -11,6 +11,8 @@ import 'package:dearcocoa/utils/logger.dart';
 import 'package:dearcocoa/utils/toast_helper.dart';
 import 'package:dearcocoa/utils/user_storage.dart';
 
+import 'template_picker_sheet.dart';
+
 final _logger = getLogger('SimpleNoteComposer');
 
 /// Simple note composer shown when no AI provider is configured.
@@ -278,6 +280,14 @@ class _SimpleNoteComposerState extends State<SimpleNoteComposer> {
                     label: l10n.composerModeRating,
                     selected: _mode == _ComposerMode.rating,
                     onTap: () => setState(() => _mode = _ComposerMode.rating),
+                  ),
+                  const SizedBox(width: 8),
+                  // DearCocoa v0.3.5: all 22 Memex card types, manually.
+                  _modeChip(
+                    icon: Icons.widgets_outlined,
+                    label: 'More types',
+                    selected: false,
+                    onTap: () => showTemplatePickerSheet(context),
                   ),
                 ],
               ),

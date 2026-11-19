@@ -3268,4 +3268,136 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => '인증 시간이 초과되었습니다';
+
+  @override
+  String get groqSpeechTitle => '음성 전사 (Groq Whisper)';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_... (Groq API 키)';
+
+  @override
+  String get groqSpeechSave => '키 저장';
+
+  @override
+  String get groqSpeechSaved => 'Groq API 키가 저장되었습니다';
+
+  @override
+  String get providerGroq => 'Groq (Llama, GPT-OSS, Kimi)';
+
+  @override
+  String get composerTitle => '새 항목';
+
+  @override
+  String get composerModeNote => '메모';
+
+  @override
+  String get composerModeTask => '할 일';
+
+  @override
+  String get composerModeRating => '평가';
+
+  @override
+  String get composerHint => '메모를 작성하세요…';
+
+  @override
+  String get composerMoodOptional => '지금 기분은? (선택)';
+
+  @override
+  String get composerTaskDefaultTitle => '할 일 목록';
+
+  @override
+  String get composerTaskItemHint => '할 일 항목';
+
+  @override
+  String get composerAddItem => '항목 추가';
+
+  @override
+  String get composerRatingDefaultSubject => '무엇을 평가할까요?';
+
+  @override
+  String get composerSaved => '타임라인에 추가되었습니다';
+
+  @override
+  String get moodTitle => '기분';
+
+  @override
+  String get moodTodayTitle => '오늘 기분이 어떠세요?';
+
+  @override
+  String get moodTodayHint => '한 번만 누르면 기록됩니다 — 기기에만 저장돼요.';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return '$mood(으)로 기록됨. 다시 눌러 변경할 수 있어요.';
+  }
+
+  @override
+  String get moodLast14Days => '최근 14일';
+
+  @override
+  String get moodChartHint => '1(매우 나쁨)부터 5(최고)까지의 척도';
+
+  @override
+  String get moodCurrentStreak => '연속 기록';
+
+  @override
+  String get moodLongestStreak => '최장 기록';
+
+  @override
+  String get moodAverageMood => '평균 기분';
+
+  @override
+  String get moodDays => '일';
+
+  @override
+  String get moodOf5 => '/ 5';
+
+  @override
+  String get moodVeryLow => '매우 나쁨';
+
+  @override
+  String get moodLow => '나쁨';
+
+  @override
+  String get moodOkay => '보통';
+
+  @override
+  String get moodGood => '좋음';
+
+  @override
+  String get moodGreat => '최고';
+
+  @override
+  String get pkmAdd => '추가';
+
+  @override
+  String get pkmNewFolder => '새 폴더';
+
+  @override
+  String get pkmNewNote => '새 메모';
+
+  @override
+  String get pkmNameHint => '이름';
+
+  @override
+  String get pkmCreate => '만들기';
+
+  @override
+  String get pkmDelete => '삭제';
+
+  @override
+  String get pkmDeleteConfirm => '이 항목을 삭제할까요? 되돌릴 수 없습니다.';
+
+  @override
+  String get pkmMoveTo => '이동';
+
+  @override
+  String get pkmEntryCreated => '생성됨';
+
+  @override
+  String get pkmEntryDeleted => '삭제됨';
 }

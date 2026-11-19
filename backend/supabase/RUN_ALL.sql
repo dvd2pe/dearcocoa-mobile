@@ -1,5 +1,5 @@
 -- DearCocoa — RUN_ALL (17/11/2026): esegui QUESTO UNICO file nell'SQL Editor.
--- Contiene: schema completo (000001) + RLS (000002) + storage (000003) + seed demo v2.
+-- Contiene: schema completo (000001) + RLS (000002) + storage (000003) + seed demo v2/v3 + 000004 FK profiles + 000005 event location.
 -- Idempotente dove possibile. Dopo questo file l'app è pronta con 5 account demo.
 
 -- ============================================================================
@@ -930,3 +930,170 @@ alter table public.events         add constraint events_created_by_fkey
 
 
 -- (000004 appended sopra: FK social -> public.profiles, fix PGRST200 embed)
+
+
+-- ============================================================================
+-- DearCocoa — migration 000005: eventi fisici (location) per event card ricche
+--
+-- Il cliente ha chiesto eventi "non solo virtuali": card con cover, avatar dei
+-- partecipanti e luogo. Il backend gia' prevedeva is_virtual + cover_path +
+-- bucket event-covers (000003), ma non c'era un campo per il luogo fisico.
+--
+-- Aggiunge events.location (nullable): mostrata nella card e nel dettaglio
+-- quando is_virtual = false. Idempotente.
+-- ============================================================================
+
+alter table public.events
+  add column if not exists location text;
+
+comment on column public.events.location is
+  'Venue / address for in-person events (is_virtual = false); null for virtual events.';
+
+
+-- ============================================================================
+-- Seed v3 (20/11/2026): contenuti realistici per l'app "produzione".
+--  - avatar profili, cover eventi, un evento fisico con location (migration 000005)
+--  - post community con foto (media_paths), messaggi gruppo extra
+--  - tutto idempotente: guardie not exists / update per titolo
+-- ============================================================================
+do $$
+declare
+  u_sofia uuid; u_luca uuid; u_giulia uuid; u_marco uuid; u_elena uuid;
+  g_morning uuid; g_circle uuid; g_walk uuid;
+  e_park uuid;
+begin
+  select id into u_sofia  from auth.users where email = 'sofia@dearcocoa.demo';
+  select id into u_luca   from auth.users where email = 'luca@dearcocoa.demo';
+  select id into u_giulia from auth.users where email = 'giulia@dearcocoa.demo';
+  select id into u_marco  from auth.users where email = 'marco@dearcocoa.demo';
+  select id into u_elena  from auth.users where email = 'elena@dearcocoa.demo';
+
+  -- ------------------------------------------------------------ avatar profili
+  update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-sofia/240/240'  where id = u_sofia  and (avatar_path is null or avatar_path = '');
+  update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-luca/240/240'   where id = u_luca   and (avatar_path is null or avatar_path = '');
+  update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-giulia/240/240' where id = u_giulia and (avatar_path is null or avatar_path = '');
+  update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-marco/240/240'  where id = u_marco  and (avatar_path is null or avatar_path = '');
+  update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-elena/240/240'  where id = u_elena  and (avatar_path is null or avatar_path = '');
+
+  -- ------------------------------------------------------------ cover eventi
+  update public.events set cover_path = 'https://picsum.photos/seed/cocoa-moon/800/450'
+    where title = 'Full Moon Journaling Night';
+  update public.events set cover_path = 'https://picsum.photos/seed/cocoa-breath/800/450'
+    where title = 'Breathwork for Anxious Days';
+  update public.events set cover_path = 'https://picsum.photos/seed/cocoa-circle/800/450'
+    where title = 'Sunday Writing Circle';
+
+  -- ------------------------------------------------------------ evento fisico
+  select id into e_park from public.events
+    where title = 'Sunrise Park Walk & Coffee' limit 1;
+  if e_park is null then
+    insert into public.events (created_by, title, description, category, is_virtual,
+        location, cover_path, starts_at, ends_at, capacity)
+    values (u_luca, 'Sunrise Park Walk & Coffee',
+        'A slow 5 km walk in the park, then coffee at the kiosk. We meet at the north gate — look for the cocoa-brown tote bag.',
+        'social', false, 'Villa Borghese, north gate — Roma',
+        'https://picsum.photos/seed/cocoa-park/800/450',
+        now() + interval '7 days', now() + interval '7 days' + interval '2 hours', 15)
+    returning id into e_park;
+  end if;
+
+  insert into public.event_rsvps (event_id, user_id, status) values
+    (e_park, u_sofia, 'going'), (e_park, u_giulia, 'going'),
+    (e_park, u_marco, 'going'), (e_park, u_elena, 'interested')
+  on conflict (event_id, user_id) do nothing;
+
+  insert into public.event_program (event_id, title, speaker, description, starts_at, sort) values
+    (e_park, 'Meet & slow walk', 'Luca Bianchi', 'Two loops of the avenue at talking pace.', now() + interval '7 days', 0),
+    (e_park, 'Coffee & journals', 'Everyone', 'Ten minutes of freewriting with coffee in hand.', now() + interval '7 days' + interval '70 minutes', 1)
+  on conflict do nothing;
+
+  -- ------------------------------------------------------- terzo gruppo
+  select id into g_walk from public.groups where name = 'Park Run Buddies' limit 1;
+  if g_walk is null then
+    insert into public.groups (name, description, is_public, created_by)
+    values ('Park Run Buddies', 'Saturday runs and walks, all paces welcome.', true, u_luca)
+    returning id into g_walk;
+  end if;
+
+  insert into public.group_members (group_id, user_id, role) values
+    (g_walk, u_luca, 'admin'), (g_walk, u_marco, 'member'),
+    (g_walk, u_sofia, 'member'), (g_walk, u_elena, 'member')
+  on conflict (group_id, user_id) do nothing;
+
+  insert into public.group_messages (group_id, user_id, content, author_name, created_at)
+  select g_walk.id, u_marco.id,
+      'Saturday plan: 10k easy pace from the north gate, 8:00. Walkers welcome, we loop back.', 'Marco Conti', now() - interval '1 day'
+  where not exists (select 1 from public.group_messages m
+      where m.group_id = g_walk.id and m.content like 'Saturday plan:%');
+
+  insert into public.group_messages (group_id, user_id, content, author_name, created_at)
+  select g_walk.id, u_elena.id,
+      'I will join for the walking loop! Bringing the thermos.', 'Elena Moretti', now() - interval '20 hours'
+  where not exists (select 1 from public.group_messages m
+      where m.group_id = g_walk.id and m.content like 'I will join for the walking loop%');
+
+  insert into public.group_messages (group_id, user_id, content, author_name, created_at)
+  select g_morning.id, u_giulia.id,
+      'Rainy morning here — did my check-ins with the window open anyway. Ten quiet minutes count double.', 'Giulia Ferrari', now() - interval '10 hours'
+  where not exists (select 1 from public.group_messages m
+      where m.group_id = g_morning.id and m.content like 'Rainy morning here%');
+
+  -- ------------------------------------------ post con foto (media_paths)
+  insert into public.space_posts (user_id, content, media_paths, created_at)
+  select u_marco.id,
+      'Morning run done. The park put on a show today.',
+      array['https://picsum.photos/seed/cocoa-run/900/600'],
+      now() - interval '30 hours'
+  where not exists (select 1 from public.space_posts p
+      where p.content like 'Morning run done. The park put on a show%');
+
+  insert into public.space_posts (user_id, content, media_paths, created_at)
+  select u_sofia.id,
+      'Reset the desk, reset the mind. New notebook day.',
+      array['https://picsum.photos/seed/cocoa-desk/900/600'],
+      now() - interval '9 hours'
+  where not exists (select 1 from public.space_posts p
+      where p.content like 'Reset the desk, reset the mind%');
+
+  -- foto su un post esistente (giornale nel parco di Luca)
+  update public.space_posts
+  set media_paths = array['https://picsum.photos/seed/cocoa-parkbench/900/600']
+  where content like 'Tried journaling in the park today%'
+    and coalesce(cardinality(media_paths), 0) = 0;
+
+  -- commenti extra sulle foto
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'Okay the light in this one is unreal.', 'Sofia Rossi', now() - interval '26 hours'
+  from public.space_posts p join auth.users a on a.email = 'sofia@dearcocoa.demo'
+  where p.content like 'Morning run done%'
+    and not exists (select 1 from public.post_comments c
+        where c.post_id = p.id and c.content like 'Okay the light%');
+
+  insert into public.post_comments (post_id, user_id, content, author_name, created_at)
+  select p.id, a.id, 'New notebook day is a national holiday, honestly.', 'Giulia Ferrari', now() - interval '6 hours'
+  from public.space_posts p join auth.users a on a.email = 'giulia@dearcocoa.demo'
+  where p.content like 'Reset the desk%'
+    and not exists (select 1 from public.post_comments c
+        where c.post_id = p.id and c.content like 'New notebook day%');
+
+  -- like sulle foto
+  insert into public.post_likes (post_id, user_id)
+  select p.id, a.id
+  from (values
+      ('Morning run done', 'sofia@dearcocoa.demo'),
+      ('Morning run done', 'elena@dearcocoa.demo'),
+      ('Morning run done', 'luca@dearcocoa.demo'),
+      ('Reset the desk',   'elena@dearcocoa.demo'),
+      ('Reset the desk',   'marco@dearcocoa.demo')
+  ) as pairs(prefix, liker)
+  join public.space_posts p on p.content like pairs.prefix || '%'
+  join auth.users a on a.email = pairs.liker
+  where not exists (
+    select 1 from public.post_likes pl
+    where pl.post_id = p.id and pl.user_id = a.id);
+
+  update public.space_posts p set like_count = (
+    select count(*) from public.post_likes pl where pl.post_id = p.id);
+
+  raise notice 'Seed demo v3 completato: avatar, cover, evento fisico, gruppo extra, post con foto.';
+end $$;

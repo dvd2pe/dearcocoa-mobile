@@ -3410,4 +3410,138 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authorizationTimedOut => 'Autorisierung abgelaufen';
+
+  @override
+  String get groqSpeechTitle => 'Sprachtranskription (Groq Whisper)';
+
+  @override
+  String get groqSpeechDesc =>
+      'Optional. Füge deinen Groq-API-Schlüssel ein, um Sprachnoten in Text umzuwandeln (schnelles whisper-large-v3-turbo). Sprachnoten werden immer als Audio gespeichert; ohne Schlüssel bleiben sie reine Audiodateien. Kostenloser Schlüssel auf console.groq.com.';
+
+  @override
+  String get groqSpeechHint => 'gsk_... (Groq-API-Schlüssel)';
+
+  @override
+  String get groqSpeechSave => 'Schlüssel speichern';
+
+  @override
+  String get groqSpeechSaved => 'Groq-API-Schlüssel gespeichert';
+
+  @override
+  String get providerGroq => 'Groq (Llama, GPT-OSS, Kimi)';
+
+  @override
+  String get composerTitle => 'Neuer Eintrag';
+
+  @override
+  String get composerModeNote => 'Notiz';
+
+  @override
+  String get composerModeTask => 'Aufgabe';
+
+  @override
+  String get composerModeRating => 'Bewertung';
+
+  @override
+  String get composerHint => 'Notiz schreiben…';
+
+  @override
+  String get composerMoodOptional => 'Wie geht es dir? (optional)';
+
+  @override
+  String get composerTaskDefaultTitle => 'Aufgaben';
+
+  @override
+  String get composerTaskItemHint => 'Aufgabenpunkt';
+
+  @override
+  String get composerAddItem => 'Punkt hinzufügen';
+
+  @override
+  String get composerRatingDefaultSubject => 'Was möchtest du bewerten?';
+
+  @override
+  String get composerSaved => 'Eintrag zur Chronik hinzugefügt';
+
+  @override
+  String get moodTitle => 'Stimmung';
+
+  @override
+  String get moodTodayTitle => 'Wie fühlst du dich heute?';
+
+  @override
+  String get moodTodayHint =>
+      'Ein Tipp und es ist gespeichert — lokal, nur für dich.';
+
+  @override
+  String moodLoggedAs(String mood) {
+    return 'Gespeichert als $mood. Zum Ändern erneut tippen.';
+  }
+
+  @override
+  String get moodLast14Days => 'Letzte 14 Tage';
+
+  @override
+  String get moodChartHint => 'Skala von 1 (sehr niedrig) bis 5 (super)';
+
+  @override
+  String get moodCurrentStreak => 'Aktuelle Serie';
+
+  @override
+  String get moodLongestStreak => 'Längste Serie';
+
+  @override
+  String get moodAverageMood => 'Durchschnittliche Stimmung';
+
+  @override
+  String get moodDays => 'Tage';
+
+  @override
+  String get moodOf5 => 'von 5';
+
+  @override
+  String get moodVeryLow => 'Sehr niedrig';
+
+  @override
+  String get moodLow => 'Niedrig';
+
+  @override
+  String get moodOkay => 'Okay';
+
+  @override
+  String get moodGood => 'Gut';
+
+  @override
+  String get moodGreat => 'Super';
+
+  @override
+  String get pkmAdd => 'Hinzufügen';
+
+  @override
+  String get pkmNewFolder => 'Neuer Ordner';
+
+  @override
+  String get pkmNewNote => 'Neue Notiz';
+
+  @override
+  String get pkmNameHint => 'Name';
+
+  @override
+  String get pkmCreate => 'Erstellen';
+
+  @override
+  String get pkmDelete => 'Löschen';
+
+  @override
+  String get pkmDeleteConfirm =>
+      'Dieses Element löschen? Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get pkmMoveTo => 'Verschieben nach';
+
+  @override
+  String get pkmEntryCreated => 'Erstellt';
+
+  @override
+  String get pkmEntryDeleted => 'Gelöscht';
 }

@@ -4,6 +4,9 @@ import 'package:dearcocoa/ui/core/cards/native_card_factory.dart';
 import 'package:dearcocoa/utils/user_storage.dart';
 import 'package:dearcocoa/ui/core/widgets/back_button.dart';
 
+import '../../composer/widgets/template_registry.dart';
+import '../../composer/widgets/template_composer.dart';
+
 /// Timeline 卡片模板展示页面
 /// 展示所有支持的 Timeline 卡片模板及示例数据
 class TimelineTemplateGalleryPage extends StatelessWidget {
@@ -277,6 +280,35 @@ class _TemplatePreviewPage extends StatelessWidget {
                       title: title,
                       status: 'completed',
                     ),
+                    // DearCocoa v0.3.5: create this card type, not just preview it.
+                    if (findTemplateSpec(templateId) != null) ...[
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF5B6CFF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () {
+                            final spec = findTemplateSpec(templateId)!;
+                            showTemplateComposer(context, spec);
+                          },
+                          icon: const Icon(Icons.add, size: 20),
+                          label: const Text(
+                            'Use this template',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
