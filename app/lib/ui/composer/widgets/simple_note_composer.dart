@@ -205,8 +205,8 @@ class _SimpleNoteComposerState extends State<SimpleNoteComposer> {
       ));
 
       if (mounted) {
-        Navigator.pop(context);
         ToastHelper.showSuccess(context, l10n.composerSaved);
+        Navigator.pop(context);
       }
     } catch (e) {
       _logger.severe('Simple composer submit failed: $e');
