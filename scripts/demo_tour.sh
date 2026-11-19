@@ -5,11 +5,12 @@
 # NOTE:
 # - android-emulator-runner esegue lo script inline RIGA PER RIGA in shell
 #   separate: per questo il tour e' un FILE bash (variabili/blocchi sopravvivono).
-# - L'app parte su una WELCOME con 5 demo account ("Pick an account to step
-#   right in"): il tap sul primo account entra e mostra la Timeline.
-# - uiautomator non espone i nodi Flutter: tutti i tap usano coordinate
-#   geometriche derivate dal design reale (barra 393dp: Timeline 9.8%,
-#   Community 27.4%, AI 50%, Events 72.6%, Library 91.7%).
+# - L'app parte su una WELCOME con 5 demo account: il tap su una riga entra.
+# - Con rendering software (swiftshader) il launcher puo' andare in ANR e il
+#   dialog "Pixel Launcher isn't responding" copre lo schermo e BLOCCA i tap:
+#   hide_error_dialogs=1 lo sopprime (fix della run del 19/11, 1080x2400).
+# - Il tap sull'account viene VERIFICATO confrontando l'hash dello screencap
+#   prima/dopo: se lo schermo non cambia si riprova sulle righe successive.
 set -uo pipefail
 
 APP_DIR="${GITHUB_WORKSPACE:-$PWD}/app"
@@ -17,7 +18,7 @@ OUT="$APP_DIR/build/app/outputs/apk/global/release"
 PKG=app.dearcocoa.mobile
 mkdir -p /tmp/shots
 
-# ---- 1) trova l'APK x86_64 release firmato (gradle prima, flutter-apk poi) ----
+# ---- 1) trova l'APK x86_64 release firmato ----
 APK="$OUT/app-global-x86_64-release.apk"
 if [ ! -f "$APK" ]; then
   APK=$(find "$APP_DIR/build/app/outputs/apk" -name "*x86_64*.apk" -not -path "*intermediates*" | head -1)
@@ -31,7 +32,7 @@ if [ ! -f "$APK" ]; then
   exit 1
 fi
 
-# ---- 2) installa e VERIFICA: unsigned/non-installata = errore bloccante ----
+# ---- 2) installa e VERIFICA ----
 if ! adb install -r "$APK"; then
   echo "INSTALL FALLITA (APK unsigned?)" >&2
   exit 1
@@ -42,8 +43,9 @@ if ! adb shell pm list packages | grep -q "$PKG"; then
 fi
 echo "install OK: $PKG"
 
-# ---- 3) tema chiaro (il promo DearCocoa e' light) ----
+# ---- 3) tema chiaro + niente dialog ANR/crash che coprono lo schermo ----
 adb shell cmd uimode night no || true
+adb shell settings put global hide_error_dialogs 1 || true
 sleep 2
 
 # ---- 4) permessi + wake + sblocco ----
@@ -57,7 +59,7 @@ adb shell input keyevent 82 || true
 adb shell input keyevent 4 || true
 sleep 2
 
-# ---- 5) lancia l'app (monkey risolve da solo la Activity giusta) ----
+# ---- 5) lancia l'app ----
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
 
 FG=""
@@ -71,12 +73,12 @@ for i in $(seq 1 30); do
 done
 if [ -z "$FG" ]; then
   echo "FATALE: app non risulta in primo piano" >&2
-  adb shell dumpsys activity activities 2>/dev/null | grep -i "resumedactivity" || true
   exit 1
 fi
-sleep 15  # boot interno app
+sleep 20  # boot interno app (rendering software lento a 1080x2400)
 
 shot() { adb exec-out screencap -p > "/tmp/shots/$1.png"; }
+scr_hash() { adb exec-out screencap -p 2>/dev/null | md5sum | cut -d' ' -f1; }
 
 W=$(adb shell wm size | grep -oE '[0-9]+' | head -1)
 H=$(adb shell wm size | tr -d '\r' | grep -oE '[0-9]+' | tail -1)
@@ -85,20 +87,39 @@ DEN=${DEN:-420}
 DPR=$(( DEN / 160 ))
 echo "screen: ${W}x${H} density: $DEN (dpr $DPR)"
 
-BAR_Y=$(( H - H * 8 / 100 ))            # riga tab della barra (5 zone)
-AI_Y=$(( H - H * 14 / 100 ))            # centro bottone AI (elevato sopra la barra)
+BAR_Y=$(( H - H * 8 / 100 ))            # riga tab (5 zone)
+AI_Y=$(( H - H * 14 / 100 ))            # centro bottone AI (elevato)
 
 # ---- 01 welcome reale (5 demo account) ----
 shot 01_benvenuto
-sleep 3
+sleep 2
 
-# ---- 02 sign-in col primo demo account (riga alta della lista) ----
-adb shell input tap $(( W / 2 )) $(( H * 22 / 100 )) || true
-sleep 12
+# ---- 02 sign-in con verifica: tap riga demo account, controlla cambio schermo ----
+SIGNIN_OK=0
+for PCT in 22 30 38; do
+  HB=$(scr_hash)
+  adb shell input tap $(( W / 2 )) $(( H * PCT / 100 )) || true
+  sleep 12
+  HA=$(scr_hash)
+  sleep 3
+  HA2=$(scr_hash)
+  echo "tap account $PCT%: hash $HB -> $HA / $HA2"
+  if [ "$HA" != "$HB" ] && [ "$HA2" != "$HB" ]; then
+    echo "SCHERMO CAMBIATO dopo tap a $PCT%: sign-in presumibilmente OK"
+    SIGNIN_OK=1
+    break
+  fi
+done
+[ "$SIGNIN_OK" = "1" ] || echo "ATTENZIONE: nessun cambio schermo dopo i tap account (welcome ancora attiva?)" >&2
+
+sleep 5
 shot 02_dopo_signin
 
-# ---- 03 timeline ----
-sleep 5
+# torna alla timeline (chiude eventuali dettagli aperti dai tap extra)
+adb shell input keyevent 4 || true
+sleep 2
+adb shell input tap $(( W * 10 / 100 )) "$BAR_Y" || true
+sleep 6
 shot 03_timeline
 
 # ---- 04 menu radiale (pulsante AI centrale) ----
