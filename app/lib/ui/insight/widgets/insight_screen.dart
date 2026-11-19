@@ -9,7 +9,6 @@ import 'package:dearcocoa/utils/toast_helper.dart';
 import 'package:dearcocoa/ui/core/cards/native_widget_factory.dart';
 import 'package:dearcocoa/ui/core/widgets/html_webview_card.dart';
 import 'package:dearcocoa/utils/user_storage.dart';
-import 'package:dearcocoa/ui/insight/widgets/insight_preview_data.dart';
 
 /// Insight screen - global knowledge analytics. Receives [viewModel] from parent (Compass-style).
 class InsightScreen extends StatefulWidget {
@@ -502,10 +501,12 @@ class _InsightScreenState extends State<InsightScreen> {
     );
   }
 
-  /// Preview cards shown when the user has no real insights yet.
-  /// Rendered with reduced opacity and a banner hint; non-interactive.
+  /// Clean empty state when the user has no insights yet.
+  ///
+  /// DearCocoa: the dimmed fake "sample" cards (Opacity 0.55 + IgnorePointer)
+  /// were removed — without AI the tab shows a calm empty state, never
+  /// blurred placeholder content.
   Widget _buildPreviewCards() {
-    final samples = InsightPreviewData.samples;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -543,15 +544,8 @@ class _InsightScreenState extends State<InsightScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // Sample cards — visual only, no interaction
-        ...samples.map((s) {
-          final card = NativeWidgetFactory.build(s.template, s.data);
-          if (card == null) return const SizedBox.shrink();
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Opacity(opacity: 0.55, child: IgnorePointer(child: card)),
-          );
-        }),
+        // DearCocoa: the dimmed fake sample cards were removed — without AI
+        // the tab shows a calm empty state instead of blurred placeholders.
       ],
     );
   }

@@ -6,6 +6,7 @@ import '../core/themes/app_shadows.dart';
 import '../core/themes/app_text_styles.dart';
 import '../../data/repositories/mood_repository.dart';
 import '../../data/repositories/mood_stats.dart';
+import '../../l10n/app_localizations.dart';
 import '../../utils/user_storage.dart';
 
 /// DearCocoa mood tracking: one tap logs today's mood, the chart shows the
@@ -17,22 +18,41 @@ class MoodScreen extends StatefulWidget {
   State<MoodScreen> createState() => _MoodScreenState();
 }
 
-class _MoodScreenState extends State<MoodScreen> {
-  static const _moodLabels = [
-    'Very low',
-    'Low',
-    'Okay',
-    'Good',
-    'Great',
-  ];
-  static const _moodIcons = [
-    Icons.sentiment_very_dissatisfied_rounded,
-    Icons.sentiment_dissatisfied_rounded,
-    Icons.sentiment_neutral_rounded,
-    Icons.sentiment_satisfied_rounded,
-    Icons.sentiment_very_satisfied_rounded,
-  ];
+/// Localized mood label for 1..5 (shared with the note composer).
+String moodLabel(AppLocalizations l10n, int mood) {
+  switch (mood) {
+    case 1:
+      return l10n.moodVeryLow;
+    case 2:
+      return l10n.moodLow;
+    case 3:
+      return l10n.moodOkay;
+    case 4:
+      return l10n.moodGood;
+    default:
+      return l10n.moodGreat;
+  }
+}
 
+/// Per-mood color scale (1=very low … 5=great) used by the picker, the
+/// composer faces and the 14-day chart so the scoring is always readable.
+const moodColors = [
+  Color(0xFFEF4444), // very low  — red
+  Color(0xFFF97316), // low       — orange
+  Color(0xFFEAB308), // okay      — yellow
+  Color(0xFF22C55E), // good      — green
+  Color(0xFF10B981), // great     — emerald
+];
+
+const moodIcons = [
+  Icons.sentiment_very_dissatisfied_rounded,
+  Icons.sentiment_dissatisfied_rounded,
+  Icons.sentiment_neutral_rounded,
+  Icons.sentiment_satisfied_rounded,
+  Icons.sentiment_very_satisfied_rounded,
+];
+
+class _MoodScreenState extends State<MoodScreen> {
   List<Map<String, dynamic>> _rows = [];
   int? _todayMood;
   bool _loading = true;
@@ -73,6 +93,7 @@ class _MoodScreenState extends State<MoodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = UserStorage.l10n;
     final now = DateTime.now();
     final streak = MoodStats.currentStreak(_rows, now);
     final longest = MoodStats.longestStreak(_rows);
@@ -86,7 +107,7 @@ class _MoodScreenState extends State<MoodScreen> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Mood',
+          l10n.moodTitle,
           style: AppTextStyles.cardListTitle.copyWith(fontSize: 16),
         ),
         iconTheme: const IconThemeData(color: Color(0xFF64748B), size: 20),
@@ -123,6 +144,7 @@ class _TodayPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = UserStorage.l10n;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -133,9 +155,9 @@ class _TodayPicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'How do you feel today?',
-            style: TextStyle(
+          Text(
+            l10n.moodTodayTitle,
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -144,8 +166,8 @@ class _TodayPicker extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             mood == null
-                ? 'One tap and it is logged — locally, for your eyes only.'
-                : 'Logged as ${_MoodScreenState._moodLabels[mood! - 1]}. Tap again to change it.',
+                ? l10n.moodTodayHint
+                : l10n.moodLoggedAs(moodLabel(l10n, mood!)),
             style: const TextStyle(
               fontSize: 13,
               color: AppColors.textTertiary,
@@ -165,13 +187,16 @@ class _TodayPicker extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mood == i
-                          ? AppColors.primary
-                          : AppColors.iconBgLight,
+                          ? moodColors[i - 1]
+                          : moodColors[i - 1].withValues(alpha: 0.12),
+                      border: mood == i
+                          ? Border.all(color: moodColors[i - 1], width: 2)
+                          : null,
                     ),
                     child: Icon(
-                      _MoodScreenState._moodIcons[i - 1],
+                      moodIcons[i - 1],
                       size: 28,
-                      color: mood == i ? Colors.white : AppColors.primary,
+                      color: mood == i ? Colors.white : moodColors[i - 1],
                     ),
                   ),
                 ),
@@ -181,14 +206,18 @@ class _TodayPicker extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              for (final label in _MoodScreenState._moodLabels)
+              for (var i = 1; i <= 5; i++)
                 Expanded(
                   child: Text(
-                    label,
+                    moodLabel(l10n, i),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
-                      color: AppColors.textTertiary,
+                      fontWeight:
+                          mood == i ? FontWeight.w600 : FontWeight.w400,
+                      color: mood == i
+                          ? moodColors[i - 1]
+                          : AppColors.textTertiary,
                     ),
                   ),
                 ),
@@ -207,6 +236,7 @@ class _MoodChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = UserStorage.l10n;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -217,32 +247,78 @@ class _MoodChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Last 14 days',
-            style: TextStyle(
+          Text(
+            l10n.moodLast14Days,
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.moodChartHint,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textTertiary,
+            ),
+          ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 140,
+            height: 160,
             child: BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 maxY: 5,
                 minY: 0,
                 barTouchData: BarTouchData(enabled: false),
-                gridData: const FlGridData(show: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 1,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: const Color(0xFFEEF2F7),
+                    strokeWidth: 1,
+                  ),
+                ),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
                   topTitles:
                       const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles:
                       const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      reservedSize: 44,
+                      getTitlesWidget: (value, meta) {
+                        final mood = value.toInt();
+                        if (mood < 1 || mood > 5) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(moodIcons[mood - 1],
+                                  size: 12, color: moodColors[mood - 1]),
+                              const SizedBox(width: 3),
+                              Text(
+                                '$mood',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: moodColors[mood - 1],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -277,13 +353,43 @@ class _MoodChart extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           color: days[i].mood == null
                               ? AppColors.iconBgLight
-                              : AppColors.primary,
+                              : moodColors[days[i].mood! - 1],
                         ),
                       ],
                     ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: 12),
+          // Scoring legend: color → label, so every bar is readable.
+          Wrap(
+            spacing: 10,
+            runSpacing: 6,
+            children: [
+              for (var i = 1; i <= 5; i++)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: moodColors[i - 1],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      moodLabel(l10n, i),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
         ],
       ),
@@ -304,25 +410,30 @@ class _StreakRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = UserStorage.l10n;
     return Row(
       children: [
         Expanded(
           child: _StatCard(
-              label: 'Current streak', value: '$streak', unit: 'days'),
+              label: l10n.moodCurrentStreak,
+              value: '$streak',
+              unit: l10n.moodDays),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-              label: 'Longest streak', value: '$longest', unit: 'days'),
+              label: l10n.moodLongestStreak,
+              value: '$longest',
+              unit: l10n.moodDays),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
-            label: 'Average mood',
+            label: l10n.moodAverageMood,
             value: average == null
                 ? '—'
                 : average!.toStringAsFixed(1),
-            unit: 'of 5',
+            unit: l10n.moodOf5,
           ),
         ),
       ],

@@ -22,6 +22,7 @@ class LLMConfig {
   static const String typeOllama = 'ollama';
   static const String typeMimo = 'mimo';
   static const String typeMemex = 'memex';
+  static const String typeGroq = 'groq';
 
   /// User-friendly display name for a provider type.
   /// Only OpenAI and Anthropic types need special handling since their
@@ -62,6 +63,8 @@ class LLMConfig {
         return 'Ollama';
       case typeMemex:
         return 'DearCocoa AI';
+      case typeGroq:
+        return 'Groq';
       default:
         return type;
     }
@@ -78,6 +81,7 @@ class LLMConfig {
       case typeOpenRouter:
       case typeOllama:
       case typeMemex:
+      case typeGroq:
         return typeChatCompletion;
       case typeSeed:
         return typeResponses;
@@ -213,6 +217,12 @@ class LLMConfig {
         };
       case typeOllama:
         return const {'qwen3.5:9b', 'gemma4:12b', 'llama4:scout'};
+      case typeGroq:
+        return const {
+          'llama-3.3-70b-versatile',
+          'openai/gpt-oss-120b',
+          'moonshotai/kimi-k2-instruct-0905',
+        };
       default:
         return const {};
     }
@@ -338,6 +348,15 @@ class LLMConfig {
         ];
       case typeMimo:
         return const ['mimo-v2.5-pro', 'mimo-v2.5'];
+      case typeGroq:
+        return const [
+          'llama-3.3-70b-versatile',
+          'llama-3.1-8b-instant',
+          'openai/gpt-oss-120b',
+          'openai/gpt-oss-20b',
+          'moonshotai/kimi-k2-instruct-0905',
+          'qwen/qwen3-32b',
+        ];
       default:
         return const [];
     }
@@ -375,6 +394,7 @@ class LLMConfig {
       case typeOllama:
       case typeGemini:
       case typeMemex:
+      case typeGroq:
         return true;
       default:
         return false;
@@ -503,6 +523,8 @@ class LLMConfig {
         return ''; // Auto-filled after login via MemexCloudService
       case typeMimo:
         return 'https://api.xiaomimimo.com/anthropic';
+      case typeGroq:
+        return 'https://api.groq.com/openai/v1';
       default:
         return '';
     }
@@ -579,7 +601,8 @@ class LLMConfig {
             type == typeMinimax ||
             type == typeMimo ||
             type == typeOpenRouter ||
-            type == typeMemex) &&
+            type == typeMemex ||
+            type == typeGroq) &&
         getEffectiveApiKey().isEmpty) {
       return false;
     }
@@ -599,6 +622,7 @@ class LLMConfig {
       typeOllama,
       typeMimo,
       typeMemex,
+      typeGroq,
     ];
     if (typesRequiringBaseUrl.contains(type)) {
       return baseUrl.isNotEmpty;

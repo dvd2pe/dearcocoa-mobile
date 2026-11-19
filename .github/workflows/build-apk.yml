@@ -90,6 +90,8 @@ jobs:
 
       - name: Prepara artefatti
         run: |
+          APP_VERSION=$(grep '^version:' pubspec.yaml | cut -d' ' -f2 | cut -d+ -f1)
+          echo "APP_VERSION=$APP_VERSION" | tee app_version.env
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             mkdir -p apks
             # NB: gradle rinomina gli output con suffisso ABI e il flutter tool
@@ -97,8 +99,8 @@ jobs:
             for ABI in arm64-v8a armeabi-v7a x86_64; do
               f=$(find build/app/outputs -name "*$ABI*.apk" -not -path "*intermediates*" | head -1)
               [ -n "$f" ] || { echo "APK $ABI non trovato" >&2; exit 1; }
-              cp "$f" "apks/dearcocoa-0.3.0-$ABI.apk"
-              echo "split: dearcocoa-0.3.0-$ABI.apk $(du -h "$f" | cut -f1)"
+              cp "$f" "apks/dearcocoa-$APP_VERSION-$ABI.apk"
+              echo "split: dearcocoa-$APP_VERSION-$ABI.apk $(du -h "$f" | cut -f1)"
             done
             N=$(ls apks/*.apk 2>/dev/null | wc -l)
             [ "$N" -eq 3 ] || { echo "attesi 3 APK per-ABI, trovati $N" >&2; ls -R build/app/outputs >&2; exit 1; }
@@ -117,16 +119,18 @@ jobs:
           path: app/apks/*.apk
           retention-days: 30
 
-      # Release v0.3.0-dearcocoa solo sui build dispatch (split-per-abi).
+      # Release v<versione>-dearcocoa solo sui build dispatch (split-per-abi).
       # APK sempre release, mai debug (regola cliente).
-      - name: Crea release v0.3.0-dearcocoa con i 3 APK (solo dispatch)
+      - name: Crea release v (da pubspec) con i 3 APK + SHA256 (solo dispatch)
         if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          TAG="v0.3.0-dearcocoa"
-          NOTES="Prima release M12 su base memex (R1-R5 + slim M12).\n\n- Base memex 1:1 (timeline cards, 13 insight charts, agenti AI DearCocoa, knowledge base, character chat, app lock biometrico, calendar/health/maps, 18 lingue) + social su Supabase (community, gruppi chat, eventi, mood, 5 demo account one-tap).\n- sherpa_onnx (whisper offline) e MLKit rimossi: APK ~1/3 del precedente; memo vocali sempre salvati come audio, trascrizione opzionale via Groq API (whisper-large-v3-turbo, chiave in Settings → Voice transcription) o LLM multimodale.\n- 3 APK per-ABI: arm64-v8a (telefoni moderni), armeabi-v7a (telefoni più vecchi), x86_64 (emulatori).\n- Versione 0.3.0+125 — upgrade in-place dalla demo v1.0.39.\n\nInstallazione: abilitare le origini sconosciute sul dispositivo."
-          gh release create "$TAG" --title "DearCocoa v0.3.0 — base memex, APK slim" --notes "$NOTES" apks/*.apk \
-            || gh release upload "$TAG" apks/*.apk --clobber
+          APP_VERSION=$(grep '^version:' pubspec.yaml | cut -d' ' -f2 | cut -d+ -f1)
+          TAG="v${APP_VERSION}-dearcocoa"
+          cd apks && sha256sum *.apk > SHA256SUMS-v${APP_VERSION}.txt && cd ..
+          NOTES="DearCocoa v${APP_VERSION} — release automatica dalla CI.\n\n- Fix v${APP_VERSION}: note sempre in timeline anche senza AI (nuovo composer semplice), carosello suggerimenti foto rimosso, overlay/annebbiamento insights rimosso, niente più banner ed errori AI senza chiave, Groq aggiunto tra i provider LLM (chiave unica anche per la voce), Library/PARA con crea-elimina-sposta, pannello Diagnostica per community/eventi, widget umore con scala colori e legenda.\n- Firma release stabile (stesso certificato delle versioni precedenti): si aggiorna in-place senza disinstallare.\n- 3 APK per-ABI: arm64-v8a (telefoni moderni), armeabi-v7a (telefoni più vecchi), x86_64 (emulatori).\n\nInstallazione: abilitare le origini sconosciute sul dispositivo."
+          gh release create "$TAG" --title "DearCocoa v${APP_VERSION} — fix UX senza AI + Groq + PARA" --notes "$NOTES" apks/*.apk \
+            || gh release upload "$TAG" apks/*.apk SHA256SUMS-v${APP_VERSION}.txt --clobber
           gh release view "$TAG" --json url,assets -q '.url + " | " + ([.assets[].name] | join(", "))'

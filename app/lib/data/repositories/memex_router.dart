@@ -1528,6 +1528,44 @@ class MemexRouter {
     });
   }
 
+  /// PARA CRUD (DearCocoa): create a folder/note, delete or move an entry.
+  Future<Result<Map<String, dynamic>>> createPkmEntry({
+    required String parentPath,
+    required String name,
+    required bool isFolder,
+    String? content,
+  }) async {
+    return runResult(() async {
+      await _ensureInitialized();
+      return await pkm_endpoint.createPkmEntry(
+        parentPath: parentPath,
+        name: name,
+        isFolder: isFolder,
+        content: content,
+      );
+    });
+  }
+
+  Future<Result<bool>> deletePkmEntry({required String entryPath}) async {
+    return runResult(() async {
+      await _ensureInitialized();
+      return await pkm_endpoint.deletePkmEntry(entryPath: entryPath);
+    });
+  }
+
+  Future<Result<String>> movePkmEntry({
+    required String entryPath,
+    required String newParentPath,
+  }) async {
+    return runResult(() async {
+      await _ensureInitialized();
+      return await pkm_endpoint.movePkmEntry(
+        entryPath: entryPath,
+        newParentPath: newParentPath,
+      );
+    });
+  }
+
   Future<Result<List<Map<String, dynamic>>>> searchPkmFiles(
     String query,
   ) async {

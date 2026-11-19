@@ -975,23 +975,7 @@ void main() {
       expect(find.byType(AgentLogoLoading), findsNothing);
     });
 
-    testWidgets('reserves the photo suggestion slot on the first frame', (
-      tester,
-    ) async {
-      await _pumpDialogFrame(tester);
-
-      final slotFinder = find.byKey(superAgentPhotoSuggestionSlotKey);
-
-      expect(slotFinder, findsOneWidget);
-      expect(
-        tester.getSize(slotFinder).height,
-        superAgentPhotoSuggestionSlotHeight,
-      );
-      expect(
-        find.text(UserStorage.l10n.agentChat.findingRecentPhotos),
-        findsOneWidget,
-      );
-    });
+    // DearCocoa: the photo suggestion slot/carousel was removed — no test.
 
     testWidgets('renders selected images through the cached image widget', (
       tester,

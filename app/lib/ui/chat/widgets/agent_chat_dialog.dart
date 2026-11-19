@@ -239,11 +239,6 @@ const Duration _agentChatKeyboardHideAnimationDuration = Duration.zero;
 const BorderRadius _agentChatSheetBorderRadius = BorderRadius.vertical(
   top: Radius.circular(32),
 );
-@visibleForTesting
-const Key superAgentPhotoSuggestionSlotKey =
-    ValueKey('super_agent_photo_suggestion_slot');
-@visibleForTesting
-const double superAgentPhotoSuggestionSlotHeight = 68;
 
 @visibleForTesting
 double resolveAgentChatDialogHeight(
@@ -2208,123 +2203,6 @@ class _AgentChatDialogState extends State<AgentChatDialog>
     return _buildSuperAgentInput();
   }
 
-  Widget _buildPhotoSuggestionRow() {
-    final showStatus = shouldShowSuperAgentPhotoSuggestionStatus(
-      isLoading: _isLoadingPhotoSuggestions,
-      hasSuggestions: _photoSuggestionClusters.isNotEmpty,
-      hasLoadedSuggestions: _hasLoadedPhotoSuggestions,
-    );
-
-    return SizedBox(
-      key: superAgentPhotoSuggestionSlotKey,
-      height: superAgentPhotoSuggestionSlotHeight,
-      child: Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _photoSuggestionClusters.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              return _buildPhotoSuggestionChip(_photoSuggestionClusters[index]);
-            },
-          ),
-          if (showStatus) _buildPhotoSuggestionStatus(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPhotoSuggestionStatus() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Row(
-        children: [
-          Icon(
-            Icons.photo_library_outlined,
-            size: 18,
-            color: AppColors.primary.withValues(alpha: 0.55),
-          ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Text(
-              _agentChat.findingRecentPhotos,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPhotoSuggestionChip(List<EnhancedPhoto> cluster) {
-    final isSelected = _isSuggestionClusterSelected(cluster);
-
-    return GestureDetector(
-      onTap: () => _togglePhotoSuggestionCluster(cluster),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.45)
-                : const Color(0xFFE2E8F0),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...cluster.take(5).map(
-                  (photo) => Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 6),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: SizedBox(
-                        width: 46,
-                        height: 46,
-                        child: AssetEntityImage(
-                          photo.entity,
-                          fit: BoxFit.cover,
-                          isOriginal: false,
-                          thumbnailSize: const ThumbnailSize.square(120),
-                          thumbnailFormat: ThumbnailFormat.jpeg,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            if (cluster.length > 5)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 6),
-                child: Text(
-                  '+${cluster.length - 5}',
-                  style: const TextStyle(
-                    color: AppColors.textTertiary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 2),
-            Icon(
-              isSelected ? Icons.check_circle : Icons.add_circle_outline,
-              size: 20,
-              color: isSelected ? AppColors.primary : const Color(0xFFCBD5E1),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSuperAgentInput() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -2336,8 +2214,9 @@ class _AgentChatDialogState extends State<AgentChatDialog>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildPhotoSuggestionRow(),
-          const SizedBox(height: 10),
+          // DearCocoa: the photo-suggestion carousel (clustered thumbs with a
+          // "+N" chip) was removed on purpose — manual camera/gallery attach
+          // remains available below.
           if (!_canSubmitAttachments)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),

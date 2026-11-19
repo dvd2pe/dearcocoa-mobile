@@ -10,6 +10,7 @@ import '../core/themes/app_text_styles.dart';
 import '../../data/repositories/social.dart';
 import '../../data/services/supabase_service.dart';
 import '../../domain/models/social_models.dart';
+import '../community/social_debug_sheet.dart';
 import '../user_setup/widgets/demo_login_screen.dart';
 
 /// DearCocoa Events: upcoming virtual events with RSVP, rendered with the
@@ -24,6 +25,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   bool _loading = true;
   String? _error;
+  Object? _lastError;
   List<EventItem> _events = [];
   RealtimeChannel? _rsvpChannel;
 
@@ -50,13 +52,15 @@ class _EventsScreenState extends State<EventsScreen> {
           _events = events;
           _loading = false;
           _error = null;
+          _lastError = null;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _loading = false;
           _error = 'Could not load events: check your connection.';
+          _lastError = e;
         });
       }
     }
@@ -120,6 +124,14 @@ class _EventsScreenState extends State<EventsScreen> {
                   fontSize: 14, color: AppColors.textSecondary),
             ),
             TextButton(onPressed: _load, child: const Text('Retry')),
+            TextButton(
+              onPressed: () => showSocialDebugSheet(
+                context,
+                area: 'Events',
+                error: _lastError,
+              ),
+              child: const Text('Diagnostica'),
+            ),
           ],
         ),
       );

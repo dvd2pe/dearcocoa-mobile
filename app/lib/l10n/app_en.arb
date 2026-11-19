@@ -1556,5 +1556,50 @@
   "groqSpeechDesc": "Optional. Paste your Groq API key to turn voice notes into text (fast whisper-large-v3-turbo). Voice notes are always saved as audio; without a key they stay audio-only. Get a free key at console.groq.com.",
   "groqSpeechHint": "gsk_... (Groq API key)",
   "groqSpeechSave": "Save key",
-  "groqSpeechSaved": "Groq API key saved"
+  "groqSpeechSaved": "Groq API key saved",
+  "providerGroq": "Groq (Llama, GPT-OSS, Kimi)",
+  "composerTitle": "New entry",
+  "composerModeNote": "Note",
+  "composerModeTask": "Task",
+  "composerModeRating": "Rating",
+  "composerHint": "Write your note…",
+  "composerMoodOptional": "How are you? (optional)",
+  "composerTaskDefaultTitle": "To-do",
+  "composerTaskItemHint": "Task item",
+  "composerAddItem": "Add item",
+  "composerRatingDefaultSubject": "What do you want to rate?",
+  "composerSaved": "Entry added to the timeline",
+  "moodTitle": "Mood",
+  "moodTodayTitle": "How do you feel today?",
+  "moodTodayHint": "One tap and it is logged — locally, for your eyes only.",
+  "moodLoggedAs": "Logged as {mood}. Tap again to change it.",
+  "moodLast14Days": "Last 14 days",
+  "moodChartHint": "Scale from 1 (very low) to 5 (great)",
+  "moodCurrentStreak": "Current streak",
+  "moodLongestStreak": "Longest streak",
+  "moodAverageMood": "Average mood",
+  "moodDays": "days",
+  "moodOf5": "of 5",
+  "moodVeryLow": "Very low",
+  "moodLow": "Low",
+  "moodOkay": "Okay",
+  "moodGood": "Good",
+  "moodGreat": "Great",
+  "@moodLoggedAs": {
+    "placeholders": {
+      "mood": {
+        "type": "String"
+      }
+    }
+  },
+  "pkmAdd": "Add",
+  "pkmNewFolder": "New folder",
+  "pkmNewNote": "New note",
+  "pkmNameHint": "Name",
+  "pkmCreate": "Create",
+  "pkmDelete": "Delete",
+  "pkmDeleteConfirm": "Delete this item? This cannot be undone.",
+  "pkmMoveTo": "Move to",
+  "pkmEntryCreated": "Created",
+  "pkmEntryDeleted": "Deleted"
 }

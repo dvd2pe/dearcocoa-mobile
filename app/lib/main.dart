@@ -60,6 +60,7 @@ import 'package:dearcocoa/ui/settings/widgets/backup_restore_confirm_dialog.dart
 import 'package:dearcocoa/ui/settings/view_models/data_import_viewmodel.dart';
 import 'package:dearcocoa/ui/settings/widgets/data_import_page.dart';
 import 'package:dearcocoa/ui/chat/widgets/open_super_agent_dialog.dart';
+import 'package:dearcocoa/ui/composer/widgets/simple_note_composer.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:dearcocoa/data/services/app_action_link_service.dart';
 import 'package:dearcocoa/data/services/app_action_service.dart';
@@ -615,6 +616,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       EventBusMessageType.errorNotification,
       _handleErrorNotification,
     );
+    _eventBus.addHandler(
+      EventBusMessageType.llmConfigChanged,
+      _handleLLMConfigChanged,
+    );
+
+    // AI surfaces (agent activity pill) stay hidden until a valid provider
+    // is configured — DearCocoa never shows AI chrome without a setup.
+    _refreshLLMConfigValidity();
 
     _shareIntentHandler = ShareIntentHandler(
       logger: _logger,
@@ -802,6 +811,45 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// True when at least one LLM provider config is usable.
+  bool _hasValidLLMConfig = false;
+
+  /// True when voice quick-record has a transcription path available
+  /// (Groq speech key or a multimodal LLM provider).
+  bool _hasVoiceInput = false;
+
+  Future<void> _refreshLLMConfigValidity() async {
+    bool valid = false;
+    bool voice = false;
+    try {
+      final configs = await UserStorage.getLLMConfigs();
+      valid = configs.any((c) => c.isValid);
+      voice = valid;
+      if (!voice) {
+        final groqKey = await UserStorage.getGroqSpeechApiKey();
+        voice = groqKey.trim().isNotEmpty;
+      }
+    } catch (_) {
+      valid = false;
+      voice = false;
+    }
+    if (mounted && (valid != _hasValidLLMConfig || voice != _hasVoiceInput)) {
+      setState(() {
+        _hasValidLLMConfig = valid;
+        _hasVoiceInput = voice;
+      });
+    }
+  }
+
+  void _handleLLMConfigChanged(EventBusMessage message) {
+    if (!mounted) return;
+    if (message is LLMConfigChangedMessage) {
+      setState(() => _hasValidLLMConfig = message.hasValidConfig);
+    } else {
+      _refreshLLMConfigValidity();
+    }
+  }
+
   void _handleErrorNotification(EventBusMessage message) {
     if (!mounted) return;
     if (message is! ErrorNotificationMessage) return;
@@ -892,6 +940,27 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       setState(() => _homeClipboardCandidate = null);
     }
 
+    // Without a working AI setup, "+" must still create a timeline entry:
+    // open the simple composer (no LLM involved) instead of the agent chat.
+    bool aiReady = _hasValidLLMConfig;
+    if (!aiReady) {
+      try {
+        final configs = await UserStorage.getLLMConfigs();
+        aiReady = configs.any((c) => c.isValid);
+      } catch (_) {
+        aiReady = false;
+      }
+    }
+    if (!aiReady) {
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => const SimpleNoteComposer(),
+      );
+      return;
+    }
+
     _openSuperAgentDialog();
   }
 
@@ -916,6 +985,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   void _handleAICoreButtonLongPressStart() {
+    // Voice quick-record needs a transcription path (Groq speech key or
+    // multimodal LLM). Without one, the radial menu stays dormant.
+    if (!_hasVoiceInput) return;
+
     // Determine button center for RadialMenu using GlobalKey
     final RenderBox? buttonBox =
         _aiButtonKey.currentContext?.findRenderObject() as RenderBox?;
@@ -1660,12 +1733,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             // Floating bottom bar overlay
             _buildBottomBar(),
 
-            const Positioned(
-              bottom: 164,
-              left: 0,
-              right: 0,
-              child: Center(child: AgentActivityWidget()),
-            ),
+            if (_hasValidLLMConfig)
+              const Positioned(
+                bottom: 164,
+                left: 0,
+                right: 0,
+                child: Center(child: AgentActivityWidget()),
+              ),
 
             if (_isRadialMenuOpen)
               RadialMenu(

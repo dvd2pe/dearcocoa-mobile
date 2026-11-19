@@ -48,6 +48,8 @@ class AppConfig {
     // Aggregators
     LLMConfig.typeOpenRouter,
     LLMConfig.typeOllama,
+    // Fast inference (OpenAI-compatible)
+    LLMConfig.typeGroq,
   ];
 
   static const _cnProviders = [

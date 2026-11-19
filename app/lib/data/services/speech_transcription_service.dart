@@ -126,7 +126,22 @@ class SpeechTranscriptionService {
     List<int> bytes, {
     required String mimeType,
   }) async {
-    final apiKey = await UserStorage.getGroqSpeechApiKey();
+    String apiKey = await UserStorage.getGroqSpeechApiKey();
+    if (apiKey.isEmpty) {
+      // Fallback: reuse the API key of a configured Groq LLM provider
+      // (OpenAI-compatible base url) so one key powers speech + chat.
+      try {
+        final configs = await UserStorage.getLLMConfigs();
+        final groqConfig = configs
+            .where((c) =>
+                c.type == LLMConfig.typeGroq &&
+                c.apiKey.trim().isNotEmpty)
+            .toList();
+        if (groqConfig.isNotEmpty) {
+          apiKey = groqConfig.first.apiKey.trim();
+        }
+      } catch (_) {}
+    }
     if (apiKey.isEmpty) return null;
 
     try {

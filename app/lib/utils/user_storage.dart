@@ -831,6 +831,7 @@ class UserStorage {
       case LLMConfig.typeOpenRouter:
       case LLMConfig.typeOllama:
       case LLMConfig.typeMemex:
+      case LLMConfig.typeGroq:
         client = OpenAIClient(
           apiKey: llmConfig.getEffectiveApiKey(),
           baseUrl: llmConfig.baseUrl,

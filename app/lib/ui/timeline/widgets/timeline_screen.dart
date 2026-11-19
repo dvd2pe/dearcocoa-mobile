@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:dearcocoa/config/app_config.dart';
 import 'package:dearcocoa/domain/models/timeline_card_model.dart';
 import 'package:dearcocoa/db/app_database.dart';
 import 'package:dearcocoa/ui/card_attachments/card_attachment_data.dart';
@@ -20,7 +19,6 @@ import 'package:dearcocoa/ui/core/cards/card_action_notification.dart';
 import 'package:dearcocoa/data/repositories/memex_router.dart';
 import 'package:dearcocoa/ui/timeline/view_models/timeline_viewmodel.dart';
 import 'package:dearcocoa/ui/timeline/widgets/timeline_card_detail_screen.dart';
-import 'package:dearcocoa/ui/timeline/widgets/timeline_model_config_banner.dart';
 import 'package:dearcocoa/ui/settings/widgets/personal_center_screen.dart';
 import 'package:dearcocoa/ui/insight/view_models/insight_viewmodel.dart';
 import 'package:dearcocoa/ui/insight/widgets/insight_screen.dart';
@@ -29,13 +27,10 @@ import 'package:dearcocoa/utils/toast_helper.dart';
 import 'package:dearcocoa/utils/user_storage.dart';
 import 'package:dearcocoa/utils/permission_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dearcocoa/ui/settings/widgets/ai_service_setup_page.dart';
-import 'package:dearcocoa/ui/settings/widgets/model_config_list_page.dart';
 import 'package:dearcocoa/ui/settings/widgets/system_authorization_page.dart';
 import 'package:dearcocoa/ui/core/widgets/agent_logo_loading.dart';
 import 'package:dearcocoa/ui/core/widgets/memex_brand_title.dart';
 import 'package:dearcocoa/ui/core/widgets/character_avatar.dart';
-import 'package:dearcocoa/ui/character/widgets/persona_avatar_button.dart';
 import 'package:dearcocoa/ui/character/view_models/persona_avatar_viewmodel.dart';
 import 'package:dearcocoa/routing/routes.dart';
 import 'package:dearcocoa/ui/core/themes/app_colors.dart';
@@ -342,14 +337,9 @@ class TimelineScreenState extends State<TimelineScreen> {
                             },
                           ),
                         const SizedBox(width: 6),
-                        // Companion character button (next to user avatar)
-                        PersonaAvatarButton(
-                          viewModel: widget.personaAvatarViewModel,
-                          onTap: (character) => context.push(
-                            '${AppRoutes.personaChat}/${character.id}',
-                          ),
-                        ),
-                        const SizedBox(width: 6),
+                        // DearCocoa: the mentor/companion persona button was
+                        // removed from the header on request — persona chat
+                        // stays available from card detail "chat about this".
                         // Avatar button
                         GestureDetector(
                           onTap: () {
@@ -408,18 +398,8 @@ class TimelineScreenState extends State<TimelineScreen> {
               final vm = widget.viewModel;
               return Column(
                 children: [
-            TimelineModelConfigBanner(
-              onConfigureTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AppConfig.enableMemexModelService
-                        ? const AiServiceSetupPage()
-                        : const ModelConfigListPage(),
-                  ),
-                );
-              },
-            ),
+            // DearCocoa: the "model not configured" banner was removed —
+            // AI is optional and must never nag when no key is set.
             if (_showFitnessBanner)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),

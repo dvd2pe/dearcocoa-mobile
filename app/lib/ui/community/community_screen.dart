@@ -14,6 +14,7 @@ import '../../domain/models/social_models.dart';
 import '../user_setup/widgets/demo_login_screen.dart';
 
 import 'community_sheets.dart';
+import 'social_debug_sheet.dart';
 import 'groups_chat_screen.dart';
 
 /// DearCocoa Community: spaces feed + group conversations, rendered with the
@@ -29,6 +30,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   bool _showFeed = true;
   bool _loading = true;
   String? _error;
+  Object? _lastError;
   List<CommunityPost> _posts = [];
   List<GroupInfo> _groups = [];
   RealtimeChannel? _postChannel;
@@ -61,6 +63,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           _groups = groups;
           _loading = false;
           _error = null;
+          _lastError = null;
         });
       }
     } catch (e) {
@@ -68,6 +71,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
         setState(() {
           _loading = false;
           _error = 'Could not reach the community: check your connection.';
+          _lastError = e;
         });
       }
     }
@@ -165,7 +169,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return _ErrorView(message: _error!, onRetry: _load);
+      return _ErrorView(message: _error!, onRetry: _load, lastError: _lastError);
     }
     return RefreshIndicator(
       color: AppColors.primary,
@@ -207,7 +211,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return _ErrorView(message: _error!, onRetry: _load);
+      return _ErrorView(message: _error!, onRetry: _load, lastError: _lastError);
     }
     return RefreshIndicator(
       color: AppColors.primary,
@@ -536,10 +540,15 @@ class _AvatarBubble extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message, required this.onRetry});
+  const _ErrorView({
+    required this.message,
+    required this.onRetry,
+    this.lastError,
+  });
 
   final String message;
   final VoidCallback onRetry;
+  final Object? lastError;
 
   @override
   Widget build(BuildContext context) {
@@ -562,6 +571,14 @@ class _ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(
+              onPressed: () => showSocialDebugSheet(
+                context,
+                area: 'Community',
+                error: lastError,
+              ),
+              child: const Text('Diagnostica'),
+            ),
           ],
         ),
       ),

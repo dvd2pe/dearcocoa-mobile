@@ -83,6 +83,10 @@ Future<Map<String, dynamic>> listPkmDirectory({String? path}) async {
       throw ApiException('User not logged in, cannot access PKM directory');
     }
 
+    // DearCocoa: always make sure the four PARA roots exist so the Library
+    // grid shows usable folders even on a fresh install.
+    await ensureParaRoots();
+
     // Get PKM root
     final pkmRoot = _fileSystemService.getPkmPath(userId);
     final pkmRootDir = Directory(pkmRoot);
@@ -308,4 +312,152 @@ Future<Map<String, dynamic>> readPkmFileEndpoint(String filePath) async {
     _logger.severe('Failed to read PKM file $filePath: $e');
     rethrow;
   }
+}
+
+// ---------------------------------------------------------------------------
+// PARA CRUD (DearCocoa v0.3.3): create / delete / move, usable without AI.
+// ---------------------------------------------------------------------------
+
+/// The four PARA root folders.
+const pkmParaRoots = <String>['Projects', 'Areas', 'Resources', 'Archives'];
+
+/// Validate a single path segment: no separators, traversal or hidden files.
+bool _isValidSegment(String name) {
+  final n = name.trim();
+  return n.isNotEmpty &&
+      n != '.' &&
+      n != '..' &&
+      !n.contains('/') &&
+      !n.contains('\\') &&
+      !n.startsWith('.');
+}
+
+/// Resolve [relPath] under [pkmRoot], refusing traversal outside the PKM root.
+String _resolveSafePkmPath(String pkmRoot, String relPath) {
+  final targetPath = p.normalize(p.join(pkmRoot, relPath));
+  final resolvedTarget = p.absolute(targetPath);
+  final resolvedRoot = p.absolute(pkmRoot);
+  if (!resolvedTarget.startsWith(resolvedRoot)) {
+    throw ApiException('Invalid path: path is not safe');
+  }
+  return resolvedTarget;
+}
+
+/// Create the four PARA root folders (idempotent). Called before every
+/// directory listing so the Library grid is never empty/unusable.
+Future<void> ensureParaRoots() async {
+  try {
+    final userId = await UserStorage.getUserId();
+    if (userId == null) return;
+    final pkmRoot = _fileSystemService.getPkmPath(userId);
+    for (final root in pkmParaRoots) {
+      final dir = Directory(p.join(pkmRoot, root));
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+    }
+  } catch (e) {
+    _logger.warning('ensureParaRoots failed: $e');
+  }
+}
+
+/// Create a folder or a markdown note under [parentPath] (relative to PKM).
+Future<Map<String, dynamic>> createPkmEntry({
+  required String parentPath,
+  required String name,
+  required bool isFolder,
+  String? content,
+}) async {
+  final userId = await UserStorage.getUserId();
+  if (userId == null) {
+    throw ApiException('User not logged in, cannot create PKM entry');
+  }
+  if (!_isValidSegment(name)) {
+    throw ApiException('Invalid name');
+  }
+  final pkmRoot = _fileSystemService.getPkmPath(userId);
+  final parent = _resolveSafePkmPath(pkmRoot, parentPath);
+  final target = p.join(parent, name.trim());
+
+  if (await FileSystemEntity.isDirectory(target) ||
+      await FileSystemEntity.isFile(target)) {
+    throw ApiException('An item with this name already exists');
+  }
+
+  if (isFolder) {
+    await Directory(target).create(recursive: true);
+  } else {
+    final fileName = name.trim().endsWith('.md') ? name.trim() : '${name.trim()}.md';
+    final file = File(p.join(parent, fileName));
+    if (await file.exists()) {
+      throw ApiException('An item with this name already exists');
+    }
+    await file.writeAsString(content ?? '# ${name.trim()}\n');
+  }
+
+  final relative = p.relative(target, from: pkmRoot);
+  _logger.info('Created PKM entry: $relative (folder=$isFolder)');
+  return {'path': relative, 'is_directory': isFolder, 'name': name.trim()};
+}
+
+/// Delete a file or a folder (recursive) inside the PKM.
+/// PARA root folders themselves are protected.
+Future<bool> deletePkmEntry({required String entryPath}) async {
+  final userId = await UserStorage.getUserId();
+  if (userId == null) {
+    throw ApiException('User not logged in, cannot delete PKM entry');
+  }
+  final pkmRoot = _fileSystemService.getPkmPath(userId);
+  final target = _resolveSafePkmPath(pkmRoot, entryPath);
+
+  // Protect the PARA roots themselves.
+  final rel = p.relative(target, from: p.absolute(pkmRoot));
+  if (pkmParaRoots.contains(rel) ||
+      _paraCategoryMapping.values.contains(rel)) {
+    throw ApiException('Cannot delete a PARA root folder');
+  }
+
+  final entity = FileSystemEntity.type(target) == FileSystemEntityType.directory
+      ? Directory(target)
+      : File(target);
+  if (await entity.exists()) {
+    await entity.delete(recursive: true);
+    _logger.info('Deleted PKM entry: $rel');
+    return true;
+  }
+  return false;
+}
+
+/// Move a file/folder to another folder inside the PKM (no overwrite).
+Future<String> movePkmEntry({
+  required String entryPath,
+  required String newParentPath,
+}) async {
+  final userId = await UserStorage.getUserId();
+  if (userId == null) {
+    throw ApiException('User not logged in, cannot move PKM entry');
+  }
+  final pkmRoot = _fileSystemService.getPkmPath(userId);
+  final source = _resolveSafePkmPath(pkmRoot, entryPath);
+  final newParent = _resolveSafePkmPath(pkmRoot, newParentPath);
+
+  final rel = p.relative(source, from: p.absolute(pkmRoot));
+  if (pkmParaRoots.contains(rel)) {
+    throw ApiException('Cannot move a PARA root folder');
+  }
+
+  final target = p.join(newParent, p.basename(source));
+  if (await FileSystemEntity.isDirectory(target) ||
+      await FileSystemEntity.isFile(target)) {
+    throw ApiException('An item with this name already exists in the target');
+  }
+
+  // Source must exist.
+  if (FileSystemEntity.type(source) == FileSystemEntityType.notFound) {
+    throw ApiException('Source entry does not exist');
+  }
+
+  final moved = await source.rename(target);
+  _logger.info('Moved PKM entry $rel → ${p.relative(moved.path, from: pkmRoot)}');
+  return p.relative(moved.path, from: p.absolute(pkmRoot));
 }

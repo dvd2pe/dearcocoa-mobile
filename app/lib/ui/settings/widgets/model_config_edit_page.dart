@@ -565,6 +565,7 @@ class _ModelConfigEditPageState extends State<ModelConfigEditPage>
         _ProviderEntry(LLMConfig.typeMimo, l10n.providerMimo),
         _ProviderEntry(LLMConfig.typeOpenRouter, l10n.providerOpenRouter),
         _ProviderEntry(LLMConfig.typeOllama, l10n.providerOllama),
+        _ProviderEntry(LLMConfig.typeGroq, l10n.providerGroq),
       ],
     };
 
@@ -913,6 +914,7 @@ class _ModelConfigEditPageState extends State<ModelConfigEditPage>
       LLMConfig.typeMinimax => 'minimax',
       LLMConfig.typeOpenRouter => 'openrouter',
       LLMConfig.typeOllama => 'ollama',
+      LLMConfig.typeGroq => 'groq',
       _ => 'custom',
     };
 
