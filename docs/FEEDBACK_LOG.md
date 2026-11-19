@@ -1,8 +1,8 @@
 # Feedback log (richieste del cliente)
 
 Tracciamento persistente di tutte le osservazioni / richieste di prodotto.
-Fonte: messaggio del 20/11/2026 + conversazioni precedenti. Regola: ogni punto
-resta aperto finché il cliente non lo conferma risolto, non solo quando il codice è pronto.
+Fonte: conversazioni 19-20/11/2026. Regola: ogni punto resta aperto finché il
+cliente non lo conferma risolto, non solo quando il codice è pronto.
 
 Stato: `APERTO` = da fare · `IN ANALISI` = decisione di design da prendere · `RISOLTO` = fatto e verificato
 
@@ -17,96 +17,99 @@ Stato: `APERTO` = da fare · `IN ANALISI` = decisione di design da prendere · `
 - Fix v0.3.4: migration `000004_social_profiles_fks.sql` (FK ri-puntate a
   `public.profiles`) + join profili lato client (`fetchProfileNames` in
   `social.dart`) + mapper puri testati. Verificato via REST (query app = 200).
-- Contesto: era già presente il pulsante "Diagnostica" accanto a Retry (v0.3.3).
 
 ---
 
 ## Feedback prodotto del 20/11/2026
 
-### F1 — Card di default in timeline: cosa sono e confusione sul click — IN ANALISI
-- Sintomi osservati dal cliente: card "every record you make" (quote),
-  card "Getting Started" con task, "12 cross record", ecc.
-- **Bug/confusione confermata nel codice**: tutte quelle card sono UNA SOLA
-  entry di benvenuto scritta da `DemoService._writeIntroCard()` (6 uiConfigs:
-  snapshot, snippet, metric "22 Smart Card Types", rating "12 Cross-Record
-  Insight Types", task "Getting Started", quote slogan) attaccate a UN record
-  il cui titolo è `introTitle` = **"DearCocoa - Your AI Life Journal"**.
-  Quindi quando si tocca la task card si apre il dettaglio del record con quel
-  titolo: da qui la domanda del cliente "che c'entra con la todo card?".
-- Decisione da prendere: intro card più leggibili (una card = un record),
-  titolo di contesto, o tutorial esplicativo.
+### F1 — Card di default in timeline: confusione sul click — APERTO (design)
+- Sintomo: tutte le card di benvenuto (quote "every record you make",
+  "Getting Started", "12 Cross-Record Insight Types", "22 Smart Card Types")
+  sono UNA SOLA entry seed (`DemoService._writeIntroCard`) col titolo
+  "DearCocoa - Your AI Life Journal" → il tap su una card apre il dettaglio
+  del record padre e sembra scollegato.
+- Come in Memex: identico (stesse card seed, stesso titolo) — il cliente ha
+  confermato di non voler nascondere nulla, quindi le card restano.
+- Da decidere (prossima iterazione): rendere il contesto leggibile (sottotitolo
+  nel dettaglio / card separate) senza stravolgere Memex.
 
-### F2 — Widget/card ricreabili dall'utente con il "+" — APERTO
-- Motore rendering: **22 template in 5 categorie** (NativeCardFactory):
-  Productivity: task · routine · event · duration · progress
-  Knowledge: article · snippet · quote · link · conversation · procedure
-  Data: metric · rating · transaction · spec_sheet
-  People & Places: person · place · mood · compact
-  Visual: snapshot · gallery · video
-- Percorso di creazione attuale:
-  - "+" con AI configurata → chat Super Agent (può creare qualsiasi template).
-  - "+" SENZA AI → `SimpleNoteComposer` con soli **3 tipi**: Nota (snippet),
-    Task, Rating.
-  - Galleria template (`TimelineTemplateGalleryPage`) è **solo showcase e
-    raggiungibile solo da pagina debug** (Debug settings), non creabile.
-- Richiesta: rendere gli altri template creabili dall'utente (template picker
-  nel "+" o galleria con "usa questo template").
+### F2 — Widget ricreabili dall'utente con il "+" — RISOLTO (v0.3.5)
+- Il "+" ora offre il chip **"More types"** con **20 tipi di card creabili a
+  mano** nelle 5 categorie Memex (task, event, routine, duration, progress,
+  procedure, snippet, article, quote, link, conversation, metric, rating, mood,
+  transaction, spec_sheet, person, place, compact, snapshot, gallery).
+- Form generico per template (`template_composer.dart` + `template_registry.dart`)
+  con campi testo/multiline/numero/stelle/umore/data-foto/ liste/chiave-valore.
+- Galleria template: raggiungibile dall'**header timeline** (icona widget) e con
+  bottone **"Use this template"** nella preview (prima era debug-only, come in
+  Memex; ora va oltre Memex).
+- Esclusa su richiesta la parte AI-related (insight_summary e card cross-record
+  restano generate dall'agente).
+- Nota da Memex originale: lì il "+" apre SEMPRE la chat dell'agente; il composer
+  manuale senza AI è un'aggiunta DearCocoa (v0.3.3, estesa in v0.3.5).
 
-### F3 — Community: cosa ci fa davvero l'utente? — APERTO (design loop)
-- Azioni esistenti (v0.3.4): leggere post dei 5 utenti demo, Like, Commento,
-  pubblicare post di **solo testo**, entrare/uscire dai gruppi, chat di gruppo
-  realtime. Realtime attivo su space_posts e group_messages.
-- Mancanze identificate (da decidere il taglio):
-  1. nessun ponte col contenuto personale: non si può condividere in community
-     una card/record del proprio diario (il cuore dell'app);
-  2. niente profili (tap su autore, lista membri, follow);
-  3. niente notifiche (like/commento/risposta non avvisano nessuno);
-  4. post senza immagini, niente modifica/cancellazione del proprio post;
-  5. gruppi: solo 5 gruppi seed, nessuna creazione gruppo da parte utente;
-  6. niente aggancio event↔group↔post.
-- Richiesta cliente: ragionare come product designer sui loop d'uso, non
-  lasciare la community come "lettura del DB".
+### F3 — Community realistica tra utenti — PARZIALE (v0.3.5), resto APERTO
+- Fatto in v0.3.5:
+  - post con foto (scelta dalla galleria, upload su bucket `post-media`);
+  - profilo autore toccabile dal feed (nome, @username, bio, # post, mese di
+    iscrizione) — `ProfileSheet`;
+  - feed che mostra `media_paths`;
+  - seed v3 realistici su Supabase live: 5 avatar profili, post con foto,
+    like/commenti incrociati tra i 5 utenti, 3° gruppo "Park Run Buddies"
+    con messaggi, evento fisico "Sunrise Park Walk & Coffee" (Villa Borghese,
+    Roma) con 4 RSVP.
+- Resto aperto (prossime iterazioni, da prioritizzare col cliente):
+  1. notifiche (like/commento/risposta) — il loop di ritorno manca ancora;
+  2. condividere una card del diario in community (ponte col contenuto);
+  3. creazione gruppi da parte utente;
+  4. modifica/cancellazione del proprio post.
 
-### F4 — Modifica delle entries in timeline — APERTO (confermato il gap)
-- Stato attuale: **non esiste modifica di titolo/testo/tag** dell'entry.
-- Esiste invece (nascosto): long-press sull'ora → cambia data/ora;
-  long-press sulla località → cambia luogo; cestino → cancella;
-  checkbox dei task card toggle in-place; barra in basso = solo commento.
-- Modifica completa del contenuto solo via AI agent (tool update per fact_id),
-  quindi richiede AI configurata.
-- Richiesta cliente: editing manuale delle entries.
+### F4 — Modifica delle entries in timeline — RISOLTO (v0.3.5)
+- Bottone Modifica (matita) nella barra del dettaglio card: apre sheet con
+  **titolo, testo, tag** modificabili; salvataggio local-first
+  (`safeWriteCardFile` + re-render + `CardUpdatedMessage`) e refresh del dettaglio.
+- Restano i gesti nascosti di Memex: long-press ora/luogo, cestino, checkbox.
+- L'editing completo via agente AI resta disponibile in parallelo.
 
-### F5 — Event card più ricche — APERTO
-- Richiesta: card dettagliate e colorate, immagine in cima, piccoli cerchi con
-  i partecipanti (avatar), supporto a eventi **non solo virtuali**.
-- Stato backend (già pronto, UI non lo usa):
-  - `events.cover_path` esiste + bucket storage `event-covers` (lettura
-    pubblica) — la UI non mostra alcuna cover;
-  - `events.is_virtual` esiste (default true) — la UI scrive hardcoded
-    "· virtual"; manca però una colonna `location`/venue per eventi fisici;
-  - RSVP: status going/interested/cancelled (la UI usa solo going/cancelled;
-    niente avatar partecipanti, solo numero);
-  - il bottone grande "Join this event" nel dettaglio è un **no-op** (fa solo
-    pop della sheet);
-  - nessuna creazione evento da parte utente (solo seed).
-- Categoria enum attuale: wellness / workshop / community / meditation / social.
+### F5 — Event card più ricche — RISOLTO (v0.3.5)
+- Card: **immagine di copertina in cima** (`cover_path` + fallback gradiente
+  per categoria), **cerchietti partecipanti** (fino a 3 avatar iniziali + "+N",
+  con nomi via join client-side), **colori per categoria**
+  (wellness=verde, workshop=indaco, community=rosa, meditation=viola,
+  social=ambra), riga tempo con **Virtual / luogo**.
+- **Eventi fisici**: migration `000005_event_location.sql` (`location` text),
+  UI con icona place; il seed crea il primo evento in presenza.
+- RSVP: **Join/Going + Maybe(interested)** entrambi funzionanti anche nel
+  dettaglio (prima il bottone grande era un no-op che chiudeva la sheet).
+- DB live verificato: 4 eventi con cover, 1 fisico, 5 avatar, 3 post con foto.
 
-### F6 — Projects / Areas / Resources / Archives: a cosa servono — IN ANALISI
-- È il metodo **PARA** (Tiago Forte), replicato dall'app Memex originale:
-  - Projects = note legate a risultati attivi con scadenza (vita breve);
-  - Areas = responsabilità continue della vita (salute, finanze, casa);
-  - Resources = materiale di riferimento per temi/interessi (non azionabile);
-  - Archives = ciò che dei tre sopra non è più attivo (solo consultazione).
-- Perché "sembrano tutte identiche": le pagine interno-cartella usano le stesse
-  card bianche per ogni root; le differenze (colori indigo/emerald/amber/slate
-  e sottotitoli) esistono solo nella griglia iniziale. Contenuti seed quasi
-  nulli (solo DearCocoa Guide.md in Resources).
-- Esiste già CRUD utente senza AI: + (nuova cartella/nota), long-press →
-  sposta verso altra root PARA / elimina.
-- Da decidere: differenziare le 4 root (empty state esplicativi, comportamento
-  AI per archiviazione automatica, badge "attivo/scaduto" per Projects).
+### F6 — Projects/Areas/Resources/Archives (PARA): come funziona in Memex — RISOLTO (risposta, no codice)
+- Verificato sul sorgente originale `memex-lab/memex` (commit base d541b1b5):
+  1. le 4 root PARA sono identiche alle nostre (ereditate);
+  2. **in Memex sono popolate dall'agente AI**: la skill `manage_pkm`
+     ("Organizes user input into P.A.R.A") archivia ogni record nella cartella
+     giusta seguendo `pkmPARAStructureExample` (viaggio, ristrutturazione casa,
+     patente, ricette…);
+  3. la galleria template era debug-only anche in Memex; il "+" in Memex apre
+     sempre l'agente.
+- Perché "sembrano inutili": senza AI configurata le cartelle restano vuote —
+  il valore nasce quando l'AI ci archivia dentro. Con AI on, ogni record finisce
+  anche come nota nella Library.
+- Decisioni possibili (da scegliere): lasciare così (fedeli a Memex, si riempie
+  con AI), oppure aggiungere empty state esplicativi per le 4 root. Nessun
+  cambiamento fatto finché il cliente non sceglie.
 
 ---
+
+## Infrastruttura (20/11/2026)
+- **Repo `dvd2pe/dearcocoa-mobile` reso PUBBLICO** su richiesta: le build
+  GitHub Actions su runner standard (ubuntu) ora sono **gratuite e senza
+  limite minuti**. Scan segreti prima della pubblicazione: nessun secret nel
+  working tree né nella storia (27 commit); solo chiave Supabase publishable
+  (pubblica per design) e credenziali demo volute dal cliente.
+- v0.3.5 (commit 1d48979 + fix seed baeeb85): analyze 0 errori, **1103 test pass**.
+- Migration 000005 + seed v3 **applicati e verificati** sul progetto Supabase live.
+- Build split-per-ABI dispatchata → release v0.3.5-dearcocoa con 3 APK.
 
 ## Regole di lavoro concordate
 - Non chiedere conferme Continue/permessi; lavorare in autonomia.
