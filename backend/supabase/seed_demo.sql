@@ -287,6 +287,7 @@ begin
   select id into u_giulia from auth.users where email = 'giulia@dearcocoa.demo';
   select id into u_marco  from auth.users where email = 'marco@dearcocoa.demo';
   select id into u_elena  from auth.users where email = 'elena@dearcocoa.demo';
+  select id into g_morning from public.groups where name = 'Morning Mindfulness' limit 1;
 
   -- ------------------------------------------------------------ avatar profili
   update public.profiles set avatar_path = 'https://picsum.photos/seed/cocoa-sofia/240/240'  where id = u_sofia  and (avatar_path is null or avatar_path = '');
@@ -341,26 +342,26 @@ begin
   on conflict (group_id, user_id) do nothing;
 
   insert into public.group_messages (group_id, user_id, content, author_name, created_at)
-  select g_walk.id, u_marco.id,
+  select g_walk, u_marco,
       'Saturday plan: 10k easy pace from the north gate, 8:00. Walkers welcome, we loop back.', 'Marco Conti', now() - interval '1 day'
   where not exists (select 1 from public.group_messages m
-      where m.group_id = g_walk.id and m.content like 'Saturday plan:%');
+      where m.group_id = g_walk and m.content like 'Saturday plan:%');
 
   insert into public.group_messages (group_id, user_id, content, author_name, created_at)
-  select g_walk.id, u_elena.id,
+  select g_walk, u_elena,
       'I will join for the walking loop! Bringing the thermos.', 'Elena Moretti', now() - interval '20 hours'
   where not exists (select 1 from public.group_messages m
-      where m.group_id = g_walk.id and m.content like 'I will join for the walking loop%');
+      where m.group_id = g_walk and m.content like 'I will join for the walking loop%');
 
   insert into public.group_messages (group_id, user_id, content, author_name, created_at)
-  select g_morning.id, u_giulia.id,
+  select g_morning, u_giulia,
       'Rainy morning here — did my check-ins with the window open anyway. Ten quiet minutes count double.', 'Giulia Ferrari', now() - interval '10 hours'
   where not exists (select 1 from public.group_messages m
-      where m.group_id = g_morning.id and m.content like 'Rainy morning here%');
+      where m.group_id = g_morning and m.content like 'Rainy morning here%');
 
   -- ------------------------------------------ post con foto (media_paths)
   insert into public.space_posts (user_id, content, media_paths, created_at)
-  select u_marco.id,
+  select u_marco,
       'Morning run done. The park put on a show today.',
       array['https://picsum.photos/seed/cocoa-run/900/600'],
       now() - interval '30 hours'
@@ -368,7 +369,7 @@ begin
       where p.content like 'Morning run done. The park put on a show%');
 
   insert into public.space_posts (user_id, content, media_paths, created_at)
-  select u_sofia.id,
+  select u_sofia,
       'Reset the desk, reset the mind. New notebook day.',
       array['https://picsum.photos/seed/cocoa-desk/900/600'],
       now() - interval '9 hours'
