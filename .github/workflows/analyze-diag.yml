@@ -20,21 +20,35 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Analyze (output salvato nel body della release diag)
+      - name: Analyze + Test (output nel body della release diag)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set +e
           flutter analyze --no-pub > /tmp/analyze.log 2>&1
-          CODE=$?
-          echo "exit=$CODE"
-          BODY="Flutter analyze exit=$CODE — commit ${{ github.sha }}
+          ACODE=$?
+          flutter test --reporter compact > /tmp/test.log 2>&1
+          TCODE=$?
+          echo "analyze=$ACODE test=$TCODE"
 
+          ERRS=$(rg " error • " /tmp/analyze.log | head -30)
+          FAILS=$(rg "^\[E\]|Some tests failed|\[E\]" /tmp/test.log | head -60)
+
+          BODY="Diag commit ${{ github.sha }}
+
+          analyze exit=$ACODE — test exit=$TCODE
+
+          **Errori analyze:**
           \`\`\`
-          $(tail -c 55000 /tmp/analyze.log)
+          ${ERRS:-nessuno}
+          \`\`\`
+
+          **Test falliti:**
+          \`\`\`
+          $(tail -c 45000 /tmp/test.log)
           \`\`\`"
           gh release delete analyze-diag --yes --cleanup-tag 2>/dev/null || true
           gh release create analyze-diag --prerelease \
-            --title "Analyze diag ${{ github.sha }}" \
+            --title "Diag ${{ github.sha }}" \
             --notes "$BODY"
-          exit $CODE
+          if [ "$ACODE" != "0" ] || [ "$TCODE" != "0" ]; then exit 1; fi
