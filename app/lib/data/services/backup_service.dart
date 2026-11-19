@@ -237,7 +237,12 @@ class BackupService {
 
   static bool isSelectableBackupFile(String filePath) {
     final lowerPath = _normalizeFilePath(filePath).toLowerCase();
-    return lowerPath.endsWith('.memex') || lowerPath.endsWith('.zip');
+    // .dearcocoa = formato corrente (createBackup), .memex = legacy pre-rebrand,
+    // .zip = import generico. Senza .dearcocoa qui, l'app rifiuterebbe i suoi
+    // stessi backup appena creati (bug: restore sempre "Invalid backup file").
+    return lowerPath.endsWith(_backupExtension) ||
+        lowerPath.endsWith(_legacyBackupExtension) ||
+        lowerPath.endsWith('.zip');
   }
 
   static bool isMemexBackupFile(String filePath) {

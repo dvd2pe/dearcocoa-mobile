@@ -218,7 +218,7 @@ void main() {
   });
 
   testWidgets(
-      'recommended photo selected through native picker can be deselected by asset ID',
+      'native picker selection renders as attachment thumb and can be deselected',
       (tester) async {
     final original = Completer<Map<String, Object>>();
     final png = base64Decode(
@@ -265,10 +265,14 @@ void main() {
             ],
             initialDraftText: 'keep draft'));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.check_circle));
+    // DearCocoa v0.3.3: the photo-suggestion carousel was removed on purpose.
+    // The selection now renders as SelectedPhotoAttachmentThumb with a remove
+    // button keyed remove-photo-<id> (id = native selection id).
+    expect(find.byIcon(Icons.check_circle), findsNothing);
+    final removeButton = find.byKey(const ValueKey('remove-photo-native-copy'));
+    expect(removeButton, findsOneWidget);
+    await tester.tap(removeButton);
     await tester.pump();
-    expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
     expect(vm.items, isEmpty);
     expect(released, ['native-copy']);
     original.complete(

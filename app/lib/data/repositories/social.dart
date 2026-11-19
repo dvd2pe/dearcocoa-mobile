@@ -10,42 +10,76 @@ import 'package:dearcocoa/domain/models/social_models.dart';
 /// errors so callers can surface friendly toasts.
 String? _uid() => SupabaseService.instance.currentUserId;
 
+/// Best display name from a profile row: display_name, else username, else
+/// [fallback]. Pure function so the mapping is unit-testable.
+String bestProfileName({String? display, String? username, String fallback = 'Cocoa friend'}) {
+  if (display != null && display.isNotEmpty) return display;
+  if (username != null && username.isNotEmpty) return username;
+  return fallback;
+}
+
+/// Bulk-fetch display names for user ids (client-side join).
+///
+/// The profiles lookup is deliberately decoupled from the feed/event queries:
+/// PostgREST can only resolve `profiles` embeds when the FK references
+/// public.profiles, and we never want a profile lookup issue to break the
+/// whole feed. Returns uid -> display name; empty map on any error.
+Future<Map<String, String>> fetchProfileNames(Iterable<String> uids) async {
+  final ids = uids.where((u) => u.isNotEmpty).toSet();
+  if (ids.isEmpty) return {};
+  try {
+    final rows = await SupabaseService.instance.client
+        .from('profiles')
+        .select('id, username, display_name')
+        .inFilter('id', ids.toList());
+    final out = <String, String>{};
+    for (final r in rows) {
+      out[r['id'] as String] = bestProfileName(
+        display: r['display_name'] as String?,
+        username: r['username'] as String?,
+      );
+    }
+    return out;
+  } catch (_) {
+    return {};
+  }
+}
+
+/// Map a space_posts row (without the profiles embed) to CommunityPost.
+CommunityPost communityPostFromRow(
+  Map<String, dynamic> r,
+  Map<String, String> profileNames,
+  String? uid,
+) {
+  final userId = r['user_id'] as String;
+  return CommunityPost(
+    id: r['id'] as String,
+    userId: userId,
+    authorName: profileNames[userId] ?? 'Cocoa friend',
+    content: r['content'] as String,
+    createdAt: DateTime.parse(r['created_at'] as String),
+    likeCount: (r['like_count'] as int?) ?? 0,
+    commentCount: _commentCount(r),
+    likedByMe: _likedByMe(r, uid),
+  );
+}
+
 Future<List<CommunityPost>> fetchCommunityFeed({int limit = 50}) async {
   final uid = _uid();
   final rows = await SupabaseService.instance.client
       .from('space_posts')
       .select('''
         id, user_id, content, created_at, like_count,
-        author_name:profiles!space_posts_user_id_fkey(username),
         comments:post_comments(count),
         likes:post_likes(user_id)
       ''')
       .order('created_at', ascending: false)
       .limit(limit);
+  final names = await fetchProfileNames(
+      rows.map<String>((r) => r['user_id'] as String));
   return [
-    for (final r in rows)
-      CommunityPost(
-        id: r['id'] as String,
-        userId: r['user_id'] as String,
-        authorName: _authorName(r),
-        content: r['content'] as String,
-        createdAt: DateTime.parse(r['created_at'] as String),
-        likeCount: (r['like_count'] as int?) ?? 0,
-        commentCount: _commentCount(r),
-        likedByMe: _likedByMe(r, uid),
-      ),
+    for (final r in rows) communityPostFromRow(r, names, uid),
   ];
-}
-
-String _authorName(Map<String, dynamic> row) {
-  try {
-    final nested = row['author_name'];
-    if (nested is Map && nested['username'] != null) {
-      return nested['username'] as String;
-    }
-    if (nested is String && nested.isNotEmpty) return nested;
-  } catch (_) {}
-  return 'Cocoa friend';
 }
 
 int _commentCount(Map<String, dynamic> row) {
@@ -236,66 +270,65 @@ RealtimeChannel subscribeTable(
 
 // ---------------------------------------------------------------- events
 
+/// Map an events row (without the profiles embed) to EventItem.
+EventItem eventItemFromRow(
+  Map<String, dynamic> r,
+  Map<String, String> profileNames,
+  String? uid,
+) {
+  final createdBy = r['created_by'] as String;
+  return EventItem(
+    id: r['id'] as String,
+    title: r['title'] as String,
+    description: r['description'] as String? ?? '',
+    category: r['category'] as String? ?? 'community',
+    startsAt: DateTime.parse(r['starts_at'] as String).toLocal(),
+    endsAt: r['ends_at'] != null
+        ? DateTime.parse(r['ends_at'] as String).toLocal()
+        : null,
+    capacity: (r['capacity'] as int?) ?? 100,
+    rsvpCount: (r['rsvps'] as List? ?? [])
+        .where((s) => (s as Map)['status'] == 'going')
+        .length,
+    myStatus: uid == null
+        ? null
+        : (r['rsvps'] as List? ?? [])
+            .where((s) => (s as Map)['user_id'] == uid)
+            .cast<Map>()
+            .map<String?>((s) => s['status'] as String?)
+            .firstOrNull,
+    hostName: profileNames[createdBy] ?? 'DearCocoa',
+    meetingUrl: r['meeting_url'] as String?,
+    program: [
+      for (final p in (r['program'] as List? ?? []))
+        EventProgramItem(
+          title: (p as Map)['title'] as String,
+          speaker: p['speaker'] as String? ?? '',
+          description: p['description'] as String? ?? '',
+          startsAt: DateTime.parse(p['starts_at'] as String).toLocal(),
+        ),
+    ],
+  );
+}
+
 Future<List<EventItem>> fetchEvents() async {
   final uid = _uid();
   final rows = await SupabaseService.instance.client
       .from('events')
       .select('''
         id, title, description, category, starts_at, ends_at, capacity,
-        meeting_url, host:profiles!events_created_by_fkey(username),
+        meeting_url, created_by,
         rsvps:event_rsvps(user_id, status),
         program:event_program(title, speaker, description, starts_at, sort)
       ''')
       .gte('starts_at', DateTime.now().toUtc().toIso8601String())
       .order('starts_at', ascending: true)
       .limit(30);
+  final names = await fetchProfileNames(
+      rows.map<String>((r) => r['created_by'] as String));
   return [
-    for (final r in rows)
-      EventItem(
-        id: r['id'] as String,
-        title: r['title'] as String,
-        description: r['description'] as String? ?? '',
-        category: r['category'] as String? ?? 'community',
-        startsAt: DateTime.parse(r['starts_at'] as String).toLocal(),
-        endsAt: r['ends_at'] != null
-            ? DateTime.parse(r['ends_at'] as String).toLocal()
-            : null,
-        capacity: (r['capacity'] as int?) ?? 100,
-        rsvpCount: (r['rsvps'] as List? ?? [])
-            .where((s) => (s as Map)['status'] == 'going')
-            .length,
-        myStatus: uid == null
-            ? null
-            : (r['rsvps'] as List? ?? [])
-                .where((s) => (s as Map)['user_id'] == uid)
-                .cast<Map>()
-                .map<String?>((s) => s['status'] as String?)
-                .firstOrNull,
-        hostName: _hostName(r),
-        meetingUrl: r['meeting_url'] as String?,
-        program: [
-          for (final p in (r['program'] as List? ?? []))
-            EventProgramItem(
-              title: (p as Map)['title'] as String,
-              speaker: p['speaker'] as String? ?? '',
-              description: p['description'] as String? ?? '',
-              startsAt:
-                  DateTime.parse(p['starts_at'] as String).toLocal(),
-            ),
-        ],
-      ),
+    for (final r in rows) eventItemFromRow(r, names, uid),
   ];
-}
-
-String _hostName(Map<String, dynamic> row) {
-  try {
-    final host = row['host'];
-    if (host is Map && host['username'] != null) {
-      return host['username'] as String;
-    }
-    if (host is String && host.isNotEmpty) return host;
-  } catch (_) {}
-  return 'DearCocoa';
 }
 
 Future<void> setRsvp(String eventId, String? status) async {
