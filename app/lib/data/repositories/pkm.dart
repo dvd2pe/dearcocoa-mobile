@@ -453,11 +453,17 @@ Future<String> movePkmEntry({
   }
 
   // Source must exist.
-  if (FileSystemEntity.type(source) == FileSystemEntityType.notFound) {
+  final sourceType = FileSystemEntity.type(source);
+  if (sourceType == FileSystemEntityType.notFound) {
     throw ApiException('Source entry does not exist');
   }
 
-  final moved = await source.rename(target);
+  final FileSystemEntity moved;
+  if (sourceType == FileSystemEntityType.directory) {
+    moved = await Directory(source).rename(target);
+  } else {
+    moved = await File(source).rename(target);
+  }
   _logger.info('Moved PKM entry $rel → ${p.relative(moved.path, from: pkmRoot)}');
   return p.relative(moved.path, from: p.absolute(pkmRoot));
 }

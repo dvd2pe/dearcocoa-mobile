@@ -1,0 +1,40 @@
+name: Analyze diagnostics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.5"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Analyze (output salvato nel body della release diag)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          flutter analyze --no-pub > /tmp/analyze.log 2>&1
+          CODE=$?
+          echo "exit=$CODE"
+          BODY="Flutter analyze exit=$CODE — commit ${{ github.sha }}
+
+          \`\`\`
+          $(tail -c 55000 /tmp/analyze.log)
+          \`\`\`"
+          gh release delete analyze-diag --yes --cleanup-tag 2>/dev/null || true
+          gh release create analyze-diag --prerelease \
+            --title "Analyze diag ${{ github.sha }}" \
+            --notes "$BODY"
+          exit $CODE
