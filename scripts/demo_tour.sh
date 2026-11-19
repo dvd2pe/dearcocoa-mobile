@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-# Tour demo DearCocoa su emulatore: install APK firmato + tap guidati + screencap.
+# Tour demo DearCocoa su emulatore: install APK firmato + sign-in demo + tap + screencap.
 # Chiamato dalla workflow shots.yml (dvd2pe/actions-probe) dopo il boot.
 #
-# Perche' un FILE: android-emulator-runner esegue lo script inline riga per
-# riga in shell separate (variabili e blocchi multi-riga non sopravvivono).
+# NOTE:
+# - android-emulator-runner esegue lo script inline RIGA PER RIGA in shell
+#   separate: per questo il tour e' un FILE bash (variabili/blocchi sopravvivono).
+# - L'app parte su una WELCOME con 5 demo account ("Pick an account to step
+#   right in"): il tap sul primo account entra e mostra la Timeline.
+# - uiautomator non espone i nodi Flutter: tutti i tap usano coordinate
+#   geometriche derivate dal design reale (barra 393dp: Timeline 9.8%,
+#   Community 27.4%, AI 50%, Events 72.6%, Library 91.7%).
 set -uo pipefail
 
 APP_DIR="${GITHUB_WORKSPACE:-$PWD}/app"
@@ -36,7 +42,7 @@ if ! adb shell pm list packages | grep -q "$PKG"; then
 fi
 echo "install OK: $PKG"
 
-# ---- 3) tema chiaro (l'emulatore parte in dark; il promo DearCocoa e' light) ----
+# ---- 3) tema chiaro (il promo DearCocoa e' light) ----
 adb shell cmd uimode night no || true
 sleep 2
 
@@ -64,127 +70,63 @@ for i in $(seq 1 30); do
   fi
 done
 if [ -z "$FG" ]; then
-  echo "ATTENZIONE: app non risulta in primo piano" >&2
+  echo "FATALE: app non risulta in primo piano" >&2
   adb shell dumpsys activity activities 2>/dev/null | grep -i "resumedactivity" || true
+  exit 1
 fi
-sleep 15  # boot interno app (db, onboarding)
+sleep 15  # boot interno app
 
 shot() { adb exec-out screencap -p > "/tmp/shots/$1.png"; }
 
-# helper: centro di un nodo semantico (uiautomator dump) per label
-find_label() {
-  LBL=$1
-  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
-  adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1 || true
-  python3 /tmp/tapfind.py "$LBL" 2>/dev/null || true
-}
-
-cat > /tmp/tapfind.py <<'PYEOF'
-import re, sys
-lbl = sys.argv[1].strip().lower()
-try:
-    xml = open('/tmp/ui.xml', encoding='utf-8', errors='replace').read()
-except OSError:
-    sys.exit(0)
-for tag in re.findall(r'<node\b[^>]*>', xml):
-    if 'bounds="' not in tag:
-        continue
-    vals = []
-    for attr in ('text', 'content-desc'):
-        m = re.search(r'\b' + attr + r'="([^"]*)"', tag)
-        if m:
-            vals.append(m.group(1))
-    if any(v.strip().lower() == lbl for v in vals):
-        b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', tag)
-        if b:
-            x1, y1, x2, y2 = map(int, b.groups())
-            print(f'{(x1 + x2) // 2} {(y1 + y2) // 2}')
-        sys.exit(0)
-PYEOF
-
-tap_label() {
-  LBL=$1; FX=$2; FY=$3
-  XY=$(find_label "$LBL")
-  if [ -n "$XY" ]; then
-    echo "tap '$LBL' -> $XY (semantica)"
-    adb shell input tap $XY || true
-  else
-    echo "tap '$LBL' -> $FX,$FY (geometrico)"
-    adb shell input tap "$FX" "$FY" || true
-  fi
-}
-
-# geometria: densita' per convertire dp -> px
+W=$(adb shell wm size | grep -oE '[0-9]+' | head -1)
+H=$(adb shell wm size | tr -d '\r' | grep -oE '[0-9]+' | tail -1)
 DEN=$(adb shell wm density 2>/dev/null | grep -oE '[0-9]+' | head -1)
 DEN=${DEN:-420}
 DPR=$(( DEN / 160 ))
-
-W=$(adb shell wm size | grep -oE '[0-9]+' | head -1)
-H=$(adb shell wm size | tr -d '\r' | grep -oE '[0-9]+' | tail -1)
 echo "screen: ${W}x${H} density: $DEN (dpr $DPR)"
 
-# ---- 01-02 avvio + timeline ----
-shot 01_timeline_avvio
-sleep 5
-shot 02_timeline
+BAR_Y=$(( H - H * 8 / 100 ))            # riga tab della barra (5 zone)
+AI_Y=$(( H - H * 14 / 100 ))            # centro bottone AI (elevato sopra la barra)
 
-# centro del bottone AI: ~40dp sopra il centro del tab Timeline (design 88dp,
-# cerchio 68dp, top -16 rispetto alla barra). Fallback: 14% dal fondo.
-AI_X=$(( W / 2 ))
-TY=$(find_label "Timeline")
-if [ -n "$TY" ]; then
-  TYY=$(echo "$TY" | awk '{print $2}')
-  AI_Y=$(( TYY - 40 * DPR ))
-  echo "AI center da semantica: $AI_X,$AI_Y"
-else
-  AI_Y=$(( H - H * 14 / 100 ))
-  echo "AI center geometrico: $AI_X,$AI_Y"
-fi
-
-# ---- 03 menu radiale (pulsante AI centrale) ----
-adb shell input tap "$AI_X" "$AI_Y" || true
+# ---- 01 welcome reale (5 demo account) ----
+shot 01_benvenuto
 sleep 3
-shot 03_menu_radiale
-adb shell input keyevent 4 || true
-sleep 2
 
-# ---- 04-06 tab Community (gate demo login) e ritorno timeline ----
-tap_label "Community" $(( W * 32 / 100 )) $(( H - H * 8 / 100 ))
-sleep 6
-shot 04_community
-adb shell input tap $(( W / 2 )) $(( H * 28 / 100 )) || true
-sleep 8
-shot 05_dopo_login_demo
-tap_label "Timeline" $(( W * 8 / 100 )) $(( H - H * 8 / 100 ))
+# ---- 02 sign-in col primo demo account (riga alta della lista) ----
+adb shell input tap $(( W / 2 )) $(( H * 22 / 100 )) || true
+sleep 12
+shot 02_dopo_signin
+
+# ---- 03 timeline ----
 sleep 5
-shot 06_timeline_loggato
+shot 03_timeline
 
-# ---- 07 tab Events ----
-tap_label "Events" $(( W * 68 / 100 )) $(( H - H * 8 / 100 ))
-sleep 6
-shot 07_events
-
-# ---- 08 tab Library ----
-tap_label "Library" $(( W * 92 / 100 )) $(( H - H * 8 / 100 ))
-sleep 6
-shot 08_library
-
-# ---- 09-10 esplorazione header timeline ----
-tap_label "Timeline" $(( W * 8 / 100 )) $(( H - H * 8 / 100 ))
-sleep 4
-adb shell input tap $(( W - W * 22 / 100 )) $(( H * 17 / 100 )) || true
-sleep 4
-shot 09_header_tap_1
-adb shell input tap $(( W - W * 10 / 100 )) $(( H * 17 / 100 )) || true
-sleep 4
-shot 10_header_tap_2
+# ---- 04 menu radiale (pulsante AI centrale) ----
+adb shell input tap $(( W / 2 )) "$AI_Y" || true
+sleep 3
+shot 04_menu_radiale
 adb shell input keyevent 4 || true
 sleep 2
 
-# ---- 11 community come ultimo stato ----
-tap_label "Community" $(( W * 32 / 100 )) $(( H - H * 8 / 100 ))
+# ---- 05 tab Community ----
+adb shell input tap $(( W * 27 / 100 )) "$BAR_Y" || true
+sleep 6
+shot 05_community
+
+# ---- 06 tab Events ----
+adb shell input tap $(( W * 73 / 100 )) "$BAR_Y" || true
+sleep 6
+shot 06_events
+
+# ---- 07 tab Library ----
+adb shell input tap $(( W * 92 / 100 )) "$BAR_Y" || true
+sleep 6
+shot 07_library
+
+# ---- 08 timeline finale ----
+adb shell input tap $(( W * 10 / 100 )) "$BAR_Y" || true
 sleep 4
-shot 11_ultimo_tab
+shot 08_timeline_finale
 
 echo "== shots generati =="
 ls -lh /tmp/shots
