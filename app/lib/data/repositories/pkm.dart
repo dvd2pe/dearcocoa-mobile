@@ -417,7 +417,8 @@ Future<bool> deletePkmEntry({required String entryPath}) async {
     throw ApiException('Cannot delete a PARA root folder');
   }
 
-  final entity = FileSystemEntity.type(target) == FileSystemEntityType.directory
+  final targetType = await FileSystemEntity.type(target);
+  final entity = targetType == FileSystemEntityType.directory
       ? Directory(target)
       : File(target);
   if (await entity.exists()) {
@@ -453,7 +454,7 @@ Future<String> movePkmEntry({
   }
 
   // Source must exist.
-  final sourceType = FileSystemEntity.type(source);
+  final sourceType = await FileSystemEntity.type(source);
   if (sourceType == FileSystemEntityType.notFound) {
     throw ApiException('Source entry does not exist');
   }
